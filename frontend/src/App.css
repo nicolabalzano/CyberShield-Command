@@ -1,0 +1,53 @@
+.app {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, #1a0f35 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--secondary);
+  box-shadow: 0 8px 32px rgba(255, 0, 110, 0.2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-primary {
+  background-color: var(--primary);
+  color: var(--dark-bg);
+}
+
+.badge-success {
+  background-color: var(--success);
+  color: var(--dark-bg);
+}
+
+.badge-danger {
+  background-color: var(--danger);
+  color: white;
+}

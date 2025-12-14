@@ -1,0 +1,10 @@
+# .dockerignore per frontend
+node_modules
+npm-debug.log
+dist
+.vite
+.git
+.gitignore
+README.md
+.env
+.env.local
