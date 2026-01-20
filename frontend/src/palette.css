@@ -1,0 +1,18 @@
+:root {
+    /* Cybersecurity / Dark Theme Palette */
+    
+    /* Backgrounds */
+    --color-cyber-black: #0a0e17;      /* Main background */
+    --color-cyber-dark-gray: #111827;  /* Cards / Surfaces */
+    --color-cyber-light-gray: #1f2937; /* Hoovers / Inputs */
+
+    /* Accents */
+    --color-cyber-green: #00ff41;      /* Primary Action / Success */
+    --color-cyber-neon-blue: #00f3ff;  /* Secondary / Info */
+    --color-cyber-alert-red: #ff3333;  /* Errors / Attacks */
+    --color-cyber-warning: #ffbf00;    /* Warnings */
+
+    /* Typography */
+    --color-cyber-text-primary: #e5e7eb;
+    --color-cyber-text-secondary: #9ca3af;
+}
