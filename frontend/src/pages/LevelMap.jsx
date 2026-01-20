@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAudio } from '../contexts/AudioContext';
 import { translations } from '../translations';
+import whiteHatStar from '../assets/white_hat_star.png';
 import '../palette.css';
 import './LevelMap.css';
 
@@ -61,7 +62,23 @@ function LevelMap() {
   };
 
   const renderStars = (count) => {
-    return '★'.repeat(count) + '☆'.repeat(3 - count);
+    return (
+      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+        {[...Array(3)].map((_, index) => (
+          <img 
+            key={index}
+            src={whiteHatStar}
+            alt="star"
+            style={{
+              width: '20px',
+              height: '20px',
+              opacity: index < count ? 1 : 0.3,
+              filter: index < count ? 'drop-shadow(0 0 5px rgba(255,255,255,0.7))' : 'none'
+            }}
+          />
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -71,7 +88,15 @@ function LevelMap() {
       </button>
 
       <div className="stars-counter-top">
-        <span className="star-icon">⭐</span>
+        <img 
+          src={whiteHatStar} 
+          alt="star" 
+          style={{ 
+            width: '30px', 
+            height: '30px',
+            filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.7))'
+          }} 
+        />
         <span className="stars-text">{totalStars} / 27</span>
       </div>
 
