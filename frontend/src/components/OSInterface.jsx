@@ -3,11 +3,29 @@ import EmailClient from './EmailClient';
 import Terminal from './Terminal';
 import Browser from './Browser';
 import FileManager from './FileManager';
+import SIEMSystem from './SIEMSystem';
 
 const OSInterface = ({ children, onEmailAction, onHintClick, showHintButton = false }) => {
     const [time, setTime] = useState(new Date().toLocaleTimeString());
     const [windows, setWindows] = useState([]);
     const [nextWindowId, setNextWindowId] = useState(1);
+    
+    // Dati SIEM di esempio (come nel tutorial)
+    const [siemLogs] = useState([
+        { id: 1, time: '10:23:45', type: 'INFO', source: 'WebServer-01', message: 'User login successful: admin@company.com', severity: 'low', threat: false, protocol: 'HTTPS', bytes: 1024 },
+        { id: 2, time: '10:24:12', type: 'WARNING', source: 'Firewall-01', message: 'Multiple connection attempts from 192.168.1.105', severity: 'medium', threat: false, protocol: 'SSH', bytes: 512 },
+        { id: 3, time: '10:24:58', type: 'ERROR', source: 'Database-01', message: 'Failed login attempt from 203.0.113.42', severity: 'high', threat: false, protocol: 'HTTP', bytes: 2048 },
+        { id: 4, time: '10:25:33', type: 'CRITICAL', source: 'IDS-Scanner', message: 'SQL Injection attempt detected from 203.0.113.42', severity: 'critical', threat: true, protocol: 'HTTP', bytes: 4096 }
+    ]);
+    const [siemTrafficHistory] = useState([
+        { time: 0, incoming: 3.5, outgoing: 1.2 },
+        { time: 1, incoming: 3.8, outgoing: 1.3 },
+        { time: 2, incoming: 4.1, outgoing: 1.4 },
+        { time: 3, incoming: 4.3, outgoing: 1.5 },
+        { time: 4, incoming: 4.8, outgoing: 1.6 }
+    ]);
+    const [siemNetworkTraffic] = useState({ incoming: 4.8, outgoing: 1.6 });
+    const [siemProtocols] = useState({ http: 2, https: 1, ssh: 1, ftp: 0 });
 
     // Aggiorna l'ora ogni secondo
     React.useEffect(() => {
@@ -102,6 +120,11 @@ const OSInterface = ({ children, onEmailAction, onHintClick, showHintButton = fa
                         label="CyberNav" 
                         onClick={() => openWindow('CyberNav Browser', 'browser', { width: 500, height: 350 })}
                     />
+                    <DesktopIcon 
+                        icon="🛡️" 
+                        label="SIEM" 
+                        onClick={() => openWindow('SIEM System', 'siem', { width: 700, height: 500 })}
+                    />
                 </div>
 
                 {/* Custom Content Area */}
@@ -118,6 +141,10 @@ const OSInterface = ({ children, onEmailAction, onHintClick, showHintButton = fa
                             onMaximize={() => maximizeWindow(window.id)}
                             onFocus={() => bringToFront(window.id)}
                             onEmailAction={onEmailAction}
+                            siemLogs={siemLogs}
+                            siemTrafficHistory={siemTrafficHistory}
+                            siemNetworkTraffic={siemNetworkTraffic}
+                            siemProtocols={siemProtocols}
                         />
                     )
                 ))}
@@ -170,7 +197,7 @@ const DesktopIcon = ({ icon, label, onClick }) => (
 );
 
 // Window Component
-const Window = ({ window: windowData, onClose, onMinimize, onMaximize, onFocus, onEmailAction }) => {
+const Window = ({ window: windowData, onClose, onMinimize, onMaximize, onFocus, onEmailAction, siemLogs, siemTrafficHistory, siemNetworkTraffic, siemProtocols }) => {
     const [position, setPosition] = useState(windowData.position);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -266,6 +293,18 @@ const Window = ({ window: windowData, onClose, onMinimize, onMaximize, onFocus, 
                 {windowData.contentType === 'files' && <FileManager />}
                 {windowData.contentType === 'terminal' && <Terminal />}
                 {windowData.contentType === 'browser' && <Browser />}
+                {windowData.contentType === 'siem' && (
+                    <SIEMSystem 
+                        logs={siemLogs || []}
+                        blockedIPs={1}
+                        currentStep={0}
+                        trafficHistory={siemTrafficHistory || []}
+                        networkTraffic={siemNetworkTraffic || { incoming: 0, outgoing: 0 }}
+                        protocols={siemProtocols || { http: 0, https: 0, ssh: 0, ftp: 0 }}
+                        selectedLog={null}
+                        onLogClick={() => {}}
+                    />
+                )}
             </div>
         </div>
     );
