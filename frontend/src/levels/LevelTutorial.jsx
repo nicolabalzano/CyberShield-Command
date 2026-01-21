@@ -24,6 +24,7 @@ const LevelTutorial = () => {
     const [networkTraffic, setNetworkTraffic] = useState({ incoming: 0, outgoing: 0 });
     const [protocols, setProtocols] = useState({ http: 0, https: 0, ssh: 0, ftp: 0 });
     const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [trafficHistory, setTrafficHistory] = useState([
         { time: 0, incoming: 3.5, outgoing: 1.2 },
         { time: 1, incoming: 3.8, outgoing: 1.3 },
@@ -101,8 +102,16 @@ const LevelTutorial = () => {
 
     const handleAnalyze = () => {
         if (selectedLog && selectedLog.threat && currentStep === 1) {
-            setCurrentStep(2);
-            earnStar();
+            setShowAnalysisModal(false); // Chiudi il modal principale
+            setIsAnalyzing(true);
+            setTimeout(() => {
+                setCurrentStep(2);
+                earnStar();
+                setTimeout(() => {
+                    setIsAnalyzing(false);
+                    setShowAnalysisModal(true); // Riapri il modal principale
+                }, 2000); // Mostra il messaggio di completamento per 2 secondi
+            }, 3000); // 3 secondi di caricamento
         }
     };
 
@@ -113,9 +122,6 @@ const LevelTutorial = () => {
             setBlockedIPs(1);
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setCompleted(true);
-            setTimeout(() => {
-                navigate('/map');
-            }, 5000);
         }
     };
 
@@ -150,32 +156,27 @@ const LevelTutorial = () => {
             hint={showHint ? <InfoPanel text={getHintText()} /> : null}
             musicTrack="/background-music.mp3"
         >
-            <div className="relative flex flex-col h-full font-mono text-cyber-green p-2">
+            <div className="relative flex flex-col h-full w-full p-2">
                 {/* Header */}
-                <div className="border-b border-cyber-green/30 pb-1 mb-2">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h2 className="text-xl font-bold text-cyber-blue">{t.title}</h2>
-                            <p className="text-xs text-cyber-green/70">{t.subtitle}</p>
-                        </div>
-                        {/* Progress Indicator */}
-                        <div className="flex items-center gap-2">
-                            <div className="text-xs text-cyber-blue font-bold">Step {Math.min(currentStep + 1, 3)}/3</div>
-                            <div className="flex gap-1">
-                                {[0, 1, 2].map(step => (
-                                    <div 
-                                        key={step}
-                                        className={`w-2 h-2 rounded-full transition-all ${
-                                            step <= currentStep ? 'bg-cyber-blue' : 'bg-cyber-green/30'
-                                        }`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                <div className="flex justify-between items-center border-b border-cyber-green/30 pb-2 mb-2">
+                    <h2 className="text-xl font-bold text-cyber-green">{t.title}</h2>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => setShowHint(!showHint)}
+                            className="px-3 py-1 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/20 text-xs rounded transition-all"
+                        >
+                            [ HINT ]
+                        </button>
+                        <button 
+                            onClick={() => navigate('/map')}
+                            className="px-3 py-1 border border-cyber-red text-cyber-red hover:bg-cyber-red/20 text-xs rounded transition-all"
+                        >
+                            [ ABORT ]
+                        </button>
                     </div>
                 </div>
 
-                {/* SIEM Dashboard - Modern Layout */}
+                {/* SIEM Dashboard */}
                 <SIEMSystem 
                     logs={logs}
                     blockedIPs={blockedIPs}
@@ -190,88 +191,84 @@ const LevelTutorial = () => {
                 {/* Analysis Modal */}
                 {showAnalysisModal && selectedLog && (
                     <div className="absolute inset-0 bg-cyber-black/80 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowAnalysisModal(false)}>
-                        <div className="bg-gradient-to-br from-cyber-black to-cyber-deep-blue border-2 border-cyber-blue rounded-lg p-4 max-w-2xl w-full mx-4 shadow-2xl shadow-cyber-blue/30" onClick={e => e.stopPropagation()}>
+                        <div className="bg-gradient-to-br from-cyber-black to-cyber-deep-blue border border-cyber-blue rounded p-1.5 max-w-md w-full mx-4 shadow-2xl shadow-cyber-blue/30" onClick={e => e.stopPropagation()}>
                             {/* Modal Header */}
-                            <div className="flex justify-between items-start mb-3 pb-2 border-b border-cyber-blue/30">
+                            <div className="flex justify-between items-start mb-1 pb-1 border-b border-cyber-blue/30">
                                 <div>
-                                    <h3 className="text-lg font-bold text-cyber-blue flex items-center gap-2">
+                                    <h3 className="text-xs font-bold text-cyber-blue flex items-center gap-1">
                                         <span>🔍</span> EVENT ANALYSIS
                                     </h3>
-                                    <p className="text-[9px] text-cyber-green/70 mt-0.5">Detailed threat intelligence report</p>
                                 </div>
                                 <button 
                                     onClick={() => setShowAnalysisModal(false)}
-                                    className="text-cyber-red hover:text-red-400 text-xl font-bold transition-colors"
+                                    className="text-cyber-red hover:text-red-400 text-sm font-bold transition-colors"
                                 >
                                     ✕
                                 </button>
                             </div>
                             
                             {/* Modal Content */}
-                            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                            <div className="space-y-1.5">
                                 {/* Event Details Grid */}
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="bg-cyber-black/40 border border-cyan-500/30 rounded p-2">
-                                        <div className="text-[8px] text-cyan-400/70 mb-1">TIMESTAMP</div>
-                                        <div className="text-sm text-cyan-300 font-bold">{selectedLog.time}</div>
+                                <div className="grid grid-cols-2 gap-1">
+                                    <div className="bg-cyber-black/40 border border-cyan-500/30 rounded p-1">
+                                        <div className="text-[6px] text-cyan-400/70">TIMESTAMP</div>
+                                        <div className="text-[9px] text-cyan-300 font-bold">{selectedLog.time}</div>
                                     </div>
-                                    <div className="bg-cyber-black/40 border border-purple-500/30 rounded p-2">
-                                        <div className="text-[8px] text-purple-400/70 mb-1">EVENT TYPE</div>
-                                        <div className="text-sm text-purple-300 font-bold">{selectedLog.type}</div>
+                                    <div className="bg-cyber-black/40 border border-purple-500/30 rounded p-1">
+                                        <div className="text-[6px] text-purple-400/70">TYPE</div>
+                                        <div className="text-[9px] text-purple-300 font-bold">{selectedLog.type}</div>
                                     </div>
-                                    <div className="bg-cyber-black/40 border border-yellow-500/30 rounded p-2">
-                                        <div className="text-[8px] text-yellow-400/70 mb-1">SOURCE SYSTEM</div>
-                                        <div className="text-sm text-yellow-300 font-bold">{selectedLog.source}</div>
+                                    <div className="bg-cyber-black/40 border border-yellow-500/30 rounded p-1">
+                                        <div className="text-[6px] text-yellow-400/70">SOURCE</div>
+                                        <div className="text-[9px] text-yellow-300 font-bold">{selectedLog.source}</div>
                                     </div>
-                                    <div className="bg-cyber-black/40 border border-orange-500/30 rounded p-2">
-                                        <div className="text-[8px] text-orange-400/70 mb-1">SEVERITY LEVEL</div>
-                                        <div className={`text-sm font-bold ${getSeverityColor(selectedLog.severity)}`}>{selectedLog.severity.toUpperCase()}</div>
+                                    <div className="bg-cyber-black/40 border border-orange-500/30 rounded p-1">
+                                        <div className="text-[6px] text-orange-400/70">SEVERITY</div>
+                                        <div className={`text-[9px] font-bold ${getSeverityColor(selectedLog.severity)}`}>{selectedLog.severity.toUpperCase()}</div>
                                     </div>
                                 </div>
                                 
                                 {/* Threat Assessment */}
-                                <div className={`border rounded p-3 ${selectedLog.threat ? 'bg-red-900/20 border-red-500/50' : 'bg-green-900/20 border-green-500/50'}`}>
-                                    <div className="text-[9px] font-bold mb-2 flex items-center gap-1">
-                                        {selectedLog.threat ? <span>⚠️ THREAT DETECTED</span> : <span>✅ NO THREAT DETECTED</span>}
-                                    </div>
-                                    <div className={`text-xs ${selectedLog.threat ? 'text-red-300' : 'text-green-300'}`}>
-                                        {selectedLog.threat ? 'This event has been flagged as a security threat. Immediate action required.' : 'This event appears to be benign. Continue monitoring for unusual patterns.'}
+                                <div className={`border rounded p-1 ${selectedLog.threat ? 'bg-red-900/20 border-red-500/50' : 'bg-green-900/20 border-green-500/50'}`}>
+                                    <div className={`text-[7px] font-bold flex items-center gap-1 ${selectedLog.threat ? 'text-red-400' : 'text-green-400'}`}>
+                                        {selectedLog.threat ? <span>⚠️ THREAT DETECTED</span> : <span>✅ NO THREAT</span>}
                                     </div>
                                 </div>
                                 
                                 {/* Event Message */}
-                                <div className="bg-cyber-black/60 border border-cyber-green/30 rounded p-2">
-                                    <div className="text-[8px] text-cyber-green/70 mb-1 font-bold">EVENT MESSAGE</div>
-                                    <div className="text-[10px] text-cyber-green font-mono leading-relaxed">{selectedLog.message}</div>
+                                <div className="bg-cyber-black/60 border border-cyber-green/30 rounded p-1">
+                                    <div className="text-[6px] text-cyber-green/70 font-bold">MESSAGE</div>
+                                    <div className="text-[8px] text-cyber-green font-mono leading-snug">{selectedLog.message}</div>
                                 </div>
                                 
                                 {/* Educational Info */}
                                 {selectedLog.threat && (
-                                    <div className="bg-yellow-900/20 border border-yellow-500/50 rounded p-3">
-                                        <div className="text-[9px] font-bold text-yellow-400 mb-2 flex items-center gap-1">
-                                            <span>💡</span> THREAT INTELLIGENCE: SQL INJECTION
+                                    <div className="bg-yellow-900/20 border border-yellow-500/50 rounded p-1">
+                                        <div className="text-[7px] font-bold text-yellow-400 flex items-center gap-1">
+                                            <span>💡</span> SQL INJECTION
                                         </div>
-                                        <div className="text-[9px] text-yellow-300/90 leading-relaxed">
+                                        <div className="text-[7px] text-yellow-300/90 leading-tight mt-0.5">
                                             {language === 'italiano' 
-                                                ? 'Un attacco SQL Injection sfrutta vulnerabilità nelle query SQL per accedere o modificare il database. L\'attaccante inserisce codice SQL malevolo attraverso input non validati. Questi attacchi possono portare a furto di dati, modifica non autorizzata o cancellazione completa del database.'
+                                                ? 'Attacco che sfrutta vulnerabilità SQL per accedere/modificare il database inserendo codice malevolo.'
                                                 : language === 'francais'
-                                                ? 'Une attaque par injection SQL exploite les vulnérabilités des requêtes SQL pour accéder ou modifier la base de données. L\'attaquant insère du code SQL malveillant via des entrées non validées. Ces attaques peuvent conduire au vol de données, à des modifications non autorisées ou à la suppression complète de la base de données.'
+                                                ? 'Attaque exploitant des vulnérabilités SQL pour accéder/modifier la base de données.'
                                                 : language === 'deutsch'
-                                                ? 'Ein SQL-Injection-Angriff nutzt Schwachstellen in SQL-Abfragen aus, um auf die Datenbank zuzugreifen oder sie zu ändern. Der Angreifer fügt bösartigen SQL-Code über nicht validierte Eingaben ein. Diese Angriffe können zu Datendiebstahl, unbefugten Änderungen oder vollständiger Löschung der Datenbank führen.'
+                                                ? 'Angriff der SQL-Schwachstellen ausnutzt um auf die Datenbank zuzugreifen.'
                                                 : language === 'espanol'
-                                                ? 'Un ataque de inyección SQL explota vulnerabilidades en consultas SQL para acceder o modificar la base de datos. El atacante inserta código SQL malicioso a través de entradas no validadas. Estos ataques pueden llevar al robo de datos, modificaciones no autorizadas o eliminación completa de la base de datos.'
-                                                : 'An SQL Injection attack exploits vulnerabilities in SQL queries to access or modify the database. The attacker inserts malicious SQL code through unvalidated inputs. These attacks can lead to data theft, unauthorized modifications, or complete database deletion.'}
+                                                ? 'Ataque que explota vulnerabilidades SQL para acceder/modificar la base de datos.'
+                                                : 'Attack exploiting SQL vulnerabilities to access/modify the database.'}
                                         </div>
                                     </div>
                                 )}
                                 
                                 {/* Action Buttons */}
-                                <div className="grid grid-cols-2 gap-2 pt-2">
+                                <div className="grid grid-cols-2 gap-1 pt-1">
                                     <button 
                                         onClick={handleAnalyze}
-                                        disabled={currentStep < 1 || currentStep > 1 || !selectedLog?.threat}
-                                        className={`px-4 py-2 border text-xs font-bold transition-all rounded ${
-                                            currentStep > 1 
+                                        disabled={currentStep < 1 || currentStep > 1 || !selectedLog?.threat || isAnalyzing}
+                                        className={`px-2 py-1 border text-[9px] font-bold transition-all rounded ${
+                                            currentStep > 1 || isAnalyzing
                                                 ? 'border-cyber-green/20 text-cyber-green/30 cursor-not-allowed bg-cyber-black/20'
                                                 : currentStep === 1 && selectedLog?.threat
                                                     ? 'border-cyber-blue hover:bg-cyber-blue/30 text-cyber-blue shadow-lg shadow-cyber-blue/20'
@@ -282,8 +279,8 @@ const LevelTutorial = () => {
                                     </button>
                                     <button 
                                         onClick={handleBlock}
-                                        disabled={currentStep < 2 || currentStep > 2 || !selectedLog?.threat}
-                                        className={`px-4 py-2 border text-xs font-bold transition-all rounded ${
+                                        disabled={currentStep < 2 || currentStep > 2 || !selectedLog?.threat || isAnalyzing}
+                                        className={`px-2 py-1 border text-[9px] font-bold transition-all rounded ${
                                             currentStep > 2 
                                                 ? 'border-cyber-green/20 text-cyber-green/30 cursor-not-allowed bg-cyber-black/20'
                                                 : currentStep === 2 && selectedLog?.threat
@@ -295,6 +292,87 @@ const LevelTutorial = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Analysis Loading Modal */}
+                {isAnalyzing && (
+                    <div className="absolute inset-0 bg-cyber-black/90 backdrop-blur-md flex items-center justify-center z-[150]">
+                        <div className="bg-gradient-to-br from-cyber-black to-cyber-deep-blue border-2 border-cyber-blue rounded-lg p-6 max-w-lg w-full mx-4 shadow-2xl shadow-cyber-blue/50">
+                            {currentStep < 2 ? (
+                                // Fase di caricamento
+                                <div className="text-center">
+                                    <div className="text-4xl mb-4 animate-spin inline-block">⚙️</div>
+                                    <h3 className="text-lg font-bold text-cyber-blue mb-4">
+                                        {language === 'italiano' ? 'ANALISI IN CORSO...' : 
+                                         language === 'francais' ? 'ANALYSE EN COURS...' :
+                                         language === 'deutsch' ? 'ANALYSE LÄUFT...' :
+                                         language === 'espanol' ? 'ANÁLISIS EN CURSO...' : 'ANALYZING THREAT...'}
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div className="text-left">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-xs text-cyber-blue">
+                                                    {language === 'italiano' ? 'Scansione pattern di attacco' : 
+                                                     language === 'francais' ? 'Analyse des motifs d\'attaque' :
+                                                     language === 'deutsch' ? 'Angriffsmuster scannen' :
+                                                     language === 'espanol' ? 'Escaneando patrones de ataque' : 'Scanning attack patterns'}
+                                                </span>
+                                                <span className="text-xs text-cyber-blue/70">33%</span>
+                                            </div>
+                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
+                                                <div className="h-full bg-gradient-to-r from-cyber-blue to-cyan-400 animate-pulse" style={{width: '33%'}}></div>
+                                            </div>
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-xs text-cyan-400">
+                                                    {language === 'italiano' ? 'Correlazione eventi di sicurezza' : 
+                                                     language === 'francais' ? 'Corrélation des événements' :
+                                                     language === 'deutsch' ? 'Ereignisse korrelieren' :
+                                                     language === 'espanol' ? 'Correlacionando eventos' : 'Correlating security events'}
+                                                </span>
+                                                <span className="text-xs text-cyan-400/70">66%</span>
+                                            </div>
+                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
+                                                <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-400 animate-pulse" style={{width: '66%', animationDelay: '0.3s'}}></div>
+                                            </div>
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-xs text-green-400">
+                                                    {language === 'italiano' ? 'Generazione report di sicurezza' : 
+                                                     language === 'francais' ? 'Génération du rapport' :
+                                                     language === 'deutsch' ? 'Bericht erstellen' :
+                                                     language === 'espanol' ? 'Generando informe' : 'Generating security report'}
+                                                </span>
+                                                <span className="text-xs text-green-400/70">90%</span>
+                                            </div>
+                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
+                                                <div className="h-full bg-gradient-to-r from-green-400 to-emerald-400 animate-pulse" style={{width: '90%', animationDelay: '0.6s'}}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                // Analisi completata
+                                <div className="text-center">
+                                    <div className="text-5xl mb-4 text-green-400">✓</div>
+                                    <h3 className="text-xl font-bold text-green-400 mb-2">
+                                        {language === 'italiano' ? 'ANALISI COMPLETATA' : 
+                                         language === 'francais' ? 'ANALYSE TERMINÉE' :
+                                         language === 'deutsch' ? 'ANALYSE ABGESCHLOSSEN' :
+                                         language === 'espanol' ? 'ANÁLISIS COMPLETADO' : 'ANALYSIS COMPLETE'}
+                                    </h3>
+                                    <p className="text-sm text-cyber-green/70">
+                                        {language === 'italiano' ? 'Minaccia SQL Injection confermata. Procedere con il blocco dell\'IP.' : 
+                                         language === 'francais' ? 'Menace d\'injection SQL confirmée. Procéder au blocage de l\'IP.' :
+                                         language === 'deutsch' ? 'SQL-Injection-Bedrohung bestätigt. Fahren Sie mit der IP-Sperrung fort.' :
+                                         language === 'espanol' ? 'Amenaza de inyección SQL confirmada. Proceder con el bloqueo de IP.' : 'SQL Injection threat confirmed. Proceed with IP blocking.'}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -366,27 +444,20 @@ const LevelTutorial = () => {
                                     </div>
                                 </div>
                             </div>
+                            
+                            {/* Continue Button */}
+                            <button 
+                                onClick={() => navigate('/map')}
+                                className="mt-4 px-6 py-2 border-2 border-cyber-green bg-cyber-green/10 hover:bg-cyber-green/30 text-cyber-green font-bold text-sm rounded transition-all shadow-lg shadow-cyber-green/20"
+                            >
+                                {language === 'italiano' ? 'PROSEGUI' : 
+                                 language === 'francais' ? 'CONTINUER' :
+                                 language === 'deutsch' ? 'WEITER' :
+                                 language === 'espanol' ? 'CONTINUAR' : 'CONTINUE'}
+                            </button>
                         </div>
                     </div>
                 )}
-
-                {/* Control Buttons */}
-                <div className="flex gap-2 mt-3 pt-3 border-t border-cyber-green/30">
-                    <button 
-                        onClick={() => {
-                            setShowHint(!showHint);
-                        }}
-                        className="px-3 py-1 border border-cyber-blue/50 hover:bg-cyber-blue/20 text-cyber-blue text-xs font-bold transition-all"
-                    >
-                        {showHint ? t.hideHelp : t.showHelp}
-                    </button>
-                    <button 
-                        onClick={() => navigate('/map')}
-                        className="px-3 py-1 border border-cyber-red/50 hover:bg-cyber-red/20 text-cyber-red text-xs font-bold transition-all"
-                    >
-                        {t.exit}
-                    </button>
-                </div>
             </div>
         </LevelTemplate>
     );

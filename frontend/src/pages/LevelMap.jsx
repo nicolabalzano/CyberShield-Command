@@ -135,7 +135,7 @@ function LevelMap() {
                   onClick={() => level.unlocked && handleLevelClick(level)}
                   disabled={!level.unlocked}
                 >
-                  <div className="level-number">{level.isTutorial ? '?' : level.number}</div>
+                  <div className="level-number">{level.isTutorial ? 'TUTORIAL' : level.number}</div>
                   {!level.unlocked ? (
                     <div className="lock-icon">🔒</div>
                   ) : (

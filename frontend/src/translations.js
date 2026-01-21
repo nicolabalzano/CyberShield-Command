@@ -31,7 +31,7 @@ export const translations = {
         step1: "Un SIEM raccoglie e analizza log da tutti i sistemi. Cerca il log CRITICO in rosso lampeggiante!",
         step2: "Hai identificato la minaccia! Ora clicca su 'ANALIZZA MINACCIA' per esaminarla in dettaglio.",
         step3: "SQL Injection rilevato! Clicca su 'BLOCCA IP' per bloccare l'indirizzo IP dell'attaccante.",
-        step4: "Eccellente lavoro! Hai neutralizzato la minaccia e completato il tutorial SIEM!"
+        step4: "Eccellente lavoro! Hai neutralizzato la minaccia e completato il tutorial SIEM! Clicca su PROSEGUI per continuare."
       }
     },
     // Level Map
@@ -121,10 +121,10 @@ export const translations = {
       success: "COMPLETED!",
       successMsg: "You completed the SIEM tutorial! Returning to map...",
       hints: {
-        step1: "A SIEM collects and analyzes logs from all systems. Look for the CRITICAL log in flashing red!",
+        step1: "A SIEM collects and analyzes logs from all systems. Look for the CRITICAL log flashing in red!",
         step2: "You identified the threat! Now click 'ANALYZE THREAT' to examine it in detail.",
         step3: "SQL Injection detected! Click 'BLOCK IP' to block the attacker's IP address.",
-        step4: "Excellent work! You neutralized the threat and completed the SIEM tutorial!"
+        step4: "Excellent work! You neutralized the threat and completed the SIEM tutorial! Click CONTINUE to proceed."
       }
     },
     // Level Map
@@ -217,7 +217,7 @@ export const translations = {
         step1: "Un SIEM collecte et analyse les logs de tous les systèmes. Cherchez le log CRITIQUE en rouge clignotant!",
         step2: "Vous avez identifié la menace! Cliquez maintenant sur 'ANALYSER LA MENACE' pour l'examiner en détail.",
         step3: "Injection SQL détectée! Cliquez sur 'BLOQUER L'IP' pour bloquer l'adresse IP de l'attaquant.",
-        step4: "Excellent travail! Vous avez neutralisé la menace et terminé le tutoriel SIEM!"
+        step4: "Excellent travail! Vous avez neutralisé la menace et terminé le tutoriel SIEM! Cliquez sur CONTINUER pour poursuivre."
       }
     },
     // Level Map
@@ -309,7 +309,7 @@ export const translations = {
         step1: "Ein SIEM sammelt und analysiert Logs von allen Systemen. Suchen Sie nach dem KRITISCHEN Log in blinkendem Rot!",
         step2: "Sie haben die Bedrohung identifiziert! Klicken Sie jetzt auf 'BEDROHUNG ANALYSIEREN', um sie im Detail zu untersuchen.",
         step3: "SQL-Injection erkannt! Klicken Sie auf 'IP BLOCKIEREN', um die IP-Adresse des Angreifers zu blockieren.",
-        step4: "Hervorragende Arbeit! Sie haben die Bedrohung neutralisiert und das SIEM-Tutorial abgeschlossen!"
+        step4: "Hervorragende Arbeit! Sie haben die Bedrohung neutralisiert und das SIEM-Tutorial abgeschlossen! Klicken Sie auf WEITER, um fortzufahren."
       }
     },
     // Level Map
@@ -401,7 +401,7 @@ export const translations = {
         step1: "Un SIEM recopila y analiza logs de todos los sistemas. ¡Busca el log CRÍTICO en rojo parpadeante!",
         step2: "¡Has identificado la amenaza! Ahora haz clic en 'ANALIZAR AMENAZA' para examinarla en detalle.",
         step3: "¡Inyección SQL detectada! Haz clic en 'BLOQUEAR IP' para bloquear la dirección IP del atacante.",
-        step4: "¡Excelente trabajo! Has neutralizado la amenaza y completado el tutorial SIEM!"
+        step4: "¡Excelente trabajo! Has neutralizado la amenaza y completado el tutorial SIEM! Haz clic en CONTINUAR para proceder."
       }
     },
     // Level Map

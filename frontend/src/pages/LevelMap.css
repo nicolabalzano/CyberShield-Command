@@ -199,6 +199,12 @@
   font-size: 1.7rem;
 }
 
+.tutorial .level-number {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
 .level-stars {
   font-size: 0.9rem;
   letter-spacing: 1px;
