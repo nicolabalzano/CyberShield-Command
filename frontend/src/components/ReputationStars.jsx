@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import whiteHatStar from '../assets/white_hat_star.png';
 import { useAudio } from '../contexts/AudioContext';
+import { useSave } from '../contexts/SaveContext';
 
-export const useReputation = (initialStars = 0) => {
-    const [stars, setStars] = useState(initialStars);
+export const useReputation = (levelId, initialStars = 0) => {
+    const { getStars, updateStars } = useSave();
+    const [stars, setStars] = useState(() => {
+        // Carica le stelle salvate per questo livello
+        return getStars(levelId) || initialStars;
+    });
     const { playSfx } = useAudio();
 
     // Funzione per assegnare una stella (max 3)
@@ -12,6 +17,8 @@ export const useReputation = (initialStars = 0) => {
             const newStars = Math.min(prev + 1, 3);
             if (newStars > prev) {
                 playSfx('/sfx/star.mp3');
+                // Salva le stelle aggiornate
+                updateStars(levelId, newStars);
             }
             return newStars;
         });

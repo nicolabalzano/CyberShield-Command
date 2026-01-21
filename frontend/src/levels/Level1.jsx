@@ -6,7 +6,7 @@ import InfoPanel from '../components/InfoPanel';
 
 const Level1 = () => {
     const navigate = useNavigate();
-    const { stars, earnStar } = useReputation(0);
+    const { stars, earnStar } = useReputation('level1', 0);
     const [showHint, setShowHint] = useState(false);
 
     return (

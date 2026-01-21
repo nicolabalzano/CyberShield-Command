@@ -64,6 +64,9 @@ export const translations = {
       audio: "Audio",
       musicVolume: "Volume Musica",
       sfxVolume: "Volume Effetti",
+      saveSettings: "Salva Impostazioni",
+      saveConfirm: "Impostazioni salvate con successo!",
+      lastSaved: "Ultimo salvataggio:",
       aboutTitle: "Informazioni su CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command è un serious game educativo progettato per insegnare i principi della cybersecurity attraverso gameplay interattivo e scenari del mondo reale.",
@@ -157,6 +160,9 @@ export const translations = {
       audio: "Audio",
       musicVolume: "Music Volume",
       sfxVolume: "SFX Volume",
+      saveSettings: "Save Settings",
+      saveConfirm: "Settings saved successfully!",
+      lastSaved: "Last saved:",
       aboutTitle: "About CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command is an educational serious game designed to teach cybersecurity principles through interactive gameplay and real-world scenarios.",
@@ -249,6 +255,10 @@ export const translations = {
       language: "Langue",
       audio: "Audio",
       musicVolume: "Volume de la Musique",
+      sfxVolume: "Volume des Effets",
+      saveSettings: "Sauvegarder les Paramètres",
+      saveConfirm: "Paramètres sauvegardés avec succès!",
+      lastSaved: "Dernière sauvegarde:",
       aboutTitle: "À propos de CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command est un jeu sérieux éducatif conçu pour enseigner les principes de la cybersécurité à travers un gameplay interactif et des scénarios du monde réel.",
@@ -341,6 +351,10 @@ export const translations = {
       language: "Sprache",
       audio: "Audio",
       musicVolume: "Musiklautstärke",
+      sfxVolume: "Effektlautstärke",
+      saveSettings: "Einstellungen Speichern",
+      saveConfirm: "Einstellungen erfolgreich gespeichert!",
+      lastSaved: "Zuletzt gespeichert:",
       aboutTitle: "Über CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command ist ein pädagogisches Serious Game, das entwickelt wurde, um Cybersicherheitsprinzipien durch interaktives Gameplay und realistische Szenarien zu vermitteln.",
@@ -433,6 +447,10 @@ export const translations = {
       language: "Idioma",
       audio: "Audio",
       musicVolume: "Volumen de Música",
+      sfxVolume: "Volumen de Efectos",
+      saveSettings: "Guardar Configuración",
+      saveConfirm: "¡Configuración guardada con éxito!",
+      lastSaved: "Último guardado:",
       aboutTitle: "Acerca de CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command es un juego serio educativo diseñado para enseñar principios de ciberseguridad a través de jugabilidad interactiva y escenarios del mundo real.",

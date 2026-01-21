@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AudioProvider } from './contexts/AudioContext';
+import { SaveProvider } from './contexts/SaveContext';
 import Home from './pages/Home';
 import LevelMap from './pages/LevelMap';
 import LevelTutorial from './levels/LevelTutorial.jsx';
@@ -19,9 +20,10 @@ import './App.css';
 
 function App() {
   return (
-    <LanguageProvider>
-      <AudioProvider>
-        <Router>
+    <SaveProvider>
+      <LanguageProvider>
+        <AudioProvider>
+          <Router>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/map" element={<LevelMap />} />
@@ -37,9 +39,10 @@ function App() {
             <Route path="/level9" element={<Level9 />} />
             <Route path="/options" element={<Options />} />
           </Routes>
-        </Router>
-      </AudioProvider>
-    </LanguageProvider>
+          </Router>
+        </AudioProvider>
+      </LanguageProvider>
+    </SaveProvider>
   );
 }
 

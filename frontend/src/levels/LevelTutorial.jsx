@@ -9,7 +9,7 @@ import SIEMSystem from '../components/SIEMSystem';
 
 const LevelTutorial = () => {
     const navigate = useNavigate();
-    const { stars, earnStar } = useReputation(0);
+    const { stars, earnStar } = useReputation('tutorial', 0);
     const [showHint, setShowHint] = useState(true);
     const { language } = useLanguage();
     const t = translations[language].tutorial;

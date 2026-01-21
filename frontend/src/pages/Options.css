@@ -304,6 +304,58 @@
   border-top: 1px solid rgba(0, 243, 255, 0.2);
 }
 
+.save-settings-btn {
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: 2px solid var(--color-cyber-neon-blue);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(0, 243, 255, 0.2));
+  color: var(--color-cyber-neon-blue);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.save-settings-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(0, 243, 255, 0.3));
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.save-settings-btn:active {
+  transform: translateY(0);
+}
+
+.save-confirm {
+  margin-top: 15px;
+  color: var(--color-cyber-green);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-shadow: 0 0 10px var(--color-cyber-green);
+  animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.last-saved {
+  margin-top: 10px;
+  color: var(--color-cyber-text-secondary);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
 @media (max-width: 768px) {
   .options-title {
     font-size: 2.5rem;

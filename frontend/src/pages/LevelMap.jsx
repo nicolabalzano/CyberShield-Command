@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAudio } from '../contexts/AudioContext';
+import { useSave } from '../contexts/SaveContext';
 import { translations } from '../translations';
 import whiteHatStar from '../assets/white_hat_star.png';
 import '../palette.css';
@@ -11,6 +12,7 @@ function LevelMap() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { changeTrack } = useAudio();
+  const { saveData, getTotalStars } = useSave();
   const t = translations[language].levelMap;
 
   useEffect(() => {
@@ -18,23 +20,11 @@ function LevelMap() {
     changeTrack('/background-music.mp3');
   }, [changeTrack]);
   
-  // Stato delle stelle (3 per livello max, 30 totali per tutorial + 9 livelli)
-  const [stars, setStars] = useState({
-    tutorial: 0,
-    level1: 0,
-    level2: 0,
-    level3: 0,
-    level4: 0,
-    level5: 0,
-    level6: 0,
-    level7: 0,
-    level8: 0,
-    level9: 0,
-  });
-
   const [selectedLevel, setSelectedLevel] = useState(null);
 
-  const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
+  // Usa le stelle dal contesto di salvataggio
+  const stars = saveData.stars;
+  const totalStars = getTotalStars();
 
   const levels = [
     { id: 'tutorial', number: 0, unlocked: true, starsEarned: stars.tutorial, position: 2, isTutorial: true },

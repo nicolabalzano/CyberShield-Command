@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAudio } from '../contexts/AudioContext';
+import { useSave } from '../contexts/SaveContext';
 import { translations } from '../translations';
 import '../palette.css';
 import './Options.css';
@@ -10,9 +11,11 @@ function Options() {
   const navigate = useNavigate();
   const { language, changeLanguage } = useLanguage();
   const { musicVolume, changeMusicVolume, sfxVolume, changeSfxVolume } = useAudio();
+  const { save, updateSettings, saveData } = useSave();
   const t = translations[language].options;
 
   const [activeSection, setActiveSection] = useState('settings');
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
   const languages = [
     { code: 'italiano', flag: '🇮🇹', name: 'Italiano' },
@@ -24,6 +27,26 @@ function Options() {
 
   const handleLanguageChange = (langCode) => {
     changeLanguage(langCode);
+  };
+
+  const handleSaveSettings = async () => {
+    // Prepara i dati aggiornati
+    const updatedData = {
+      ...saveData,
+      settings: {
+        language: language,
+        musicVolume: musicVolume,
+        sfxVolume: sfxVolume,
+      },
+    };
+    
+    // Salva i dati direttamente
+    const success = await save(updatedData);
+    
+    if (success) {
+      setShowSaveConfirm(true);
+      setTimeout(() => setShowSaveConfirm(false), 2000);
+    }
   };
 
   return (
@@ -113,6 +136,24 @@ function Options() {
                     className="volume-slider"
                   />
                 </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="setting-group" style={{ marginTop: '2rem', textAlign: 'center' }}>
+                <button 
+                  className="save-settings-btn"
+                  onClick={handleSaveSettings}
+                >
+                  💾 {t.saveSettings || 'Salva Impostazioni'}
+                </button>
+                {showSaveConfirm && (
+                  <p className="save-confirm">{t.saveConfirm || 'Impostazioni salvate!'}</p>
+                )}
+                {saveData.lastSaved && (
+                  <p className="last-saved">
+                    {t.lastSaved || 'Ultimo salvataggio:'} {new Date(saveData.lastSaved).toLocaleString()}
+                  </p>
+                )}
               </div>
             </div>
           )}

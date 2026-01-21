@@ -7,7 +7,7 @@ import SIEMSystem from '../components/SIEMSystem';
 
 const Level9 = () => {
     const navigate = useNavigate();
-    const { stars, earnStar } = useReputation(0);
+    const { stars, earnStar } = useReputation('level9', 0);
     const [showHint, setShowHint] = useState(false);
     
     // SIEM State
