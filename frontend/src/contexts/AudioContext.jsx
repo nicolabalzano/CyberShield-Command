@@ -70,6 +70,24 @@ export const AudioProvider = ({ children }) => {
   };
 
   const changeTrack = (trackSrc) => {
+    // Se è già la traccia corrente e sta suonando, non fare nulla
+    if (currentTrack === trackSrc && audioRef.current && !audioRef.current.paused) {
+      return;
+    }
+    
+    // Se è la stessa traccia ma è in pausa, riprendi la riproduzione senza ricaricare
+    if (currentTrack === trackSrc && audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(err => {
+          console.log('Resume play error:', err);
+        });
+      }
+      return;
+    }
+    
+    // Altrimenti, cambia traccia
     setCurrentTrack(trackSrc);
     if (audioRef.current) {
       audioRef.current.src = trackSrc;
