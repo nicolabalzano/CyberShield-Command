@@ -167,6 +167,20 @@
   padding: 0;
 }
 
+.level-node.tutorial {
+  border-color: var(--color-cyber-neon-blue);
+  background: var(--color-cyber-dark-gray);
+  color: var(--color-cyber-neon-blue);
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.5), 
+              inset 0 0 20px rgba(0, 243, 255, 0.15);
+}
+
+.level-node.tutorial:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 35px var(--color-cyber-neon-blue),
+              inset 0 0 25px rgba(0, 243, 255, 0.25);
+}
+
 .level-node:hover:not(.locked) {
   transform: translateY(-50%) scale(1.1);
   box-shadow: 0 0 35px var(--color-cyber-green),

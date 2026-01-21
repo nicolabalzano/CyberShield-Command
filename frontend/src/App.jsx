@@ -4,6 +4,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { AudioProvider } from './contexts/AudioContext';
 import Home from './pages/Home';
 import LevelMap from './pages/LevelMap';
+import LevelTutorial from './levels/LevelTutorial';
 import Level1 from './levels/Level1';
 import Level2 from './levels/Level2';
 import Level3 from './levels/Level3';
@@ -24,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/map" element={<LevelMap />} />
+            <Route path="/tutorial" element={<LevelTutorial />} />
             <Route path="/level1" element={<Level1 />} />
             <Route path="/level2" element={<Level2 />} />
             <Route path="/level3" element={<Level3 />} />
