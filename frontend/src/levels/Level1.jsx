@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import OSInterface from '../components/OSInterface';
+import MonitorScreen from '../components/MonitorScreen';
 import LevelCompleted from '../components/LevelCompleted';
 
 const Level1Inner = ({ onStepChange, onToggleHint, onComplete }) => {
@@ -41,7 +41,7 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete }) => {
     };
 
     return (
-        <OSInterface 
+        <MonitorScreen 
             onEmailAction={handleEmailAction}
             onHintClick={onToggleHint}
             showHintButton={true}
