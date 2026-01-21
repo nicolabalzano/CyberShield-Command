@@ -1,23 +1,26 @@
 @import "tailwindcss";
 @import "./palette.css";
 
-:root {
-  --color-primary: var(--color-cyber-green);
-  --color-secondary: var(--color-cyber-neon-blue);
-  --color-danger: var(--color-cyber-alert-red);
-  --color-warning: var(--color-cyber-warning);
-  --color-background: var(--color-cyber-black);
-  --color-surface: var(--color-cyber-dark-gray);
-  --color-surface-hover: var(--color-cyber-light-gray);
-  --color-text-main: var(--color-cyber-text-primary);
-  --color-text-dim: var(--color-cyber-text-secondary);
+@theme {
+  --color-cyber-green: var(--color-cyber-green);
+  --color-cyber-blue: var(--color-cyber-neon-blue);
+  --color-cyber-red: var(--color-cyber-alert-red);
+  --color-cyber-warning: var(--color-cyber-warning);
+  --color-cyber-black: var(--color-cyber-black);
+  --color-cyber-gray: var(--color-cyber-dark-gray);
+  --color-cyber-gray-light: var(--color-cyber-light-gray);
+  --color-cyber-text: var(--color-cyber-text-primary);
+  --color-cyber-text-dim: var(--color-cyber-text-secondary);
+  --color-info-background: var(--color-info-background);
+}
 
+:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: var(--color-cyber-text-primary);
+  color: var(--color-cyber-text);
   background-color: var(--color-cyber-black);
 
   font-synthesis: none;
