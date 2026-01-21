@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAudio } from '../contexts/AudioContext';
+import { LevelProvider, useLevel } from '../contexts/LevelContext';
 import MonitorScreen from './MonitorScreen';
 import ReputationStars from './ReputationStars';
 
@@ -8,10 +9,12 @@ import ReputationStars from './ReputationStars';
 // These files must be in src/assets/
 import backgroundNight from '../assets/background_night.png';
 import keyboard from '../assets/keyboard.png';
+import HealthBar from './HealthBar';
 
-function LevelTemplate({ children, musicTrack = '/level-music.mp3', onFetchData, stars = 0, hint = null }) {
+function LevelTemplateContent({ children, musicTrack = '/level-music.mp3', onFetchData, stars = 0, hint = null }) {
   const navigate = useNavigate();
   const { changeTrack } = useAudio();
+  const { health } = useLevel();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -37,7 +40,10 @@ function LevelTemplate({ children, musicTrack = '/level-music.mp3', onFetchData,
       <div className="relative z-10 w-full h-full flex flex-col items-center justify-between pointer-events-none">
         
         {/* Top Header / HUD */}
-        <div className="w-full flex justify-end p-6 pointer-events-auto">
+        <div className="w-full flex justify-between items-center pt-6 -translate-x-5 pointer-events-auto">
+          {/* Health Bar Section */}
+          <HealthBar health={health} />
+
           <ReputationStars stars={stars} />
         </div>
 
@@ -72,4 +78,13 @@ function LevelTemplate({ children, musicTrack = '/level-music.mp3', onFetchData,
   );
 }
 
+function LevelTemplate({ initialHealth = 100, ...props }) {
+  return (
+    <LevelProvider initialHealth={initialHealth}>
+      <LevelTemplateContent {...props} />
+    </LevelProvider>
+  );
+}
+
+export { useLevel };
 export default LevelTemplate;

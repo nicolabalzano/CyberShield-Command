@@ -35,6 +35,7 @@ export const translations = {
       language: "Linguaggio",
       audio: "Audio",
       musicVolume: "Volume Musica",
+      sfxVolume: "Volume Effetti",
       aboutTitle: "Informazioni su CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command è un serious game educativo progettato per insegnare i principi della cybersecurity attraverso gameplay interattivo e scenari del mondo reale.",
@@ -99,6 +100,7 @@ export const translations = {
       language: "Language",
       audio: "Audio",
       musicVolume: "Music Volume",
+      sfxVolume: "SFX Volume",
       aboutTitle: "About CyberShield Command",
       aboutContent: {
         p1: "CyberShield Command is an educational serious game designed to teach cybersecurity principles through interactive gameplay and real-world scenarios.",

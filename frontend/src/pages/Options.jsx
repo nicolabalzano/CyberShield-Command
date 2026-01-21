@@ -9,7 +9,7 @@ import './Options.css';
 function Options() {
   const navigate = useNavigate();
   const { language, changeLanguage } = useLanguage();
-  const { volume, changeVolume } = useAudio();
+  const { musicVolume, changeMusicVolume, sfxVolume, changeSfxVolume } = useAudio();
   const t = translations[language].options;
 
   const [activeSection, setActiveSection] = useState('settings');
@@ -80,18 +80,36 @@ function Options() {
               <div className="setting-group">
                 <h3 className="setting-title">{t.audio}</h3>
                 
-                <div className="volume-control">
+                {/* Music Volume */}
+                <div className="volume-control" style={{ marginBottom: '1.5rem' }}>
                   <label className="volume-label">
                     <span className="volume-icon">🎵</span>
                     {t.musicVolume}
-                    <span className="volume-value">{volume}%</span>
+                    <span className="volume-value">{musicVolume}%</span>
                   </label>
                   <input
                     type="range"
                     min="0"
                     max="100"
-                    value={volume}
-                    onChange={(e) => changeVolume(parseInt(e.target.value))}
+                    value={musicVolume}
+                    onChange={(e) => changeMusicVolume(parseInt(e.target.value))}
+                    className="volume-slider"
+                  />
+                </div>
+
+                {/* SFX Volume */}
+                <div className="volume-control">
+                  <label className="volume-label">
+                    <span className="volume-icon">🔊</span>
+                    {t.sfxVolume || "SFX Volume"}
+                    <span className="volume-value">{sfxVolume}%</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={sfxVolume}
+                    onChange={(e) => changeSfxVolume(parseInt(e.target.value))}
                     className="volume-slider"
                   />
                 </div>

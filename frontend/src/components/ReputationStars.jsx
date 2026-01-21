@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import whiteHatStar from '../assets/white_hat_star.png';
+import { useAudio } from '../contexts/AudioContext';
 
 export const useReputation = (initialStars = 0) => {
     const [stars, setStars] = useState(initialStars);
+    const { playSfx } = useAudio();
 
     // Funzione per assegnare una stella (max 3)
     const earnStar = () => {
-        setStars(prev => Math.min(prev + 1, 3));
+        setStars(prev => {
+            const newStars = Math.min(prev + 1, 3);
+            if (newStars > prev) {
+                playSfx('/sfx/star-earned.mp3');
+            }
+            return newStars;
+        });
     };
 
     return { stars, earnStar };
