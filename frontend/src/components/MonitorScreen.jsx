@@ -23,11 +23,11 @@ const MonitorScreen = ({ children, className = "" }) => {
             The positioning hardcoded here matches 'monitor_real.png' screen area.
             If the image changes, these values might need adjustment.
         */}
-        <div className="absolute z-[60] bg-cyber-black overflow-hidden font-mono text-sm leading-relaxed text-cyber-green p-4
+        <div className="absolute z-[60] bg-cyber-black overflow-hidden font-mono text-sm leading-relaxed text-cyber-green
                         w-[70%] h-[70%] top-[4%] right-[15%]"> 
             
             {/* Inner Content Slot */}
-            <div className="h-full w-full border border-cyber-green/30 p-2 overflow-auto">
+            <div className="h-full w-full overflow-auto">
                 {children}
             </div>
         </div>

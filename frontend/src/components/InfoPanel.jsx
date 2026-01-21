@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import infoBg from '../assets/info.png';
+import { useAudio } from '../contexts/AudioContext';
 
 const InfoPanel = ({ text, className = "" }) => {
+  const { playSfx } = useAudio();
+  const hasPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasPlayedRef.current) {
+      playSfx('/sfx/hint.mp3');
+      hasPlayedRef.current = true;
+    }
+  }, []);
+
   // Modifica w-80 (mobile) o md:w-96 (desktop) per cambiare la larghezza totale
   return (
     <div className={`relative md:w-100 ${className}`}>
