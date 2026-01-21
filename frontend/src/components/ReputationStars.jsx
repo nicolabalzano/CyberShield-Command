@@ -11,7 +11,7 @@ export const useReputation = (initialStars = 0) => {
         setStars(prev => {
             const newStars = Math.min(prev + 1, 3);
             if (newStars > prev) {
-                playSfx('/sfx/star-earned.mp3');
+                playSfx('/sfx/star.mp3');
             }
             return newStars;
         });
