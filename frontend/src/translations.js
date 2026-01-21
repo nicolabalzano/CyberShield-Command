@@ -7,6 +7,33 @@ export const translations = {
       play: "GIOCA",
       options: "OPZIONI"
     },
+    // Tutorial
+    tutorial: {
+      title: "TUTORIAL - SIEM Dashboard",
+      subtitle: "Security Information and Event Management",
+      logStream: "FLUSSO LOG",
+      analysis: "ANALISI",
+      source: "Origine",
+      severity: "Gravità",
+      threat: "Minaccia",
+      message: "Messaggio",
+      yes: "SÌ",
+      no: "NO",
+      selectLog: "Seleziona un log per analizzarlo",
+      analyzeBtn: "ANALIZZA MINACCIA",
+      blockBtn: "BLOCCA IP",
+      showHelp: "MOSTRA AIUTO",
+      hideHelp: "NASCONDI AIUTO",
+      exit: "ESCI",
+      success: "COMPLETATO!",
+      successMsg: "Hai completato il tutorial SIEM! Ritorno alla mappa...",
+      hints: {
+        step1: "Un SIEM raccoglie e analizza log da tutti i sistemi. Cerca il log CRITICO in rosso lampeggiante!",
+        step2: "Hai identificato la minaccia! Ora clicca su 'ANALIZZA MINACCIA' per esaminarla in dettaglio.",
+        step3: "SQL Injection rilevato! Clicca su 'BLOCCA IP' per bloccare l'indirizzo IP dell'attaccante.",
+        step4: "Eccellente lavoro! Hai neutralizzato la minaccia e completato il tutorial SIEM!"
+      }
+    },
     // Level Map
     levelMap: {
       title: "MAPPA LIVELLI",
@@ -14,6 +41,7 @@ export const translations = {
       stars: "stelle",
       play: "GIOCA",
       levelInfo: {
+        tutorial: { name: "Tutorial SIEM", description: "Impara le basi di un sistema SIEM (Security Information and Event Management) e come rilevare minacce." },
         level1: { name: "Basi di Rete", description: "Impara i fondamenti della sicurezza di rete e identifica le vulnerabilità comuni." },
         level2: { name: "Difesa Firewall", description: "Configura e gestisci le regole del firewall per proteggere il perimetro della rete." },
         level3: { name: "Protocollo di Crittografia", description: "Padroneggia le tecniche di crittografia per proteggere la trasmissione di dati sensibili." },
@@ -72,6 +100,33 @@ export const translations = {
       play: "PLAY",
       options: "OPTIONS"
     },
+    // Tutorial
+    tutorial: {
+      title: "TUTORIAL - SIEM Dashboard",
+      subtitle: "Security Information and Event Management",
+      logStream: "LOG STREAM",
+      analysis: "ANALYSIS",
+      source: "Source",
+      severity: "Severity",
+      threat: "Threat",
+      message: "Message",
+      yes: "YES",
+      no: "NO",
+      selectLog: "Select a log to analyze it",
+      analyzeBtn: "ANALYZE THREAT",
+      blockBtn: "BLOCK IP",
+      showHelp: "SHOW HELP",
+      hideHelp: "HIDE HELP",
+      exit: "EXIT",
+      success: "COMPLETED!",
+      successMsg: "You completed the SIEM tutorial! Returning to map...",
+      hints: {
+        step1: "A SIEM collects and analyzes logs from all systems. Look for the CRITICAL log in flashing red!",
+        step2: "You identified the threat! Now click 'ANALYZE THREAT' to examine it in detail.",
+        step3: "SQL Injection detected! Click 'BLOCK IP' to block the attacker's IP address.",
+        step4: "Excellent work! You neutralized the threat and completed the SIEM tutorial!"
+      }
+    },
     // Level Map
     levelMap: {
       title: "LEVEL MAP",
@@ -79,6 +134,7 @@ export const translations = {
       stars: "stars",
       play: "PLAY",
       levelInfo: {
+        tutorial: { name: "SIEM Tutorial", description: "Learn the basics of a SIEM (Security Information and Event Management) system and how to detect threats." },
         level1: { name: "Network Basics", description: "Learn the fundamentals of network security and identify common vulnerabilities." },
         level2: { name: "Firewall Defense", description: "Configure and manage firewall rules to protect your network perimeter." },
         level3: { name: "Encryption Protocol", description: "Master encryption techniques to secure sensitive data transmission." },
@@ -137,6 +193,33 @@ export const translations = {
       play: "JOUER",
       options: "OPTIONS"
     },
+    // Tutorial
+    tutorial: {
+      title: "TUTORIEL - Tableau de bord SIEM",
+      subtitle: "Gestion des Informations et Événements de Sécurité",
+      logStream: "FLUX DE LOGS",
+      analysis: "ANALYSE",
+      source: "Source",
+      severity: "Gravité",
+      threat: "Menace",
+      message: "Message",
+      yes: "OUI",
+      no: "NON",
+      selectLog: "Sélectionnez un log pour l'analyser",
+      analyzeBtn: "ANALYSER LA MENACE",
+      blockBtn: "BLOQUER L'IP",
+      showHelp: "AFFICHER L'AIDE",
+      hideHelp: "MASQUER L'AIDE",
+      exit: "QUITTER",
+      success: "TERMINÉ!",
+      successMsg: "Vous avez terminé le tutoriel SIEM! Retour à la carte...",
+      hints: {
+        step1: "Un SIEM collecte et analyse les logs de tous les systèmes. Cherchez le log CRITIQUE en rouge clignotant!",
+        step2: "Vous avez identifié la menace! Cliquez maintenant sur 'ANALYSER LA MENACE' pour l'examiner en détail.",
+        step3: "Injection SQL détectée! Cliquez sur 'BLOQUER L'IP' pour bloquer l'adresse IP de l'attaquant.",
+        step4: "Excellent travail! Vous avez neutralisé la menace et terminé le tutoriel SIEM!"
+      }
+    },
     // Level Map
     levelMap: {
       title: "CARTE DES NIVEAUX",
@@ -144,6 +227,7 @@ export const translations = {
       stars: "étoiles",
       play: "JOUER",
       levelInfo: {
+        tutorial: { name: "Tutoriel SIEM", description: "Apprenez les bases d'un système SIEM (Security Information and Event Management) et comment détecter les menaces." },
         level1: { name: "Bases du Réseau", description: "Apprenez les fondamentaux de la sécurité réseau et identifiez les vulnérabilités courantes." },
         level2: { name: "Défense Pare-feu", description: "Configurez et gérez les règles de pare-feu pour protéger votre périmètre réseau." },
         level3: { name: "Protocole de Chiffrement", description: "Maîtrisez les techniques de chiffrement pour sécuriser la transmission de données sensibles." },
@@ -201,6 +285,33 @@ export const translations = {
       play: "SPIELEN",
       options: "OPTIONEN"
     },
+    // Tutorial
+    tutorial: {
+      title: "TUTORIAL - SIEM Dashboard",
+      subtitle: "Sicherheitsinformations- und Ereignisverwaltung",
+      logStream: "LOG-STREAM",
+      analysis: "ANALYSE",
+      source: "Quelle",
+      severity: "Schweregrad",
+      threat: "Bedrohung",
+      message: "Nachricht",
+      yes: "JA",
+      no: "NEIN",
+      selectLog: "Wählen Sie ein Log zur Analyse aus",
+      analyzeBtn: "BEDROHUNG ANALYSIEREN",
+      blockBtn: "IP BLOCKIEREN",
+      showHelp: "HILFE ANZEIGEN",
+      hideHelp: "HILFE AUSBLENDEN",
+      exit: "BEENDEN",
+      success: "ABGESCHLOSSEN!",
+      successMsg: "Sie haben das SIEM-Tutorial abgeschlossen! Zurück zur Karte...",
+      hints: {
+        step1: "Ein SIEM sammelt und analysiert Logs von allen Systemen. Suchen Sie nach dem KRITISCHEN Log in blinkendem Rot!",
+        step2: "Sie haben die Bedrohung identifiziert! Klicken Sie jetzt auf 'BEDROHUNG ANALYSIEREN', um sie im Detail zu untersuchen.",
+        step3: "SQL-Injection erkannt! Klicken Sie auf 'IP BLOCKIEREN', um die IP-Adresse des Angreifers zu blockieren.",
+        step4: "Hervorragende Arbeit! Sie haben die Bedrohung neutralisiert und das SIEM-Tutorial abgeschlossen!"
+      }
+    },
     // Level Map
     levelMap: {
       title: "LEVEL-KARTE",
@@ -208,6 +319,7 @@ export const translations = {
       stars: "Sterne",
       play: "SPIELEN",
       levelInfo: {
+        tutorial: { name: "SIEM-Tutorial", description: "Lernen Sie die Grundlagen eines SIEM-Systems (Security Information and Event Management) und wie man Bedrohungen erkennt." },
         level1: { name: "Netzwerk-Grundlagen", description: "Lernen Sie die Grundlagen der Netzwerksicherheit und identifizieren Sie häufige Schwachstellen." },
         level2: { name: "Firewall-Verteidigung", description: "Konfigurieren und verwalten Sie Firewall-Regeln zum Schutz Ihres Netzwerkperimeters." },
         level3: { name: "Verschlüsselungsprotokoll", description: "Beherrschen Sie Verschlüsselungstechniken zur Sicherung sensibler Datenübertragungen." },
@@ -265,6 +377,33 @@ export const translations = {
       play: "JUGAR",
       options: "OPCIONES"
     },
+    // Tutorial
+    tutorial: {
+      title: "TUTORIAL - Panel SIEM",
+      subtitle: "Gestión de Información y Eventos de Seguridad",
+      logStream: "FLUJO DE LOGS",
+      analysis: "ANÁLISIS",
+      source: "Fuente",
+      severity: "Gravedad",
+      threat: "Amenaza",
+      message: "Mensaje",
+      yes: "SÍ",
+      no: "NO",
+      selectLog: "Selecciona un log para analizarlo",
+      analyzeBtn: "ANALIZAR AMENAZA",
+      blockBtn: "BLOQUEAR IP",
+      showHelp: "MOSTRAR AYUDA",
+      hideHelp: "OCULTAR AYUDA",
+      exit: "SALIR",
+      success: "¡COMPLETADO!",
+      successMsg: "¡Has completado el tutorial SIEM! Volviendo al mapa...",
+      hints: {
+        step1: "Un SIEM recopila y analiza logs de todos los sistemas. ¡Busca el log CRÍTICO en rojo parpadeante!",
+        step2: "¡Has identificado la amenaza! Ahora haz clic en 'ANALIZAR AMENAZA' para examinarla en detalle.",
+        step3: "¡Inyección SQL detectada! Haz clic en 'BLOQUEAR IP' para bloquear la dirección IP del atacante.",
+        step4: "¡Excelente trabajo! Has neutralizado la amenaza y completado el tutorial SIEM!"
+      }
+    },
     // Level Map
     levelMap: {
       title: "MAPA DE NIVELES",
@@ -272,6 +411,7 @@ export const translations = {
       stars: "estrellas",
       play: "JUGAR",
       levelInfo: {
+        tutorial: { name: "Tutorial SIEM", description: "Aprende los conceptos básicos de un sistema SIEM (Security Information and Event Management) y cómo detectar amenazas." },
         level1: { name: "Fundamentos de Red", description: "Aprende los fundamentos de la seguridad de red e identifica vulnerabilidades comunes." },
         level2: { name: "Defensa de Firewall", description: "Configura y gestiona reglas de firewall para proteger tu perímetro de red." },
         level3: { name: "Protocolo de Encriptación", description: "Domina las técnicas de encriptación para asegurar la transmisión de datos sensibles." },

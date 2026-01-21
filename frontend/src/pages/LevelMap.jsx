@@ -18,8 +18,9 @@ function LevelMap() {
     changeTrack('/background-music.mp3');
   }, [changeTrack]);
   
-  // Stato delle stelle (3 per livello max, 27 totali per 9 livelli)
+  // Stato delle stelle (3 per livello max, 30 totali per tutorial + 9 livelli)
   const [stars, setStars] = useState({
+    tutorial: 0,
     level1: 0,
     level2: 0,
     level3: 0,
@@ -36,15 +37,16 @@ function LevelMap() {
   const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
 
   const levels = [
-    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 5 },
-    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 15 },
-    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 25 },
-    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 35 },
-    { id: 'level5', number: 5, unlocked: true, starsEarned: stars.level5, position: 45 },
-    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 55 },
-    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 65 },
-    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 75 },
-    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 85 },
+    { id: 'tutorial', number: 0, unlocked: true, starsEarned: stars.tutorial, position: 2, isTutorial: true },
+    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 12 },
+    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 22 },
+    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 32 },
+    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 42 },
+    { id: 'level5', number: 5, unlocked: true, starsEarned: stars.level5, position: 52 },
+    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 62 },
+    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 72 },
+    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 82 },
+    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 92 },
   ];
 
   const handleLevelClick = (level) => {
@@ -97,7 +99,7 @@ function LevelMap() {
             filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.7))'
           }} 
         />
-        <span className="stars-text">{totalStars} / 27</span>
+        <span className="stars-text">{totalStars} / 30</span>
       </div>
 
       <div className="levelmap-content">
@@ -105,7 +107,7 @@ function LevelMap() {
 
         <div className="path-scroll-wrapper">
           <div className="path-container">
-            <svg className="path-svg" viewBox="0 0 2000 300" preserveAspectRatio="none">
+            <svg className="path-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="rgba(0, 243, 255, 0.6)" />
@@ -114,9 +116,9 @@ function LevelMap() {
                 </linearGradient>
               </defs>
               <path 
-                d="M 50 150 Q 200 100, 350 150 T 650 150 T 950 150 T 1250 150 T 1550 150 T 1850 150 L 1950 150"
+                d="M 2 15 Q 7 12, 12 15 Q 17 18, 22 15 Q 27 12, 32 15 Q 37 18, 42 15 Q 47 12, 52 15 Q 57 18, 62 15 Q 67 12, 72 15 Q 77 18, 82 15 Q 87 12, 92 15"
                 stroke="url(#pathGradient)"
-                strokeWidth="12"
+                strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
               />
@@ -126,14 +128,14 @@ function LevelMap() {
               {levels.map((level) => (
                 <button
                   key={level.id}
-                  className={`level-node ${!level.unlocked ? 'locked' : ''}`}
+                  className={`level-node ${!level.unlocked ? 'locked' : ''} ${level.isTutorial ? 'tutorial' : ''}`}
                   style={{ 
                     left: `${level.position}%`
                   }}
                   onClick={() => level.unlocked && handleLevelClick(level)}
                   disabled={!level.unlocked}
                 >
-                  <div className="level-number">{level.number}</div>
+                  <div className="level-number">{level.isTutorial ? '?' : level.number}</div>
                   {!level.unlocked ? (
                     <div className="lock-icon">🔒</div>
                   ) : (
@@ -153,7 +155,7 @@ function LevelMap() {
               ✕
             </button>
             
-            <h2 className="modal-title">Level {selectedLevel.number}</h2>
+            <h2 className="modal-title">{selectedLevel.isTutorial ? 'Tutorial' : `Level ${selectedLevel.number}`}</h2>
             <h3 className="modal-name">{t.levelInfo[selectedLevel.id].name}</h3>
             
             <p className="modal-description">{t.levelInfo[selectedLevel.id].description}</p>
