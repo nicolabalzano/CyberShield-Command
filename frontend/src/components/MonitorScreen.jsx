@@ -27,6 +27,7 @@ const MonitorScreen = ({
   siemConfig = {},
   emailConfig = {},
   browserConfig = {},
+  statusText = null,
   className = ""
 }) => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
@@ -105,6 +106,7 @@ const MonitorScreen = ({
                   </button>
                 )}
               </div>
+
               <div className="flex items-center gap-3">
                 <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
               </div>
@@ -165,24 +167,18 @@ const MonitorScreen = ({
               {/* Open Windows */}
               <div className="flex gap-1 flex-1">
                 {windows.map(window => (
-                  <button
+                  <span
                     key={window.id}
                     onClick={() => minimizeWindow(window.id)}
                     className={`px-3 py-1 text-xs rounded transition-all ${
                       window.isMinimized 
                         ? 'bg-slate-600 text-slate-300' 
-                        : 'bg-slate-500 text-white border-t-2 border-cyan-400'
+                        : 'bg-slate-500 text-white'
                     }`}
                   >
                     {window.title}
-                  </button>
+                  </span>
                 ))}
-              </div>
-
-              <div className="flex items-center gap-2 text-[10px] text-slate-300">
-                <span>🔊</span>
-                <span>📶</span>
-                <span>🔋</span>
               </div>
             </div>
           </div>
@@ -199,7 +195,7 @@ const DesktopIcon = ({ icon, label, onClick }) => (
     className="flex flex-col items-center gap-1 p-2 hover:bg-white/10 rounded transition-colors group"
   >
     <div className="text-4xl group-hover:scale-110 transition-transform">{icon}</div>
-    <div className="text-[10px] text-white font-medium text-center bg-black/40 px-2 py-0.5 rounded">
+    <div className="text-[10px] text-white font-medium text-center">
       {label}
     </div>
   </button>
@@ -259,9 +255,9 @@ const Window = ({
   const windowStyle = windowData.isMaximized
     ? {
         left: 0,
-        top: 32,
+        top: 0,
         width: '100%',
-        height: 'calc(100% - 72px)',
+        height: '100%',
         zIndex: windowData.zIndex
       }
     : {
@@ -307,7 +303,7 @@ const Window = ({
       </div>
 
       {/* Window Content */}
-      <div className="h-[calc(100%-2rem)] overflow-auto p-3">
+      <div className="h-[calc(100%-2rem)] overflow-auto">
         {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} {...emailConfig} />}
         {windowData.contentType === 'terminal' && <Terminal {...terminalConfig} />}
         {windowData.contentType === 'browser' && <Browser {...browserConfig} />}

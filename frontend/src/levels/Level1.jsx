@@ -5,6 +5,93 @@ import InfoPanel from '../components/InfoPanel';
 import MonitorScreen from '../components/MonitorScreen';
 import LevelCompleted from '../components/LevelCompleted';
 
+const LEVEL1_EMAILS = [
+    {
+        id: 1,
+        from: 'security@paypa1.com',
+        timestamp: 'Oggi 09:15',
+        subject: 'URGENTE: Il tuo account è stato bloccato',
+        preview: 'Abbiamo rilevato attività sospette sul tuo account...',
+        isPhishing: true,
+        body: 'Gentile Cliente,\n\nAbbiamo rilevato un accesso non autorizzato al tuo conto PayPal. Per la tua sicurezza, il conto è stato temporaneamente bloccato.\n\nClicca qui per verificare la tua identità e sbloccare il conto: http://paypa1-verify.com/login\n\nSe non agisci entro 24 ore, il conto verrà chiuso permanentemente.\n\nSupporto PayPal',
+        hasAttachment: false,
+        explanation: 'PHISHING: Dominio del mittente contraffatto ("paypa1" invece di "paypal"), senso di urgenza ("bloccato", "24 ore"), link verso un dominio non ufficiale.',
+        links: ['http://paypa1-verify.com/login'],
+        read: false,
+        flagged: null
+    },
+    {
+        id: 2,
+        from: 'hr@yourcompany.com',
+        timestamp: 'Oggi 10:30',
+        subject: 'Aggiornamento policy aziendale',
+        preview: 'Si prega di prendere visione del nuovo documento...',
+        isPhishing: false,
+        body: 'Ciao,\n\nIn allegato trovi il documento aggiornato relativo alle nuove policy di smart working, in vigore dal prossimo mese.\n\nPer qualsiasi dubbio contattare l\'ufficio HR.\n\nCordiali saluti,\nHR Team\nYourCompany Inc.',
+        hasAttachment: true,
+        attachmentName: 'smart_working_policy_v2.pdf',
+        explanation: 'LEGITTIMA: Email interna dal dominio aziendale corretto, tono professionale, allegato PDF (formato sicuro per documenti).',
+        read: false,
+        flagged: null
+    },
+    {
+        id: 3,
+        from: 'ceo.urgent123@gmail.com',
+        timestamp: 'Oggi 14:55',
+        subject: 'Bonifico Urgente',
+        preview: 'Ho bisogno che tu effettui questo pagamento immediat...',
+        isPhishing: true,
+        body: 'Ciao,\n\nSono in riunione e non posso parlare al telefono. Ho bisogno che tu disponga subito un bonifico urgente per un nuovo fornitore. È vitale per chiudere l\'accordo oggi.\n\nTi invio i dettagli a breve. Rispondimi appena leggi.\n\nSent from my iPhone',
+        hasAttachment: false,
+        explanation: 'PHISHING (CEO Fraud): Il mittente usa un indirizzo Gmail generico invece di quello aziendale, crea forte urgenza e pressione psicologica per bypassare le procedure.',
+        read: false,
+        flagged: null
+    },
+    {
+        id: 4,
+        from: 'support@microsoft.com',
+        timestamp: 'Oggi 15:20',
+        subject: 'Il tuo abbonamento Microsoft 365',
+        preview: 'Ricevuta di rinnovo automatico...',
+        isPhishing: false,
+        body: 'Gentile Utente,\n\nIl tuo abbonamento a Microsoft 365 è stato rinnovato automaticamente come previsto. Trovi la ricevuta nel tuo account.\n\nSe hai domande, visita support.microsoft.com\n\nMicrosoft Team',
+        hasAttachment: false,
+        explanation: 'LEGITTIMA: Indirizzo mittente ufficiale di Microsoft, nessuna richiesta di dati sensibili o link strani, tono informativo.',
+        links: ['https://support.microsoft.com'],
+        read: false,
+        flagged: null
+    },
+    {
+        id: 5,
+        from: 'vincitore@lotteria-premio.xyz',
+        timestamp: 'Oggi 16:45',
+        subject: 'HAI VINTO UN IPHONE 15!!!',
+        preview: 'Congratulazioni! Sei il visitatore numero 1.000.000...',
+        isPhishing: true,
+        body: 'CONGRATULAZIONI!!!\n\nSei stato estratto come vincitore del nostro premio mensile. Hai vinto un nuovissimo iPhone 15 Pro Max!\n\nScarica il modulo allegato per reclamare il tuo premio entro 1 ora!\n\nClicca qui: http://claim-prize-now.xyz/win',
+        hasAttachment: true,
+        attachmentName: 'modulo_vincita.exe',
+        explanation: 'PHISHING: L\'offerta è troppo bella per essere vera, il dominio è sospetto (.xyz), l\'allegato è un file eseguibile (.exe) che probabilmente contiene malware.',
+        links: ['http://claim-prize-now.xyz/win'],
+        read: false,
+        flagged: null
+    },
+    {
+        id: 6,
+        from: 'newsletter@tech-news.com',
+        timestamp: 'Ieri 18:30',
+        subject: 'Le novità tech della settimana',
+        preview: 'Ecco cosa è successo nel mondo della tecnologia...',
+        isPhishing: false,
+        body: 'Ciao,\n\nEcco il riassunto settimanale delle notizie tech più importanti:\n\n1. Nuovi processori quantistici annunciati\n2. AI Act approvato in EU\n3. Avanzamenti nella cybersecurity\n\nLeggi tutto sul nostro sito.\n\nTech News Team\nUnsubscribe',
+        hasAttachment: false,
+        explanation: 'LEGITTIMA: Tipica newsletter informativa, link coerenti con il brand, nessuna richiesta strana.',
+        links: ['https://tech-news.com/weekly'],
+        read: false,
+        flagged: null
+    }
+];
+
 // Configurazione Browser con siti utili per il phishing detection (fuori dal componente per evitare re-creazione)
 const browserConfig = {
     availableSites: [
@@ -62,21 +149,18 @@ const browserConfig = {
     ]
 };
 
-const Level1Inner = ({ onStepChange, onToggleHint, onComplete }) => {
+const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, correctIdentifications }) => {
     const { damage } = useLevel();
     const { earnStar } = useReputation('level1', 0);
-    const [emailsChecked, setEmailsChecked] = useState(0);
-    const [correctIdentifications, setCorrectIdentifications] = useState(0);
 
     const handleEmailAction = (email, markedAsPhishing, isCorrect) => {
         const newChecked = emailsChecked + 1;
         let finalCorrect = correctIdentifications;
         
-        setEmailsChecked(newChecked);
+        onComplete(newChecked, isCorrect ? correctIdentifications + 1 : correctIdentifications);
 
         if (isCorrect) {
             finalCorrect = correctIdentifications + 1;
-            setCorrectIdentifications(finalCorrect);
             
             // Guadagna stella ogni 2 identificazioni corrette
             if (finalCorrect % 2 === 0) {
@@ -90,21 +174,9 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete }) => {
             // Perde vita se sbaglia
             damage(10);
         }
-        
-        // Completa quando tutte le 6 email sono state controllate
-        if (newChecked === 6) {
-            setTimeout(() => onComplete(finalCorrect, newChecked), 1000);
-        }
     };
 
-    return (
-        <MonitorScreen 
-            onEmailAction={handleEmailAction}
-            onHintClick={onToggleHint}
-            showHintButton={true}
-            browserConfig={browserConfig}
-        />
-    );
+    return null; // Componente logico senza rendering
 };
 
 const Level1 = () => {
@@ -115,13 +187,38 @@ const Level1 = () => {
     const [finalStats, setFinalStats] = useState({ correct: 0, total: 6 });
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
+    const [emailsChecked, setEmailsChecked] = useState(0);
+    const [correctIdentifications, setCorrectIdentifications] = useState(0);
 
-    const handleComplete = (correctCount, totalChecked) => {
-        setFinalStats({ correct: correctCount, total: totalChecked });
-        setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-        setTimeout(() => {
-            setCompleted(true);
-        }, 1500);
+    const handleEmailAction = (email, markedAsPhishing, isCorrect) => {
+        const newChecked = emailsChecked + 1;
+        let finalCorrect = correctIdentifications;
+        
+        setEmailsChecked(newChecked);
+
+        if (isCorrect) {
+            finalCorrect = correctIdentifications + 1;
+            setCorrectIdentifications(finalCorrect);
+            
+            // Cambia step ogni 2 email corrette
+            if (finalCorrect % 2 === 0 && finalCorrect < 6) {
+                setCurrentStep(Math.floor(finalCorrect / 2));
+            }
+        }
+        
+        // Completa quando tutte le 6 email sono state controllate
+        if (newChecked === 6) {
+            setFinalStats({ correct: finalCorrect, total: newChecked });
+            setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
+            setTimeout(() => {
+                setCompleted(true);
+            }, 1500);
+        }
+    };
+
+    const emailConfig = {
+        emails: LEVEL1_EMAILS,
+        showFeedbackPopup: true
     };
 
     const getHintText = () => {
@@ -153,26 +250,34 @@ const Level1 = () => {
     ];
 
     return (
-        <LevelTemplate 
-            stars={stars}
-            hint={showHint ? <InfoPanel text={getHintText()} /> : null}
-        >
-            <Level1Inner 
-                onStepChange={setCurrentStep} 
-                onToggleHint={() => setShowHint(!showHint)}
-                onComplete={handleComplete}
-            />
-            
-            {completed && (
-                console.log('=== RENDERING LevelCompleted ==='),
-                <LevelCompleted
-                    stars={stars}
-                    maxStars={3}
-                    completionTime={completionTime}
-                    levelTitle="il livello di Phishing Detection"
-                />
-            )}
-        </LevelTemplate>
+        <div>
+            {/* Status Bar - mostrato sopra tutto */}
+            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
+                <div className="text-cyan-400 text-lg font-mono flex items-center gap-3">
+                    <span className="font-bold">EMAILS CHECKED:</span>
+                    <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / 6</span>
+                </div>
+            </div>
+
+            <LevelTemplate 
+                stars={stars}
+                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                browserConfig={browserConfig}
+                emailConfig={emailConfig}
+                onEmailAction={handleEmailAction}
+            >                
+                
+                {completed && (
+                    console.log('=== RENDERING LevelCompleted ==='),
+                    <LevelCompleted
+                        stars={stars}
+                        maxStars={3}
+                        completionTime={completionTime}
+                        levelTitle="il livello di Phishing Detection"
+                    />
+                )}
+            </LevelTemplate>
+        </div>
     );
 };
 
