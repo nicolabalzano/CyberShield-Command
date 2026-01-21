@@ -3,8 +3,10 @@
     
     /* Backgrounds */
     --color-cyber-black: #0a0e17;      /* Main background */
+    --color-info-background: #212121;  /* Info sections background */
     --color-cyber-dark-gray: #111827;  /* Cards / Surfaces */
     --color-cyber-light-gray: #1f2937; /* Hoovers / Inputs */
+    --color-cyber-deep-blue: #001a33;  /* Gradient End */
 
     /* Accents */
     --color-cyber-green: #00ff41;      /* Primary Action / Success */

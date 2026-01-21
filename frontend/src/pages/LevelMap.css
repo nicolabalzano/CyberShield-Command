@@ -3,7 +3,7 @@
   height: 100vh;
   margin: 0;
   padding: 30px 20px;
-  background: linear-gradient(135deg, var(--color-cyber-black) 0%, #001a33 100%);
+  background: linear-gradient(135deg, var(--color-cyber-black) 0%, var(--color-cyber-deep-blue) 100%);
   position: relative;
   box-sizing: border-box;
 }
