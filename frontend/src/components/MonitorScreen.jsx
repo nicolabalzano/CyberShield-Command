@@ -3,7 +3,6 @@ import monitorReal from '../assets/monitor_real.png';
 import EmailClient from './EmailClient';
 import Terminal from './Terminal';
 import Browser from './Browser';
-import FileManager from './FileManager';
 import SIEMSystem from './SIEMSystem';
 
 /**
@@ -107,7 +106,6 @@ const MonitorScreen = ({
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <div className="text-[10px] text-slate-400">🔒 Secure</div>
                 <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
               </div>
             </div>
@@ -121,11 +119,7 @@ const MonitorScreen = ({
                   label="Email" 
                   onClick={() => openWindow('Email Client', 'email', { width: 600, height: 400 })}
                 />
-                <DesktopIcon 
-                  icon="📁" 
-                  label="Files" 
-                  onClick={() => openWindow('File Manager', 'files', { width: 400, height: 300 })}
-                />
+
                 <DesktopIcon 
                   icon="💻" 
                   label="Terminal" 
@@ -315,7 +309,6 @@ const Window = ({
       {/* Window Content */}
       <div className="h-[calc(100%-2rem)] overflow-auto p-3">
         {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} {...emailConfig} />}
-        {windowData.contentType === 'files' && <FileManager />}
         {windowData.contentType === 'terminal' && <Terminal {...terminalConfig} />}
         {windowData.contentType === 'browser' && <Browser {...browserConfig} />}
         {windowData.contentType === 'siem' && (
