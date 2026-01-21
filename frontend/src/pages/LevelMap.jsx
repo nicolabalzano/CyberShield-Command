@@ -36,15 +36,15 @@ function LevelMap() {
   const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
 
   const levels = [
-    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 5 },
-    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 15 },
-    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 25 },
-    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 35 },
+    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 3 },
+    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 13.5 },
+    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 24 },
+    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 34.5 },
     { id: 'level5', number: 5, unlocked: true, starsEarned: stars.level5, position: 45 },
-    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 55 },
-    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 65 },
-    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 75 },
-    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 85 },
+    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 55.5 },
+    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 66 },
+    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 76.5 },
+    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 87 },
   ];
 
   const handleLevelClick = (level) => {
@@ -114,7 +114,7 @@ function LevelMap() {
                 </linearGradient>
               </defs>
               <path 
-                d="M 50 150 Q 200 100, 350 150 T 650 150 T 950 150 T 1250 150 T 1550 150 T 1850 150 L 1950 150"
+                d="M 30 150 Q 180 100, 330 150 T 630 150 T 930 150 T 1230 150 T 1530 150 T 1830 150"
                 stroke="url(#pathGradient)"
                 strokeWidth="12"
                 fill="none"
