@@ -11,7 +11,18 @@ import backgroundNight from '../assets/background_night.png';
 import keyboard from '../assets/keyboard.png';
 import HealthBar from './HealthBar';
 
-function LevelTemplateContent({ children, musicTrack = '/level-music.mp3', onFetchData, stars = 0, hint = null }) {
+function LevelTemplateContent({ 
+    children, 
+    musicTrack = '/level-music.mp3', 
+    onFetchData, 
+    stars = 0, 
+    hint = null,
+    browserConfig = {},
+    terminalConfig = {},
+    siemConfig = {},
+    emailConfig = {},
+    onEmailAction
+}) {
   const navigate = useNavigate();
   const { changeTrack } = useAudio();
   const { health } = useLevel();
@@ -50,7 +61,13 @@ function LevelTemplateContent({ children, musicTrack = '/level-music.mp3', onFet
         {/* Center - Real Monitor */}
         {/* Increased size (scale-125 = 1.25x or similar, doing manual scale for 20%) and moved UP (translate-y negative) */}
         <div className="flex-1 flex items-center justify-center pointer-events-auto w-full max-w-6xl px-4 transform scale-[1.3] translate-y-[-12%] z-50">
-            <MonitorScreen>
+            <MonitorScreen
+                browserConfig={browserConfig}
+                terminalConfig={terminalConfig}
+                siemConfig={siemConfig}
+                emailConfig={emailConfig}
+                onEmailAction={onEmailAction}
+            >
                 {/* Content injected here */}
                 {children}
             </MonitorScreen>
