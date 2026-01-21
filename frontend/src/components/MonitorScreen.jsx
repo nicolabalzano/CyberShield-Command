@@ -167,10 +167,7 @@ const MonitorScreen = ({
 
             {/* Taskbar */}
             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-r from-slate-800 to-slate-700 border-t border-slate-600 flex items-center px-3 gap-2 z-50">
-              <button className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded transition-colors">
-                ⚡ Start
-              </button>
-              
+             
               {/* Open Windows */}
               <div className="flex gap-1 flex-1">
                 {windows.map(window => (
