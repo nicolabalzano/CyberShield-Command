@@ -37,16 +37,16 @@ function LevelMap() {
   const totalStars = Object.values(stars).reduce((a, b) => a + b, 0);
 
   const levels = [
-    { id: 'tutorial', number: 0, unlocked: true, starsEarned: stars.tutorial, position: 0, isTutorial: true },
-    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 10 },
-    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 20 },
-    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 30 },
-    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 40 },
-    { id: 'level5', number: 5, unlocked: true, starsEarned: stars.level5, position: 50 },
-    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 60 },
-    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 70 },
-    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 80 },
-    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 90 },
+    { id: 'tutorial', number: 0, unlocked: true, starsEarned: stars.tutorial, position: 3, isTutorial: true },
+    { id: 'level1', number: 1, unlocked: true, starsEarned: stars.level1, position: 13.5 },
+    { id: 'level2', number: 2, unlocked: true, starsEarned: stars.level2, position: 24 },
+    { id: 'level3', number: 3, unlocked: true, starsEarned: stars.level3, position: 34.5 },
+    { id: 'level4', number: 4, unlocked: true, starsEarned: stars.level4, position: 45 },
+    { id: 'level5', number: 5, unlocked: true, starsEarned: stars.level5, position: 55.5 },
+    { id: 'level6', number: 6, unlocked: true, starsEarned: stars.level6, position: 66 },
+    { id: 'level7', number: 7, unlocked: true, starsEarned: stars.level7, position: 76.5 },
+    { id: 'level8', number: 8, unlocked: true, starsEarned: stars.level8, position: 87 },
+    { id: 'level9', number: 9, unlocked: true, starsEarned: stars.level9, position: 97.5 },
   ];
 
   const handleLevelClick = (level) => {
@@ -116,7 +116,7 @@ function LevelMap() {
                 </linearGradient>
               </defs>
               <path 
-                d="M 50 150 Q 200 100, 350 150 T 650 150 T 950 150 T 1250 150 T 1550 150 T 1850 150 L 1950 150"
+                d="M 30 150 Q 180 100, 330 150 T 630 150 T 930 150 T 1230 150 T 1530 150 T 1830 150"
                 stroke="url(#pathGradient)"
                 strokeWidth="12"
                 fill="none"
