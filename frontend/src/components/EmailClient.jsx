@@ -1,91 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-export const DEFAULT_EMAILS = [
-    {
-        id: 1,
-        from: 'admin@company.com',
-        timestamp: 'Today 09:15',
-        subject: 'Weekly Security Update',
-        preview: 'This week\'s security report is now available...',
-        isPhishing: false,
-        body: 'Dear Team,\n\nThis week\'s security report shows all systems are operating normally. Please review the attached compliance document.\n\nBest regards,\nIT Security Team\n\n---\nCyber Security Department\nCompany Inc.\nPhone: +1 555-0100',
-        hasAttachment: true,
-        attachmentName: 'security_report.pdf',
-        explanation: 'Email legittima dal dominio aziendale ufficiale con firma professionale completa.',
-        read: false,
-        flagged: null
-    },
-    {
-        id: 2,
-        from: 'paypa1-security@paypa1-verify.com',
-        timestamp: 'Today 11:42',
-        subject: 'URGENT: Verify Your Account Now!',
-        preview: 'Your account will be suspended unless you verify...',
-        isPhishing: true,
-        body: 'Dear Valued Customer,\n\nYour PayPal account has been limited due to suspicious activity. Click here immediately to verify your identity or your account will be permanently suspended within 24 hours!\n\nVerify Now: http://paypa1-verify.com/login\n\nPayPal Security Team',
-        hasAttachment: false,
-        explanation: 'PHISHING: Dominio falso (paypa1 invece di paypal), richiesta urgente, link sospetto, mancanza di firma ufficiale.',
-        links: ['http://paypa1-verify.com/login'],
-        read: false,
-        flagged: null
-    },
-    {
-        id: 3,
-        from: 'hr@company.com',
-        timestamp: 'Today 10:30',
-        subject: 'Updated Employee Handbook',
-        preview: 'Please review the updated company policies...',
-        isPhishing: false,
-        body: 'Hello,\n\nWe have updated our employee handbook with new policies effective January 2026. Please review it at your earliest convenience through the company portal.\n\nAccess the handbook: https://portal.company.com/hr/handbook\n\nThank you,\nHuman Resources Department\n\n---\nHR Team | Company Inc.\nhr@company.com',
-        hasAttachment: false,
-        explanation: 'Email legittima dal dominio aziendale con link al portale ufficiale e firma completa.',
-        links: ['https://portal.company.com/hr/handbook'],
-        read: false,
-        flagged: null
-    },
-    {
-        id: 4,
-        from: 'ceo@comp4ny-urgent.com',
-        timestamp: 'Today 14:55',
-        subject: 'RE: URGENT - Wire Transfer Needed',
-        preview: 'I need you to process this wire transfer immediately...',
-        isPhishing: true,
-        body: 'Hi,\n\nI\'m in a meeting and need you to process an urgent wire transfer to our new vendor. Please send $15,000 to account 8837465829 at routing number 938475629.\n\nThis is time sensitive - do it now and I\'ll explain later.\n\nCEO',
-        hasAttachment: false,
-        explanation: 'PHISHING (CEO Fraud): Dominio falso (comp4ny invece di company), richiesta urgente di denaro, pressione temporale, tono informale.',
-        read: false,
-        flagged: null
-    },
-    {
-        id: 5,
-        from: 'notifications@github.com',
-        timestamp: 'Today 08:22',
-        subject: 'New pull request in CyberShield-Command',
-        preview: 'A new pull request has been opened...',
-        isPhishing: false,
-        body: 'Hi there,\n\nA new pull request #47 has been opened in your repository CyberShield-Command.\n\nView pull request: https://github.com/yourname/CyberShield-Command/pull/47\n\n---\nYou\'re receiving this because you\'re watching this repository.\nGitHub, Inc.\nUnsubscribe from these emails',
-        hasAttachment: false,
-        explanation: 'Email legittima da GitHub con link corretto e opzioni di unsubscribe standard.',
-        links: ['https://github.com/yourname/CyberShield-Command/pull/47'],
-        read: false,
-        flagged: null
-    },
-    {
-        id: 6,
-        from: 'support@micros0ft-security.com',
-        timestamp: 'Today 15:18',
-        subject: 'Windows Defender Alert - Action Required',
-        preview: 'Multiple viruses detected on your system...',
-        isPhishing: true,
-        body: 'CRITICAL SECURITY ALERT\n\nOur scans have detected 37 viruses on your computer! Your personal data is at risk.\n\nDownload our security tool immediately: http://micros0ft-security.com/fix.exe\n\nFailing to act will result in complete data loss!!!\n\nWindows Security Center',
-        hasAttachment: true,
-        attachmentName: 'security_fix.exe',
-        explanation: 'PHISHING: Dominio falso (micros0ft con zero), tono allarmistico, allegato .exe sospetto, errori grammaticali.',
-        links: ['http://micros0ft-security.com/fix.exe'],
-        read: false,
-        flagged: null
-    }
-];
+import { DEFAULT_EMAILS } from '../data/emailData';
 
 const defaultFeedbackMessages = {
     success_phishing: '✓ Ottimo lavoro! Hai evitato una minaccia cyber!',
@@ -98,7 +12,7 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
     // Usa DEFAULT_EMAILS se initialEmails non è fornito
     const [emails, setEmails] = useState(initialEmails || DEFAULT_EMAILS);
 
-    // Se vengono passate nuove props email (ad esempio cambiando livello), aggiorna lo stato
+    // Se vengono passate nuove props email, aggiorna lo stato
     useEffect(() => {
         if (initialEmails) {
             setEmails(initialEmails);
