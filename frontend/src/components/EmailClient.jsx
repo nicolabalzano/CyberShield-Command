@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { DEFAULT_EMAILS } from '../data/emailData';
 
 const defaultFeedbackMessages = {
     success_phishing: '✓ Ottimo lavoro! Hai evitato una minaccia cyber!',
