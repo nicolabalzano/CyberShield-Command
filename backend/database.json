@@ -9,7 +9,7 @@
         "stars": {
             "tutorial": 3,
             "level1": 3,
-            "level2": 0,
+            "level2": 1,
             "level3": 0,
             "level4": 0,
             "level5": 0,
@@ -23,6 +23,6 @@
             "musicVolume": 100,
             "sfxVolume": 100
         },
-        "lastSaved": "2026-01-21T15:03:10.357172"
+        "lastSaved": "2026-01-22T19:58:56.635026"
     }
 }
