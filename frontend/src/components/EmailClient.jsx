@@ -8,8 +8,7 @@ const defaultFeedbackMessages = {
 };
 
 const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, showFeedbackPopup = true }) => {
-    // Usa DEFAULT_EMAILS se initialEmails non è fornito
-    const [emails, setEmails] = useState(initialEmails || DEFAULT_EMAILS);
+    const [emails, setEmails] = useState(initialEmails || []);
 
     // Se vengono passate nuove props email, aggiorna lo stato
     useEffect(() => {
@@ -81,7 +80,14 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
                     <div className="bg-slate-100 border-b border-slate-300 p-2 font-bold text-slate-700 sticky top-0">
                         Inbox ({emails.filter(e => !e.read).length} non lette)
                     </div>
-                    {emails.map(email => (
+                    {emails.length === 0 ? (
+                        <div className="p-8 text-center text-slate-400">
+                            <div className="text-4xl mb-2">📭</div>
+                            <div className="font-semibold">Nessuna email</div>
+                            <div className="text-xs mt-1">La tua inbox è vuota</div>
+                        </div>
+                    ) : (
+                        emails.map(email => (
                         <div
                             key={email.id}
                             onClick={() => handleEmailClick(email)}
@@ -110,7 +116,8 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
                             </div>
                             <div className="text-[9px] text-slate-400 mt-1">{email.timestamp}</div>
                         </div>
-                    ))}
+                        ))
+                    )}
                 </div>
 
                 {/* Email Content */}
