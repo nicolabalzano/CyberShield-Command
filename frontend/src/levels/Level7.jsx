@@ -53,13 +53,14 @@ RET`,
 
 void check_credentials(int input_code) {
     // SECURITY CHECK
-    // 0xBADC0DE is decimal 195932126
-    if (input_code == 195932126) { 
+    // WARN: Debug mode active!
+    // TODO: Verify input_code matches secure token (195932126)
+    
+    if (1) { // VULNERABILITY: Always returns true!
         print_success("Access Granted! System Unlocked.");
         init_system_drivers();
     } else {
         print_error("Access Denied. Invalid Authorization Code.");
-        // log_attempt(input_code); 
         exit(1);
     }
 }
@@ -135,13 +136,36 @@ int main() {
 
     // Current File being edited
     const [currentFileKey, setCurrentFileKey] = useState(null);
+    const [hintIndex, setHintIndex] = useState(0);
+
+    // Reset hint index when phase changes
+    useEffect(() => {
+        setHintIndex(0);
+    }, [phase]);
+
+    // Timer for progressive hints in Phase 1
+    useEffect(() => {
+        if (phase === 1) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 10000); // 10 seconds per hint
+            return () => clearInterval(timer);
+        }
+    }, [phase]);
 
     const getHintText = () => {
         switch(phase) {
             case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
-            case 1: return "Nel Decompiler, guarda l'istruzione IF. Se vogliamo che l'accesso sia SEMPRE garantito, dobbiamo rimuovere il controllo o renderlo sempre vero (es. 'if(true)'). Rimuovi l'else per sicurezza.";
-            case 2: return "Ora che hai patchato il file, apri il TERMINALE. Compila con 'build' ed esegui con './auth.exe' per testare il bypass.";
-            case 3: return "Sfida: 'updater.exe' verifica una firma digitale. Trova la funzione che fa il controllo e modificala per eseguire l'aggiornamento SEMPRE, ignorando la validità della firma.";
+            case 1: 
+                const hints = [
+                    "Abbiamo rilevato che 'auth.exe' garantisce l'accesso a chiunque. Sembra esserci un grave errore di programmazione (Debug Mode lasciato attivo).",
+                    "Analizza il codice C decompilato. Cerca la funzione 'check_credentials'. Noti qualcosa di strano nell'istruzione IF?",
+                    "L'istruzione 'if(1)' (o if(true)) rende la condizione sempre vera, bypassando ogni controllo. Dobbiamo ripristinare la sicurezza.",
+                    "Modifica il codice: sostituisci 'if(1)' con un controllo sul codice di sicurezza. Il codice corretto dovrebbe essere 195932126 (0xBADC0DE). Es: 'if (input_code == 195932126)'"
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            case 2: return "Ora che hai ripristinato la sicurezza, compila ed esegui './auth.exe' per verificare che l'accesso sia protetto.";
+            case 3: return "Sfida: 'updater.exe' ha un problema opposto. Blocca anche gli aggiornamenti validi. Analizzalo e correggi la logica.";
             case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come prima.";
             default: return null;
         }
@@ -156,20 +180,20 @@ int main() {
                 const newLog = { 
                     id: 3, 
                     timestamp: '10:11:45', 
-                    source: 'UNKNOWN_BINARY', 
+                    source: 'INTERNAL', 
                     severity: 'critical', 
-                    message: 'Execution Blocked: unauthorized syscall in auth.exe', 
+                    message: 'Auth Bypass Detected: Admin access granted to anonymous user.', 
                     threat: true 
                 };
                 setLogs(prev => [...prev, newLog]);
-            }, 2000);
+            }, 5000);
             return () => clearTimeout(timer);
         }
     }, [phase]);
 
     const handleLogClick = (log) => {
         if (log.threat && phase === 0) {
-            setTerminalHistory(prev => [...prev, '$ ALERT: Suspicious binary "auth.exe" quarantined.', '$ ACTION REQUIRED: Analyze and Patch.']);
+            setTerminalHistory(prev => [...prev, '$ ALERT: Vulnerability detected in "auth.exe".', '$ ACTION REQUIRED: Fix the security check logic.']);
             setPhase(1);
             // Auto switch to Rev view hint
             setTimeout(() => {
@@ -217,19 +241,19 @@ int main() {
         // EXECUTION COMMAND
         if (cmd === './auth.exe' && phase === 2) {
             const currentCode = files['auth.exe'].c;
-            // Check if patched correctly
-            const isPatched = !currentCode.includes('if (input_code == 195932126)') && 
-                              (currentCode.includes('print_success') || currentCode.includes('init_system_drivers'));
+            // Check if patched correctly (Secure check IMPLEMENTED)
+            const isPatched = currentCode.includes('if (input_code == 195932126)');
             
             if (isPatched) {
                 heal(10);
                 addStar(); // Star for first part
                 setTerminalHistory(prev => [...prev, 
                     '> Executing auth.exe...',
+                    '> Enter Access Code: 195932126',
                     '[SUCCESS] Access Granted! System Unlocked.',
-                    '$ LESSON: The vulnerability was a "Client-Side Trust" issue.',
-                    '$ EXPLANATION: Never trust the client. Hardcoded credentials or local logic checks can always be bypassed by modifying the binary.',
-                    '$ INSTRUCTION: Great job. Now analyze "updater.exe". It has a similar flaw.'
+                    '$ STATUS: Vulnerability fixed. Code is now required.',
+                    '$ EXPLANATION: Great job patching the logic error.',
+                    '$ INSTRUCTION: Now analyze "updater.exe". It has a similar flaw.'
                 ]);
                 setTimeout(() => {
                     setPhase(3);
@@ -238,15 +262,16 @@ int main() {
                         ...prev,
                         'updater.exe': { ...prev['updater.exe'], hidden: false }
                     }));
-                    alert("Training Complete. Now analyze 'updater.exe' on your own.");
+                    alert("Auth fixed! Now analyze 'updater.exe'.");
                 }, 2000);
                 return null;
             } else {
                 takeDamage(10);
                 return [
                     '> Executing auth.exe...',
-                    '[ERROR] Access Denied. Invalid Authorization Code.',
-                    '$ FAIL: The security check is still active. Patch the code!'
+                    '> Enter Access Code: 0000',
+                    '[SUCCESS] Access Granted! System Unlocked.',
+                    '$ FAIL: The system still accepts ANY code! You must restrict it.'
                 ];
             }
         }

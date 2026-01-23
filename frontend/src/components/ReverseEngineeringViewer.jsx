@@ -45,7 +45,7 @@ const ReverseEngineeringViewer = ({
                             <span
                                 key={key}
                                 onClick={() => handleFileClick(key)}
-                                className={`text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-[#37373d] ${currentKey === key ? 'bg-[#37373d] text-white' : 'text-gray-400'}`}
+                                className={`text-left px-1 py-2 text-xs flex items-center gap-1 hover:bg-[#37373d] ${currentKey === key ? 'bg-[#37373d] text-white' : 'text-gray-400'}`}
                             >
                                 <span>📄</span>
                                 {files[key].name}
@@ -56,14 +56,6 @@ const ReverseEngineeringViewer = ({
             )}
 
             <div className="flex-1 flex flex-col h-full overflow-hidden">
-                {/* Header / Menu Bar */}
-                <div className="bg-[#2d2d2d] flex items-center px-4 py-1 border-b border-gray-700 justify-between">
-                    <div className="flex items-center space-x-2">
-
-                        <span className="ml-4 text-gray-300 font-bold">Ghidra-Lite Decompiler v1.0</span>
-                    </div>
-                    <div className="text-blue-400 text-xs">Target: {currentFile.name}</div>
-                </div>
 
                 {/* Toolbar */}
                 <div className="bg-[#252526] px-4 py-1 border-b border-gray-700 flex space-x-4 text-gray-400 text-xs">
@@ -82,7 +74,7 @@ const ReverseEngineeringViewer = ({
                     {!readOnly && (
                         <span 
                             onClick={() => onSave(code, currentKey)}
-                            className="bg-blue-600 hover:bg-blue-700 px-2 py-1 text-white rounded flex items-center text-xs"
+                            className="bg-gray-600 hover:bg-gray-700 px-2 py-1 text-white rounded flex items-center text-xs"
                         >
                             <span>💾</span> PATCH & SAVE
                         </span>
@@ -119,11 +111,6 @@ const ReverseEngineeringViewer = ({
                             readOnly={readOnly}
                         />
                     </div>
-                </div>
-                
-                <div className="bg-[#007acc] text-white text-xs px-2 py-1 flex justify-between">
-                    <span>ready</span>
-                    <span>{currentFile.size}</span>
                 </div>
             </div>
         </div>
