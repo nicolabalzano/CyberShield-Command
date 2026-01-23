@@ -31,7 +31,8 @@ const MonitorScreen = ({
   browserConfig = {},
   revEngConfig = null,
   statusText = null,
-  className = ""
+  className = "",
+  children
 }) => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [windows, setWindows] = useState([]);
@@ -86,6 +87,9 @@ const MonitorScreen = ({
   };
   return (
     <BrowserProvider openWindow={openWindow}>
+      {/* Renderizza children nascosti (per componenti logici come DamageHandler) */}
+      {children}
+      
       <div className={`relative w-full max-w-5xl aspect-video bg-transparent ${className}`}>
         {/* This image acts as the monitor frame */}
         <div className="relative w-full h-full flex items-center justify-center">

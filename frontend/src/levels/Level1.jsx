@@ -150,6 +150,90 @@ const browserConfig = {
     ]
 };
 
+// Componente interno per gestire il danno usando useLevel
+const DamageHandler = ({ errorTrigger, damageAmount }) => {
+    const { damage } = useLevel();
+    const lastProcessedRef = React.useRef(null);
+    
+    React.useEffect(() => {
+        console.log('DamageHandler useEffect:', { errorTrigger, damageAmount, lastProcessed: lastProcessedRef.current });
+        // Applica il danno solo se errorTrigger è cambiato e non è null
+        if (errorTrigger !== null && errorTrigger !== lastProcessedRef.current) {
+            console.log('Applying damage:', damageAmount);
+            damage(damageAmount);
+            lastProcessedRef.current = errorTrigger;
+        }
+    }, [errorTrigger, damageAmount, damage]);
+    
+    return null;
+};
+
+// Componente wrapper con logica interna che usa useLevel
+const Level1Content = ({ 
+    stars,
+    currentStep,
+    showHint,
+    completed,
+    finalStats,
+    completionTime,
+    emailsChecked,
+    totalEmails,
+    damagePerError,
+    lastErrorTrigger,
+    getHintText,
+    browserConfig,
+    emailConfig,
+    onEmailAction
+}) => {
+    return (
+        <>
+            {/* Status Bar - mostrato sopra tutto */}
+            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
+                <div className="text-cyan-400 text-lg font-mono flex items-center gap-3">
+                    <span className="font-bold">EMAILS CHECKED:</span>
+                    <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / {totalEmails}</span>
+                </div>
+            </div>
+
+            <LevelTemplate 
+                stars={stars}
+                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                browserConfig={browserConfig}
+                emailConfig={emailConfig}
+                onEmailAction={onEmailAction}
+            >                
+                {/* Componente che gestisce il danno */}
+                <DamageHandler 
+                    key={lastErrorTrigger} 
+                    errorTrigger={lastErrorTrigger} 
+                    damageAmount={damagePerError} 
+                />
+                
+                {completed && (
+                    <LevelCompleted
+                        stars={stars}
+                        maxStars={3}
+                        completionTime={completionTime}
+                        levelTitle="il livello di Phishing Detection"
+                        additionalStats={[
+                            {
+                                label: 'Email identificate correttamente',
+                                value: `${finalStats.correct}/${finalStats.total}`,
+                                color: finalStats.correct === finalStats.total ? 'text-cyber-green' : 'text-yellow-400'
+                            },
+                            {
+                                label: 'Precisione',
+                                value: `${Math.round((finalStats.correct / finalStats.total) * 100)}%`,
+                                color: finalStats.correct >= 5 ? 'text-cyber-green' : finalStats.correct >= 3 ? 'text-yellow-400' : 'text-red-500'
+                            }
+                        ]}
+                    />
+                )}
+            </LevelTemplate>
+        </>
+    );
+};
+
 const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, correctIdentifications }) => {
     const { damage } = useLevel();
     const { earnStar } = useReputation('level1', 0);
@@ -181,7 +265,7 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, co
 };
 
 const Level1 = () => {
-    const { stars } = useReputation('level1', 0);
+    const { stars, earnStar } = useReputation('level1', 0);
     const [currentStep, setCurrentStep] = useState(0);
     const [showHint, setShowHint] = useState(true);
     const [completed, setCompleted] = useState(false);
@@ -190,8 +274,14 @@ const Level1 = () => {
     const [completionTime, setCompletionTime] = useState(0);
     const [emailsChecked, setEmailsChecked] = useState(0);
     const [correctIdentifications, setCorrectIdentifications] = useState(0);
+    const [lastErrorTrigger, setLastErrorTrigger] = useState(null);
+
+    // Calcola il danno in base al numero totale di email
+    const totalEmails = LEVEL1_EMAILS.length;
+    const damagePerError = Math.round(100 / totalEmails);
 
     const handleEmailAction = (email, markedAsPhishing, isCorrect) => {
+        console.log('handleEmailAction chiamato:', { email: email.id, markedAsPhishing, isCorrect });
         const newChecked = emailsChecked + 1;
         let finalCorrect = correctIdentifications;
         
@@ -201,14 +291,22 @@ const Level1 = () => {
             finalCorrect = correctIdentifications + 1;
             setCorrectIdentifications(finalCorrect);
             
+            // Guadagna stella ogni 2 identificazioni corrette
+            if (finalCorrect % 2 === 0) {
+                earnStar();
+            }
+            
             // Cambia step ogni 2 email corrette
             if (finalCorrect % 2 === 0 && finalCorrect < 6) {
                 setCurrentStep(Math.floor(finalCorrect / 2));
-            }
+            }        } else {
+            // Trigger per il danno
+            console.log('Triggering damage:', damagePerError);
+            setLastErrorTrigger(Date.now());
         }
         
         // Completa quando tutte le 6 email sono state controllate
-        if (newChecked === 6) {
+        if (newChecked === totalEmails) {
             setFinalStats({ correct: finalCorrect, total: newChecked });
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setTimeout(() => {
@@ -237,48 +335,23 @@ const Level1 = () => {
         }
     };
 
-    const additionalStats = [
-        {
-            label: 'Email identificate correttamente',
-            value: `${finalStats.correct}/${finalStats.total}`,
-            color: finalStats.correct === finalStats.total ? 'text-cyber-green' : 'text-yellow-400'
-        },
-        {
-            label: 'Precisione',
-            value: `${Math.round((finalStats.correct / finalStats.total) * 100)}%`,
-            color: finalStats.correct >= 5 ? 'text-cyber-green' : finalStats.correct >= 3 ? 'text-yellow-400' : 'text-red-500'
-        }
-    ];
-
     return (
-        <div>
-            {/* Status Bar - mostrato sopra tutto */}
-            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
-                <div className="text-cyan-400 text-lg font-mono flex items-center gap-3">
-                    <span className="font-bold">EMAILS CHECKED:</span>
-                    <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / 6</span>
-                </div>
-            </div>
-
-            <LevelTemplate 
-                stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
-                browserConfig={browserConfig}
-                emailConfig={emailConfig}
-                onEmailAction={handleEmailAction}
-            >                
-                
-                {completed && (
-                    console.log('=== RENDERING LevelCompleted ==='),
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="il livello di Phishing Detection"
-                    />
-                )}
-            </LevelTemplate>
-        </div>
+        <Level1Content
+            stars={stars}
+            currentStep={currentStep}
+            showHint={showHint}
+            completed={completed}
+            finalStats={finalStats}
+            completionTime={completionTime}
+            emailsChecked={emailsChecked}
+            totalEmails={totalEmails}
+            damagePerError={damagePerError}
+            lastErrorTrigger={lastErrorTrigger}
+            getHintText={getHintText}
+            browserConfig={browserConfig}
+            emailConfig={emailConfig}
+            onEmailAction={handleEmailAction}
+        />
     );
 };
 
