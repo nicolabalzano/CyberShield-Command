@@ -801,11 +801,11 @@ Active Protections:
         
         switch(currentStep) {
             case 0:
-                return '🔍 STEP 1: Analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Usa "analyze-requests".';
+                return 'Analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Usa "analyze-requests".';
             case 1:
-                return '🛡️ STEP 2: Hai identificato CSRF! Usa "enable-csrf-tokens" per proteggere le richieste state-changing.';
+                return 'Hai identificato CSRF! Usa "enable-csrf-tokens" per proteggere le richieste state-changing.';
             case 2:
-                return '🔄 STEP 3: Aggiungi "enable-samesite" per protezione extra, poi riavvia con "restart-app".';
+                return 'Aggiungi "enable-samesite" per protezione extra, poi riavvia con "restart-app".';
             default:
                 return '✅ Controlla lo stato con "status" e verifica il balance nel browser!';
         }
@@ -832,30 +832,6 @@ Active Protections:
 
     return (
         <div>
-            {/* Status Bar */}
-            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
-                <div className="text-cyan-400 text-lg font-mono flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="font-bold">CSRF STATUS:</span>
-                        <span className={`text-xl font-bold ${
-                            !attackActive ? 'text-green-500' :
-                            unauthorizedActions ? 'text-red-500 animate-pulse' :
-                            'text-yellow-500'
-                        }`}>
-                            {!attackActive ? 'SECURE' : unauthorizedActions ? 'ACTIVE' : 'PARTIAL'}
-                        </span>
-                    </div>
-                    <div className="text-sm">
-                        <span className="font-bold">BALANCE:</span>
-                        <span className={`ml-2 ${
-                            accountBalance === USER_ACCOUNT.balance ? 'text-green-500' : 'text-red-500 animate-pulse'
-                        }`}>
-                            ${accountBalance.toLocaleString()}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
             <LevelTemplate 
                 stars={stars}
                 hint={showHint ? <InfoPanel text={getHintText()} /> : null}

@@ -323,11 +323,11 @@ const Level1 = () => {
     const getHintText = () => {
         switch(currentStep) {
             case 0:
-                return '📧 STEP 1: Apri ogni email e controlla il mittente. Clicca sull\'indirizzo per vedere il dominio completo. Cerca errori come "paypa1.com" invece di "paypal.com".';
+                return 'Apri ogni email e controlla il mittente. Clicca sull\'indirizzo per vedere il dominio completo. Cerca errori come "paypa1.com" invece di "paypal.com".';
             case 1:
-                return '🔍 STEP 2: Usa il pulsante "Ispeziona Header" per vedere i dettagli tecnici. SPF e DKIM in "FAIL" indicano che l\'email non è autentica!';
+                return 'Usa il pulsante "Ispeziona Header" per vedere i dettagli tecnici. SPF e DKIM in "FAIL" indicano che l\'email non è autentica!';
             case 2:
-                return '📝 STEP 3: Leggi attentamente il contenuto. Attento a: richieste urgenti, errori grammaticali, richieste di denaro/password, tono sospetto.';
+                return 'Leggi attentamente il contenuto. Attento a: richieste urgenti, errori grammaticali, richieste di denaro/password, tono sospetto.';
             default:
                 return '✅ Continua! Classifica ogni email con "Email Sicura" o "Segnala Phishing". Riceverai feedback immediato dopo ogni scelta. Attenzione agli allegati .exe!';
         }
