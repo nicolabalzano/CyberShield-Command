@@ -4,6 +4,7 @@ import EmailClient from './EmailClient';
 import Terminal from './Terminal';
 import Browser from './Browser';
 import SIEMSystem from './SIEMSystem';
+import ReverseEngineeringViewer from './ReverseEngineeringViewer';
 
 /**
  * A reusable component that frames content inside a monitor image.
@@ -27,6 +28,7 @@ const MonitorScreen = ({
   siemConfig = {},
   emailConfig = {},
   browserConfig = {},
+  revEngConfig = null,
   statusText = null,
   className = ""
 }) => {
@@ -137,6 +139,14 @@ const MonitorScreen = ({
                   label="SIEM" 
                   onClick={() => openWindow('SIEM System', 'siem', { width: 700, height: 500 })}
                 />
+                
+                {revEngConfig && (
+                  <DesktopIcon 
+                    icon="🐞" 
+                    label="RE Tool" 
+                    onClick={() => openWindow('Reverse Engineering Tool', 'reveng', { width: 800, height: 600 })} 
+                  />
+                )}
               </div>
 
 
@@ -156,6 +166,7 @@ const MonitorScreen = ({
                     siemConfig={siemConfig}
                     emailConfig={emailConfig}
                     browserConfig={browserConfig}
+                    revEngConfig={revEngConfig}
                   />
                 )
               ))}
@@ -212,7 +223,8 @@ const Window = ({
   terminalConfig,
   siemConfig,
   emailConfig,
-  browserConfig
+  browserConfig,
+  revEngConfig
 }) => {
   const [position, setPosition] = useState(windowData.position);
   const [isDragging, setIsDragging] = useState(false);
@@ -319,6 +331,7 @@ const Window = ({
             onLogClick={siemConfig.onLogClick || (() => {})}
           />
         )}
+        {windowData.contentType === 'reveng' && <ReverseEngineeringViewer {...revEngConfig} />}
       </div>
     </div>
   );

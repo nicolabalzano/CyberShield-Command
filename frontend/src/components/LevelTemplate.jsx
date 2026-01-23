@@ -21,6 +21,7 @@ function LevelTemplateContent({
     terminalConfig = {},
     siemConfig = {},
     emailConfig = {},
+    revEngConfig = null,
     onEmailAction
 }) {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ function LevelTemplateContent({
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
                 emailConfig={emailConfig}
+                revEngConfig={revEngConfig}
                 onEmailAction={onEmailAction}
             >
                 {/* Content injected here */}
@@ -104,5 +106,5 @@ function LevelTemplate({ initialHealth = 100, ...props }) {
   );
 }
 
-export { useLevel };
+export { useLevel, LevelTemplateContent };
 export default LevelTemplate;
