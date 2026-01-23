@@ -152,6 +152,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
 }
 
 .volume-label {
@@ -176,14 +177,30 @@
 }
 
 .volume-slider {
+  -webkit-appearance: slider-horizontal;
+  -moz-appearance: slider-horizontal;
+  appearance: slider-horizontal;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: var(--color-cyber-dark-gray);
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  display: block;
+  pointer-events: auto;
+}
+
+/* WebKit (Chrome, Safari, Edge) */
+.volume-slider::-webkit-slider-runnable-track {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 8px;
   border-radius: 5px;
   background: var(--color-cyber-dark-gray);
-  outline: none;
-  transition: all 0.3s ease;
+  border: none;
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -195,13 +212,36 @@
   background: var(--color-cyber-neon-blue);
   cursor: pointer;
   box-shadow: 0 0 15px var(--color-cyber-neon-blue);
-  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  z-index: 6;
+  pointer-events: auto;
+  -webkit-user-drag: element;
 }
 
 .volume-slider::-webkit-slider-thumb:hover {
   background: var(--color-cyber-green);
   box-shadow: 0 0 20px var(--color-cyber-green);
   transform: scale(1.2);
+}
+
+.volume-slider::-webkit-slider-thumb:active {
+  background: var(--color-cyber-green);
+  box-shadow: 0 0 25px var(--color-cyber-green);
+}
+
+/* Firefox */
+.volume-slider::-moz-range-track {
+  background: var(--color-cyber-dark-gray);
+  border: none;
+  border-radius: 5px;
+  height: 8px;
+}
+
+.volume-slider::-moz-range-progress {
+  background: var(--color-cyber-neon-blue);
+  border-radius: 5px;
+  height: 8px;
 }
 
 .volume-slider::-moz-range-thumb {
@@ -212,13 +252,26 @@
   cursor: pointer;
   border: none;
   box-shadow: 0 0 15px var(--color-cyber-neon-blue);
-  transition: all 0.3s ease;
+  position: relative;
+  z-index: 6;
+  pointer-events: auto;
 }
 
 .volume-slider::-moz-range-thumb:hover {
   background: var(--color-cyber-green);
   box-shadow: 0 0 20px var(--color-cyber-green);
   transform: scale(1.2);
+}
+
+.volume-slider::-moz-range-thumb:active {
+  background: var(--color-cyber-green);
+  box-shadow: 0 0 25px var(--color-cyber-green);
+}
+
+/* Cross-browser focus state */
+.volume-slider:focus {
+  outline: 2px solid var(--color-cyber-neon-blue);
+  outline-offset: 2px;
 }
 
 /* Info Sections */
