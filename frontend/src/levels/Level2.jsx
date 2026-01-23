@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
+import HealthBar from '../components/HealthBar';
 
 /**
  * LEVEL 2: DDoS ATTACK MITIGATION
@@ -122,7 +123,6 @@ const Level2 = () => {
     const { stars } = useReputation('level2', 0);
     const { earnStar } = useReputation('level2', 0);
 
-    // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // Attacco in corso
     const [trafficLevel, setTrafficLevel] = useState(95); // Traffico anomalo (0-100)
     const [blockedIPs, setBlockedIPs] = useState([]); // IP bloccati dal giocatore
@@ -130,72 +130,98 @@ const Level2 = () => {
     const [rateLimitEnabled, setRateLimitEnabled] = useState(false); // Rate limiting attivo
     const [falsePositives, setFalsePositives] = useState(0); // IP legittimi bloccati per errore
     const [correctBlocks, setCorrectBlocks] = useState(0); // IP malevoli bloccati correttamente
-    
+
+    // Health bar: calcolata in base al tempo e traffico
+    const [missionEnd, setMissionEnd] = useState(false);
+    const [missionSuccess, setMissionSuccess] = useState(false);
+    const [startHealthTime, setStartHealthTime] = useState(Date.now());
+    const [healthAtStart, setHealthAtStart] = useState(100);
+
+    // Stato salute dinamica
+    const [health, setHealth] = useState(100);
+
+    // Aggiorna la salute ogni secondo in base al tempo e traffico
+    useEffect(() => {
+        if (!attackActive || missionEnd) return;
+        const interval = setInterval(() => {
+            setHealth(prev => {
+                let decrement = 0;
+                if (trafficLevel > 80) decrement = 2;
+                else if (trafficLevel > 50) decrement = 1;
+                else if (trafficLevel > 30) decrement = 1;
+                else decrement = 1;
+                // Ogni 6 secondi scende di decrement
+                return Math.max(0, prev - (decrement / 6));
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [attackActive, missionEnd, trafficLevel]);
+
+    // Quando cambia il traffico o reset, aggiorna la salute di partenza
+    useEffect(() => {
+        if (!attackActive || missionEnd) return;
+        setHealth(healthAtStart);
+    }, [trafficLevel, firewallEnabled, rateLimitEnabled, blockedIPs, attackActive, missionEnd, healthAtStart]);
+
+    // Quando cambia il traffico (o protezioni), aggiorna il punto di partenza della salute
+    useEffect(() => {
+        if (!attackActive || missionEnd) return;
+        setHealthAtStart(health);
+        setStartHealthTime(Date.now());
+    }, [trafficLevel, firewallEnabled, rateLimitEnabled, blockedIPs, attackActive, missionEnd]);
+
     // UI State
     const [completed, setCompleted] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
-    const [startTime] = useState(Date.now());
+    const [startTime, setStartTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
     const [terminalOutput, setTerminalOutput] = useState([]);
 
-    // === LOGICA DI MITIGAZIONE ===
     // Quando il giocatore blocca IP o attiva protezioni, il traffico diminuisce
     useEffect(() => {
         let newTraffic = 95;
-        
         // Rate limiting riduce il traffico del 30%
-        if (rateLimitEnabled) {
-            newTraffic -= 30;
-        }
-        
+        if (rateLimitEnabled) newTraffic -= 30;
         // Firewall riduce il traffico del 20%
-        if (firewallEnabled) {
-            newTraffic -= 20;
-        }
-        
+        if (firewallEnabled) newTraffic -= 20;
         // Ogni IP malevolo bloccato riduce il traffico del 10%
         newTraffic -= (correctBlocks * 10);
-        
         // Il traffico non può scendere sotto 5 (traffico normale)
         newTraffic = Math.max(5, newTraffic);
-        
         setTrafficLevel(newTraffic);
-        
         // L'attacco è mitigato se il traffico scende sotto 40%
         if (newTraffic < 40 && attackActive) {
             setAttackActive(false);
-            
-            // Guadagna stella per completamento base
-            if (stars === 0) {
-                earnStar();
-            }
-            
-            // Stella 2: nessun falso positivo
-            if (falsePositives === 0 && stars === 1) {
-                earnStar();
-            }
-            
-            // Stella 3: tutti gli IP malevoli bloccati + rate limiting
-            if (correctBlocks >= 4 && rateLimitEnabled && stars === 2) {
-                earnStar();
-            }
-        }
-    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, stars, earnStar, falsePositives]);
-
-    // === CONDIZIONE DI COMPLETAMENTO ===
-    // Livello completato quando l'attacco è mitigato
-    useEffect(() => {
-        if (!attackActive && !completed) {
+            setCompleted(true);
+            setMissionEnd(true);
+            setMissionSuccess(true);
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-            setTimeout(() => {
-                setCompleted(true);
-            }, 2000);
+            // Assegna stelle in modo progressivo
+            if (stars < 1) earnStar(); // 1 stella: completamento
+            if (falsePositives === 0 && stars < 2) earnStar(); // 2 stelle: nessun falso positivo
+            if (correctBlocks === MALICIOUS_IPS.length && stars < 3) earnStar(); // 3 stelle: tutti i malevoli bloccati
         }
-    }, [attackActive, completed, startTime]);
+    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, stars, earnStar, falsePositives, startTime]);
 
-    // === CONFIGURAZIONE BROWSER ===
-    // Mostra lo stato del sito web (down durante attacco, up dopo mitigazione)
+    // === HEALTH BAR TIMER ===
+    useEffect(() => {
+        if (missionEnd || !attackActive) return;
+        if (health <= 0) {
+            setMissionEnd(true);
+            setMissionSuccess(false);
+            setAttackActive(false);
+            setCompleted(true);
+            return;
+        }
+        const interval = setInterval(() => {
+            // Forza il re-render per aggiornare la barra salute
+            // (usando un dummy state, oppure setStartHealthTime per triggerare)
+            setStartHealthTime(t => t);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [attackActive, missionEnd, health]);
+
     const browserConfig = {
         availableSites: [
             {
@@ -409,13 +435,13 @@ Normal users:
         
         switch(currentStep) {
             case 0:
-                return '⚠️ STEP 1: Analizza i log SIEM. Noti molte richieste HTTP ripetute? Usa "analyze" nel terminal per dettagli.';
+                return 'Analizza i log SIEM. Noti molte richieste HTTP ripetute? Prova a limitare il traffico.';
             case 1:
-                return '🎯 STEP 2: Usa "list-ips" per vedere gli IP sospetti. Blocca gli IP con traffico anomalo usando "block <ip>".';
+                return 'Usa il comando per vedere gli IP sospetti e blocca quelli malevoli.';
             case 2:
-                return '🛡️ STEP 3: Abilita il firewall con "enable-firewall" per filtrare automaticamente pattern sospetti.';
+                return 'Abilita il firewall per filtrare automaticamente pattern sospetti.';
             default:
-                return '✅ Continua a mitigare l\'attacco! Usa "status" per monitorare i progressi.';
+                return 'Continua a mitigare l\'attacco!';
         }
     };
 
@@ -450,22 +476,44 @@ Normal users:
 
     return (
         <div>
-            {/* Il blocco della barra di stato è stato rimosso da qui */}
-
             <LevelTemplate 
                 stars={stars}
                 hint={showHint ? <InfoPanel text={getHintText()} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-            >                
-                {completed && (
-                    <LevelCompleted
-                        stars={stars}
+            >
+                {/* Schermata di fine livello: successo o sconfitta */}
+                {missionEnd && (
+                    <MissionDebrief
+                        success={missionSuccess}
+                        stats={{ stars, health }}
                         maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="DDoS Attack Mitigation"
-                        additionalStats={additionalStats}
+                        recapText={missionSuccess
+                            ? `Hai mitigato con successo l'attacco DDoS!\n\n- IP malevoli bloccati: ${correctBlocks}/${MALICIOUS_IPS.length}\n- Falsi positivi: ${falsePositives}\n- Traffico residuo: ${trafficLevel}%\n\nOttimo lavoro, il sito è tornato online.`
+                            : `Il sistema è stato sopraffatto dall'attacco DDoS.\n\n- Salute sistema: 0%\n- IP bloccati: ${blockedIPs.length}\n- Falsi positivi: ${falsePositives}\n\nRiprova a mitigare l'attacco analizzando meglio i log e bloccando solo gli IP malevoli.`
+                        }
+                        onRetry={() => {
+                            // Reset stato livello e salute
+                            setHealthAtStart(100);
+                            setStartHealthTime(Date.now());
+                            setAttackActive(true);
+                            setTrafficLevel(95);
+                            setBlockedIPs([]);
+                            setFirewallEnabled(false);
+                            setRateLimitEnabled(false);
+                            setFalsePositives(0);
+                            setCorrectBlocks(0);
+                            setCompleted(false);
+                            setShowHint(true);
+                            setCurrentStep(0);
+                            setStartTime(Date.now());
+                            setMissionEnd(false);
+                        }}
+                        onExit={() => {
+                            // Torna alla mappa livelli
+                            window.location.href = '/map';
+                        }}
                     />
                 )}
             </LevelTemplate>

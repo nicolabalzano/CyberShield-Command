@@ -42,7 +42,7 @@ export const translations = {
       play: "GIOCA",
       levelInfo: {
         tutorial: { name: "Tutorial SIEM", description: "Impara le basi di un sistema SIEM (Security Information and Event Management) e come rilevare minacce." },
-        level1: { name: "Basi di Rete", description: "Impara i fondamenti della sicurezza di rete e identifica le vulnerabilità comuni." },
+        level1: { name: "DDoS attack mitigation", description: "Impara a mitigare attacchi DDoS analizzando il traffico e bloccando IP malevoli." },
         level2: { name: "Difesa Firewall", description: "Configura e gestisci le regole del firewall per proteggere il perimetro della rete." },
         level3: { name: "Protocollo di Crittografia", description: "Padroneggia le tecniche di crittografia per proteggere la trasmissione di dati sensibili." },
         level4: { name: "Rilevamento Intrusioni", description: "Rileva e rispondi ai tentativi di accesso non autorizzato in tempo reale." },
