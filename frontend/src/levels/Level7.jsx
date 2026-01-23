@@ -5,19 +5,40 @@ import SIEMSystem from '../components/SIEMSystem';
 import Terminal from '../components/Terminal';
 import ReverseEngineeringViewer from '../components/ReverseEngineeringViewer';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
+import { useNavigate } from 'react-router-dom';
 
 const Level7Content = () => {
+    // Destructuring only what's available in context (based on check) or mocked locally if missing
+    // FIX: LevelContext only provides health commands. Need to handle stars locally or extend context.
     const {
         health,
-        takeDamage,
+        damage: takeDamage, // Aliased to match usage
         heal,
-        stars,
-        addStar,
-        isLevelCompleted,
-        completeLevel,
-        failLevel
-    } = useLevel(7, 100);
+        // stars, // Not in provider
+        // addStar, // Not in provider
+        // completeLevel, // Not in provider
+    } = useLevel();
+    
+    // Local state for missing context features
+    const [stars, setStars] = useState(0);
+    const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
+    const navigate = useNavigate();
+
+    const addStar = () => setStars(prev => Math.min(prev + 1, 3));
+    const winLevel = () => setGameState('won');
+    
+    const failLevel = () => {
+        setGameState('lost');
+    };
+
+    // Check health for loss condition
+    useEffect(() => {
+        if (health <= 0 && gameState === 'playing') {
+            failLevel();
+        }
+    }, [health, gameState]);
+
 
     // Game Phase: 
     // 0: SIEM Monitoring (Waiting for alert)
@@ -96,7 +117,7 @@ int run_update() {
     // Validate signature with remote server
     int is_valid = remote_server_validate(hash);
     
-    if (is_valid == 1) {
+    if (is_valid != 1) {
         print_success("Signature Verified. Running update...");
         system("service_update.bat");
         return 1;
@@ -137,6 +158,7 @@ int main() {
     // Current File being edited
     const [currentFileKey, setCurrentFileKey] = useState(null);
     const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
 
     // Reset hint index when phase changes
     useEffect(() => {
@@ -148,30 +170,42 @@ int main() {
         if (phase === 1) {
             const timer = setInterval(() => {
                 setHintIndex(prev => prev + 1);
-            }, 10000); // 10 seconds per hint
+            }, 15000); // 15 seconds per hint
             return () => clearInterval(timer);
         }
     }, [phase]);
 
+    // Calculate hint text based on state
     const getHintText = () => {
         switch(phase) {
             case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
             case 1: 
                 const hints = [
                     "Abbiamo rilevato che 'auth.exe' garantisce l'accesso a chiunque. Sembra esserci un grave errore di programmazione (Debug Mode lasciato attivo).",
-                    "Analizza il codice C decompilato. Cerca la funzione 'check_credentials'. Noti qualcosa di strano nell'istruzione IF?",
+                    "Analizza il codice C decompilato tramite 'RE Tool'. Cerca la funzione 'check_credentials'. Noti qualcosa di strano nell'istruzione IF?",
                     "L'istruzione 'if(1)' (o if(true)) rende la condizione sempre vera, bypassando ogni controllo. Dobbiamo ripristinare la sicurezza.",
                     "Modifica il codice: sostituisci 'if(1)' con un controllo sul codice di sicurezza. Il codice corretto dovrebbe essere 195932126 (0xBADC0DE). Es: 'if (input_code == 195932126)'"
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
-            case 2: return "Ora che hai ripristinato la sicurezza, compila ed esegui './auth.exe' per verificare che l'accesso sia protetto.";
-            case 3: return "Sfida: 'updater.exe' ha un problema opposto. Blocca anche gli aggiornamenti validi. Analizzalo e correggi la logica.";
-            case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come prima.";
+            case 2: return "Ora che hai ripristinato la sicurezza, tramite terminale compila con 'build' ed esegui './auth.exe' per verificare che l'accesso sia protetto.";
+            case 3: return "Perfetto, ora fallo di nuovo. 'updater.exe' ha un problema opposto. Blocca anche gli aggiornamenti validi. Analizzalo e correggi la logica.";
+            case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come hai imparato.";
             default: return null;
-        }
+        }   
     };
 
-    const currentHint = getHintText();
+    // Effect to flash the hint when it changes
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null); // Hide
+            const timeout = setTimeout(() => {
+                setVisibleHint(text); // Show new
+            }, 400); // Short delay for animation reset
+            return () => clearTimeout(timeout);
+        }
+    }, [phase, hintIndex]); // Re-run when phase or hint index changes
+
 
     // Trigger SIEM Alert after a delay
     useEffect(() => {
@@ -215,12 +249,11 @@ int main() {
         if (phase === 1 && fileKey === 'auth.exe') {
             setTerminalHistory(prev => [...prev, '$ auth.exe patched. Ready to compile & test.']);
             setPhase(2);
-            // Hint user to use terminal
-             alert("File patched! Now open TERMINAL and run 'build' then './auth.exe'");
+            // Hint user to use terminal (handled by Hint system on phase change)
         } else if (phase === 3 && fileKey === 'updater.exe') {
             setTerminalHistory(prev => [...prev, '$ updater.exe patched. Ready to compile & test.']);
             setPhase(4);
-            alert("File patched! Now open TERMINAL and run 'build' then './updater.exe'");
+            // Hint user to use terminal (handled by Hint system on phase change)
         }
     };
 
@@ -262,7 +295,7 @@ int main() {
                         ...prev,
                         'updater.exe': { ...prev['updater.exe'], hidden: false }
                     }));
-                    alert("Auth fixed! Now analyze 'updater.exe'.");
+                    // Alert removed, hint system handles notification
                 }, 2000);
                 return null;
             } else {
@@ -278,9 +311,18 @@ int main() {
 
         if (cmd === './updater.exe' && phase === 4) {
             const currentCode = files['updater.exe'].c;
-            // Check patch
-            const isPatched = (!currentCode.includes('if (is_valid == 1)') && currentCode.includes('system("service_update.bat")')) ||
-                              (currentCode.includes('if (1)') && currentCode.includes('system("service_update.bat")'));
+            
+            // Normalize code to ignore extra whitespace
+            const normCode = currentCode.replace(/\s+/g, ' ');
+
+            // Check if the payload is still present (we needed to run the update)
+            const hasPayload = normCode.includes('system("service_update.bat")');
+
+            // If user writes 'if (is_valid == 1)' it bypass. 
+            // If user writes 'if (is_valid != 1)' it fails
+            const isCheckGone = !normCode.includes('if (is_valid != 1)');
+
+            const isPatched = hasPayload && isCheckGone;
 
             if (isPatched) {
                 heal(20);
@@ -292,7 +334,7 @@ int main() {
                 ]);
                 setTimeout(() => {
                     setPhase(5);
-                    completeLevel();
+                    winLevel();
                 }, 1500);
                 return null;
             } else {
@@ -315,8 +357,28 @@ int main() {
 
     // --- RENDER ---
 
-    if (isLevelCompleted) {
-        return <LevelCompleted stats={{ health, stars }} level={7} />;
+    if (gameState !== 'playing') {
+        const winRecap = `VULNERABILITÀ IDENTIFICATA: Logic Bypass & Client-Side Trust.
+        
+        Hai dimostrato come controlli di sicurezza implementati male lato client (es. IF nel codice locale) o verifiche di firme non robuste possono essere facilmente aggirati modificando il binario (.exe).
+        
+        LEZIONE APPRESA: Mai fidarsi dell'input lato client o di controlli che l'utente può manipolare. La validazione critica deve avvenire lato server o tramite firma digitale robusta non bypassabile.`;
+
+        const lossRecap = `MISSIONE FALLITA. Sistema compromesso o troppi errori commessi.
+        
+        Non sei riuscito a bypassare le protezioni in modo sicuro o hai esaurito la salute del sistema.
+        
+        SUGGERIMENTO: Leggi attentamente i commenti nel codice C decompilato. Usa gli hint automatici che appaiono e ricorda che il tuo obiettivo è RENDERE VERA la condizione che blocca l'accesso, non necessariamente soddisfarla legittimamente.`;
+
+        return (
+            <MissionDebrief 
+                success={gameState === 'won'}
+                stats={{ stars, health }}
+                recapText={gameState === 'won' ? winRecap : lossRecap}
+                onRetry={() => window.location.reload()}
+                onExit={() => navigate('/map')}
+            />
+        );
     }
 
     return (
@@ -325,7 +387,7 @@ int main() {
             subtitle="Analyze binary logic and bypass security controls"
             health={health}
             stars={stars}
-            hint={currentHint ? <InfoPanel text={currentHint} /> : null}
+            hint={visibleHint ? <InfoPanel text={visibleHint} /> : null}
             siemConfig={{
                 logs: logs,
                 blockedIPs: 1,
