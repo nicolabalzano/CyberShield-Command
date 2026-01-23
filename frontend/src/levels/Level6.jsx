@@ -838,6 +838,9 @@ Active Protections:
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
+                enableHealthDecay={true}
+                decayInterval={8000}
+                decayAmount={5}
             >                
                 {completed && (
                     <LevelCompleted

@@ -93,9 +93,14 @@ function LevelTemplateContent({
   );
 }
 
-function LevelTemplate({ initialHealth = 100, ...props }) {
+function LevelTemplate({ initialHealth = 100, enableHealthDecay = false, decayInterval = 12000, decayAmount = 5, ...props }) {
   return (
-    <LevelProvider initialHealth={initialHealth}>
+    <LevelProvider 
+      initialHealth={initialHealth}
+      enableHealthDecay={enableHealthDecay}
+      decayInterval={decayInterval}
+      decayAmount={decayAmount}
+    >
       <LevelTemplateContent {...props} />
     </LevelProvider>
   );

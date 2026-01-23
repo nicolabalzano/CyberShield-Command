@@ -482,6 +482,9 @@ Normal users:
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
+                enableHealthDecay={true}
+                decayInterval={8000}
+                decayAmount={5}
             >
                 {/* Schermata di fine livello: successo o sconfitta */}
                 {missionEnd && (
