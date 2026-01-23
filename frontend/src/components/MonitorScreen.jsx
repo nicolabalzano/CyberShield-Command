@@ -98,27 +98,9 @@ const MonitorScreen = ({
         {/* Screen Content Overlay with OS Interface */}
         <div className="absolute z-[60] overflow-hidden w-[70%] h-[70%] top-[4%] right-[15%]">
           <div className="relative w-full h-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
-            {/* Top Bar */}
-            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600 flex items-center px-3 z-50">
-              <div className="flex items-center gap-3 flex-1">
-                <div className="text-cyan-400 font-bold text-xs">◈ CYBER OS</div>
-                {showHintButton && (
-                  <button 
-                    onClick={onHintClick}
-                    className="px-3 py-1 border border-cyan-400 text-cyan-400 hover:bg-cyan-400/20 text-xs rounded transition-all"
-                  >
-                    [ HINT ]
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
-              </div>
-            </div>
 
             {/* Desktop Area */}
-            <div className="absolute top-8 left-0 right-0 bottom-10 p-4">
+            <div className="absolute -top-0 left-0 right-0 bottom-10 p-4">
               {/* Desktop Icons */}
               <div className="grid grid-cols-8 gap-4 h-full content-start">
                 <DesktopIcon 
@@ -177,14 +159,14 @@ const MonitorScreen = ({
 
             {/* Taskbar */}
             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-r from-slate-800 to-slate-700 border-t border-slate-600 flex items-center px-3 gap-2 z-50">
-             
+             <div className="text-cyan-400 font-bold text-xs">◈ CYBER OS</div>
               {/* Open Windows */}
-              <div className="flex gap-1 flex-1">
+              <div className="flex gap-1 flex-1 overflow-x-auto no-scrollbar items-center">
                 {windows.map(window => (
                   <span
                     key={window.id}
                     onClick={() => minimizeWindow(window.id)}
-                    className={`px-3 py-1 text-xs rounded transition-all ${
+                    className={`px-3 py-1 text-xs rounded transition-all cursor-pointer whitespace-nowrap ${
                       window.isMinimized 
                         ? 'bg-slate-600 text-slate-300' 
                         : 'bg-slate-500 text-white'
@@ -193,6 +175,11 @@ const MonitorScreen = ({
                     {window.title}
                   </span>
                 ))}
+              </div>
+
+              {/* Clock */}
+              <div className="flex items-center px-2 border-l border-slate-600 ml-2">
+                <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
               </div>
             </div>
           </div>

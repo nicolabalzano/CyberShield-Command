@@ -62,7 +62,7 @@ function LevelTemplateContent({
 
         {/* Center - Real Monitor */}
         {/* Increased size (scale-125 = 1.25x or similar, doing manual scale for 20%) and moved UP (translate-y negative) */}
-        <div className="flex-1 flex items-center justify-center pointer-events-auto w-full max-w-6xl px-4 transform scale-[1.3] translate-y-[-12%] z-50">
+        <div className="flex-1 flex items-center justify-center pointer-events-auto w-full max-w-6xltransform scale-[1.3] translate-y-[-12%] z-50">
             <MonitorScreen
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
