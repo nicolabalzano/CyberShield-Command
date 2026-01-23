@@ -58,7 +58,7 @@ function LevelTemplateContent({
 
         {/* 3. MONITOR: Usiamo larghezza percentuale invece dello scale fisso.
             Lo scale può causare sfocatura e problemi di overflow su schermi piccoli. */}
-        <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] z-50 flex items-center justify-center pointer-events-auto z-30 transform scale-[1.4]">            <MonitorScreen
+        <div className="absolute top-[47%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] z-50 flex items-center justify-center pointer-events-auto z-30 transform scale-[1.5]">            <MonitorScreen
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

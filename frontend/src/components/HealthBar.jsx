@@ -19,7 +19,7 @@ const HealthBar = ({ health }) => {
         className="h-20 object-contain translate-x-8 relative z-10" 
       />
       
-      <div className="relative w-50 h-8 overflow-hidden border border-cyber-black bg-gray-900">
+      <div className="relative w-40 h-8 overflow-hidden border border-cyber-black bg-gray-900">
          <div 
            className="h-full transition-all duration-500 ease-out" 
            style={{ 
