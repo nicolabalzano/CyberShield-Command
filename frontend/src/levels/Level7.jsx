@@ -136,14 +136,18 @@ int main() {
     // Current File being edited
     const [currentFileKey, setCurrentFileKey] = useState(null);
 
-    // Hints
-    const hints = [
-        "Phase 1: Monitor the SIEM for High Severity alerts.",
-        "Phase 2: In the Decompiler, look at the IF statement. If we want to ALWAYS succeed, do we need the check?",
-        "Phase 2: You can replace the if condition with 'if (true)' or simpler, remove the if/else entirely and just keep the success block.",
-        "Phase 3: Run the patched executable in the terminal using './auth.exe'.",
-        "Phase 4 (Challenge): Same logic. The update function depends on 'is_valid'. Make it run regardless of 'is_valid'."
-    ];
+    const getHintText = () => {
+        switch(phase) {
+            case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
+            case 1: return "Nel Decompiler, guarda l'istruzione IF. Se vogliamo che l'accesso sia SEMPRE garantito, dobbiamo rimuovere il controllo o renderlo sempre vero (es. 'if(true)'). Rimuovi l'else per sicurezza.";
+            case 2: return "Ora che hai patchato il file, apri il TERMINALE. Compila con 'build' ed esegui con './auth.exe' per testare il bypass.";
+            case 3: return "Sfida: 'updater.exe' verifica una firma digitale. Trova la funzione che fa il controllo e modificala per eseguire l'aggiornamento SEMPRE, ignorando la validità della firma.";
+            case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come prima.";
+            default: return null;
+        }
+    };
+
+    const currentHint = getHintText();
 
     // Trigger SIEM Alert after a delay
     useEffect(() => {
@@ -296,7 +300,7 @@ int main() {
             subtitle="Analyze binary logic and bypass security controls"
             health={health}
             stars={stars}
-            hint={<InfoPanel hints={hints} />}
+            hint={currentHint ? <InfoPanel text={currentHint} /> : null}
             siemConfig={{
                 logs: logs,
                 blockedIPs: 1,
