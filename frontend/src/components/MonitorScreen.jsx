@@ -5,6 +5,7 @@ import Terminal from './Terminal';
 import Browser from './Browser';
 import SIEMSystem from './SIEMSystem';
 import ReverseEngineeringViewer from './ReverseEngineeringViewer';
+import { BrowserProvider } from '../contexts/BrowserContext';
 
 /**
  * A reusable component that frames content inside a monitor image.
@@ -44,7 +45,7 @@ const MonitorScreen = ({
     return () => clearInterval(timer);
   }, []);
 
-  const openWindow = (title, contentType, size = { width: 600, height: 400 }) => {
+  const openWindow = (title, contentType, size = { width: 600, height: 400 }, extraData = {}) => {
     const offset = ((nextWindowId - 1) % 5) * 20;
     const newWindow = {
       id: nextWindowId,
@@ -54,7 +55,8 @@ const MonitorScreen = ({
       position: { x: 20 + offset, y: 20 + offset },
       isMinimized: false,
       isMaximized: false,
-      zIndex: nextWindowId
+      zIndex: nextWindowId,
+      extraData // Contiene dati extra come initialUrl per il browser
     };
     setWindows([...windows, newWindow]);
     setNextWindowId(nextWindowId + 1);
@@ -83,10 +85,11 @@ const MonitorScreen = ({
     ));
   };
   return (
-    <div className={`relative w-full max-w-5xl aspect-video bg-transparent ${className}`}>
-      {/* This image acts as the monitor frame */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        <img 
+    <BrowserProvider openWindow={openWindow}>
+      <div className={`relative w-full max-w-5xl aspect-video bg-transparent ${className}`}>
+        {/* This image acts as the monitor frame */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <img 
             src={monitorReal} 
             alt="Monitor" 
             className="relative z-50 w-auto h-full max-h-[80vh] object-contain drop-shadow-2xl"
@@ -196,6 +199,7 @@ const MonitorScreen = ({
         </div>
       </div>
     </div>
+    </BrowserProvider>
   );
 };
 
@@ -318,7 +322,12 @@ const Window = ({
       <div className="h-[calc(100%-2rem)] overflow-auto">
         {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} {...emailConfig} />}
         {windowData.contentType === 'terminal' && <Terminal {...terminalConfig} />}
-        {windowData.contentType === 'browser' && <Browser {...browserConfig} />}
+        {windowData.contentType === 'browser' && (
+          <Browser 
+            {...browserConfig} 
+            initialUrl={windowData.extraData?.initialUrl || browserConfig.initialUrl}
+          />
+        )}
         {windowData.contentType === 'siem' && (
           <SIEMSystem 
             logs={siemConfig.logs || []}
