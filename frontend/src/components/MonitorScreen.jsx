@@ -10,16 +10,6 @@ import { BrowserProvider } from '../contexts/BrowserContext';
 /**
  * A reusable component that frames content inside a monitor image.
  * Shows a complete OS interface (desktop with windows) inside the monitor screen.
- * 
- * @param {Object} props
- * @param {Function} [props.onEmailAction] - Callback for email actions.
- * @param {Function} [props.onHintClick] - Callback for hint button click.
- * @param {boolean} [props.showHintButton] - Whether to show the hint button.
- * @param {Object} [props.terminalConfig] - Configuration for Terminal component.
- * @param {Object} [props.siemConfig] - Configuration for SIEM component.
- * @param {Object} [props.emailConfig] - Configuration for Email component.
- * @param {Object} [props.browserConfig] - Configuration for Browser component.
- * @param {string} [props.className] - Additional classes for the outer container.
  */
 const MonitorScreen = ({ 
   onEmailAction, 
@@ -55,9 +45,9 @@ const MonitorScreen = ({
       size,
       position: { x: 20 + offset, y: 20 + offset },
       isMinimized: false,
-      isMaximized: false,
+      isMaximized: true, // MODIFICATO: ora le app si aprono direttamente a tutto schermo
       zIndex: nextWindowId,
-      extraData // Contiene dati extra come initialUrl per il browser
+      extraData 
     };
     setWindows([...windows, newWindow]);
     setNextWindowId(nextWindowId + 1);
@@ -85,13 +75,12 @@ const MonitorScreen = ({
       w.id === id ? { ...w, zIndex: maxZ + 1 } : w
     ));
   };
+
   return (
     <BrowserProvider openWindow={openWindow}>
-      {/* Renderizza children nascosti (per componenti logici come DamageHandler) */}
       {children}
       
       <div className={`relative w-full max-w-5xl aspect-video bg-transparent ${className}`}>
-        {/* This image acts as the monitor frame */}
         <div className="relative w-full h-full flex items-center justify-center">
           <img 
             src={monitorReal} 
@@ -99,48 +88,42 @@ const MonitorScreen = ({
             className="relative z-50 w-auto h-full max-h-[80vh] object-contain drop-shadow-2xl"
         />
         
-        {/* Screen Content Overlay with OS Interface */}
         <div className="absolute z-[60] overflow-hidden w-[70%] h-[70%] top-[4%] right-[15%]">
           <div className="relative w-full h-full bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
 
-            {/* Desktop Area */}
             <div className="absolute -top-0 left-0 right-0 bottom-10 p-4">
-              {/* Desktop Icons */}
               <div className="grid grid-cols-8 gap-4 h-full content-start">
                 <DesktopIcon 
                   icon="📧" 
                   label="Email" 
-                  onClick={() => openWindow('Email Client', 'email', { width: 600, height: 400 })}
+                  onClick={() => openWindow('Email Client', 'email')}
                 />
 
                 <DesktopIcon 
                   icon="💻" 
                   label="Terminal" 
-                  onClick={() => openWindow('Terminal', 'terminal', { width: 500, height: 350 })}
+                  onClick={() => openWindow('Terminal', 'terminal')}
                 />
                 <DesktopIcon 
                   icon="🌐" 
                   label="CyberNav" 
-                  onClick={() => openWindow('CyberNav Browser', 'browser', { width: 500, height: 350 })}
+                  onClick={() => openWindow('CyberNav Browser', 'browser')}
                 />
                 <DesktopIcon 
                   icon="🛡️" 
                   label="SIEM" 
-                  onClick={() => openWindow('SIEM System', 'siem', { width: 700, height: 500 })}
+                  onClick={() => openWindow('SIEM System', 'siem')}
                 />
                 
                 {revEngConfig && (
                   <DesktopIcon 
                     icon="🐞" 
                     label="RE Tool" 
-                    onClick={() => openWindow('Reverse Engineering Tool', 'reveng', { width: 800, height: 600 })} 
+                    onClick={() => openWindow('Reverse Engineering Tool', 'reveng')} 
                   />
                 )}
               </div>
 
-
-
-              {/* Windows */}
               {windows.map(window => (
                 !window.isMinimized && (
                   <Window
@@ -161,10 +144,8 @@ const MonitorScreen = ({
               ))}
             </div>
 
-            {/* Taskbar */}
             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-r from-slate-800 to-slate-700 border-t border-slate-600 flex items-center px-3 gap-2 z-50">
              <div className="text-cyan-400 font-bold text-xs">◈ CYBER OS</div>
-              {/* Open Windows */}
               <div className="flex gap-1 flex-1 overflow-x-auto no-scrollbar items-center">
                 {windows.map(window => (
                   <span
@@ -181,7 +162,6 @@ const MonitorScreen = ({
                 ))}
               </div>
 
-              {/* Clock */}
               <div className="flex items-center px-2 border-l border-slate-600 ml-2">
                 <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
               </div>
@@ -194,7 +174,6 @@ const MonitorScreen = ({
   );
 };
 
-// Desktop Icon Component
 const DesktopIcon = ({ icon, label, onClick }) => (
   <button
     onClick={onClick}
@@ -207,7 +186,6 @@ const DesktopIcon = ({ icon, label, onClick }) => (
   </button>
 );
 
-// Window Component
 const Window = ({ 
   window: windowData, 
   onClose, 
@@ -281,7 +259,6 @@ const Window = ({
       style={windowStyle}
       onClick={onFocus}
     >
-      {/* Title Bar */}
       <div
         className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 border-b border-slate-500 flex items-center justify-between px-3 cursor-move rounded-t-lg"
         onMouseDown={handleMouseDown}
@@ -309,7 +286,6 @@ const Window = ({
         </div>
       </div>
 
-      {/* Window Content */}
       <div className="h-[calc(100%-2rem)] overflow-auto">
         {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} {...emailConfig} />}
         {windowData.contentType === 'terminal' && <Terminal {...terminalConfig} />}

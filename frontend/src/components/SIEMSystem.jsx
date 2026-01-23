@@ -44,9 +44,9 @@ const SIEMSystem = ({
     return (
         <div className="flex-1 overflow-hidden grid grid-cols-3 gap-2">
             {/* Left Column - Main Stats & Graphs */}
-            <div className="col-span-2 flex flex-col gap-2 overflow-y-auto">
+            <div className="col-span-2 flex flex-col gap-2 overflow-y-auto  pl-2">
                 {/* Top Stats Row */}
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-2 pt-2">
                     <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 rounded p-2 text-center">
                         <div className="text-xl mb-1">📊</div>
                         <div className="text-blue-400 font-bold text-lg">{logs.length}</div>

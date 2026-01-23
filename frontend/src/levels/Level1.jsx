@@ -188,8 +188,8 @@ const Level1Content = ({
     return (
         <>
             {/* Status Bar - mostrato sopra tutto */}
-            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
-                <div className="text-cyan-400 text-lg font-mono flex items-center gap-3">
+            <div className="fixed top-[71%] left-[69%] -translate-x-1/2 z-[15]">
+                <div className="text-cyber-green text-lg font-mono flex items-center gap-3">
                     <span className="font-bold">EMAILS CHECKED:</span>
                     <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / {totalEmails}</span>
                 </div>

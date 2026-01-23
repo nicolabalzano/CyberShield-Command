@@ -4,12 +4,11 @@ import { useAudio } from '../contexts/AudioContext';
 import { LevelProvider, useLevel } from '../contexts/LevelContext';
 import MonitorScreen from './MonitorScreen';
 import ReputationStars from './ReputationStars';
+import HealthBar from './HealthBar';
 
-// Assets imports - Assumes .png extensions. Change to .jpg if needed.
-// These files must be in src/assets/
+// Assets
 import backgroundNight from '../assets/background_night.png';
 import keyboard from '../assets/keyboard.png';
-import HealthBar from './HealthBar';
 
 function LevelTemplateContent({ 
     children, 
@@ -30,40 +29,36 @@ function LevelTemplateContent({
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    // Cambia la musica quando entra nel livello
     changeTrack(musicTrack);
-    
-    // Generic fetch or callback
     if (onFetchData) {
         onFetchData().then(setData);
     }
   }, [changeTrack, musicTrack, onFetchData]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-cyber-black text-cyber-text">
-      {/* Background Image - Full Screen */}
+    /* 1. Container Principale: occupa sempre tutto lo schermo */
+    <div className="relative w-full h-screen overflow-hidden bg-black text-cyber-text flex items-center justify-center">
+      
+      {/* Background: Sotto tutto, riempie lo schermo */}
       <img  
         src={backgroundNight} 
-        alt="Background Office Night" 
-        className="absolute inset-0 w-full h-full object-cover"
+        alt="Background" 
+        className="absolute inset-0 w-full h-full object-cover opacity-80"
       />
-      
 
-      {/* Main Game Area Container */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-between pointer-events-none">
+      {/* 2. THE STAGE: Questo container mantiene le proporzioni 16:9 
+          Tutto ciò che è dentro rimarrà nella stessa posizione relativa */}
+      <div className="relative aspect-video h-full w-full max-h-screen max-w-full z-10 flex flex-col items-center">
         
-        {/* Top Header / HUD */}
-        <div className="w-full flex justify-between items-center pt-6 -translate-x-5 pointer-events-auto">
-          {/* Health Bar Section */}
+        {/* HUD: Posizionato in alto con padding percentuale per essere fluido */}
+        <div className="w-full flex justify-between items-center pt-[3%] pointer-events-auto z-20">
           <HealthBar health={health} />
-
           <ReputationStars stars={stars} />
         </div>
 
-        {/* Center - Real Monitor */}
-        {/* Increased size (scale-125 = 1.25x or similar, doing manual scale for 20%) and moved UP (translate-y negative) */}
-        <div className="flex-1 flex items-center justify-center pointer-events-auto w-full max-w-6xltransform scale-[1.3] translate-y-[-12%] z-50">
-            <MonitorScreen
+        {/* 3. MONITOR: Usiamo larghezza percentuale invece dello scale fisso.
+            Lo scale può causare sfocatura e problemi di overflow su schermi piccoli. */}
+        <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] z-50 flex items-center justify-center pointer-events-auto z-30 transform scale-[1.4]">            <MonitorScreen
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
@@ -71,29 +66,29 @@ function LevelTemplateContent({
                 revEngConfig={revEngConfig}
                 onEmailAction={onEmailAction}
             >
-                {/* Content injected here */}
                 {children}
             </MonitorScreen>
         </div>
 
-        {/* Bottom - Keyboard & Hands (First Person View) */}
-        {/* Usa 'bottom-0' per attaccarla al fondo. Cambia px/rem/percentuale per spostarla su o giù. */}
-        <div className="absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 w-full flex justify-center pointer-events-none z-10">
+        {/* 4. TASTIERA: Ancorata al fondo del container 16:9 con bottom negativo percentuale */}
+        <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 w-[70%] max-w-[1000px] pointer-events-none z-40">
            <img 
               src={keyboard} 
-              alt="Keyboard and Hands" 
-              className="w-full max-w-4xl object-contain drop-shadow-2xl"
+              alt="Keyboard" 
+              className="w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
            />
         </div>
 
-        {/* Overlay Layers (Hints, etc.) - Positioned relative to screen */}
+        {/* Overlay Layers (Hints) */}
         {hint && (
-            <div className="absolute bottom-10 right-10 z-[60] pointer-events-auto transition-all animate-bounce-in">
+            <div className="absolute bottom-[3%] right-[2%] z-[60] pointer-events-auto animate-bounce-in">
                 {hint}
             </div>
         )}
-
       </div>
+
+      {/* Vignette effect opzionale per dare profondità */}
+      <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] z-50"></div>
     </div>
   );
 }
