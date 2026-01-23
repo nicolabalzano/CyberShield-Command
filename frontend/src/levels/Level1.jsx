@@ -4,6 +4,7 @@ import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MonitorScreen from '../components/MonitorScreen';
 import LevelCompleted from '../components/LevelCompleted';
+import Link from '../components/Link';
 
 const LEVEL1_EMAILS = [
     {

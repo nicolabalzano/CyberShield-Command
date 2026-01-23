@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Link from './Link';
 
 const defaultFeedbackMessages = {
     success_phishing: '✓ Ottimo lavoro! Hai evitato una minaccia cyber!',
@@ -24,6 +25,111 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
 
     const messages = { ...defaultFeedbackMessages, ...feedbackMessages };
 
+    // Handler per click su link malevoli
+    const handleLinkClick = (url) => {
+        if (selectedEmail && selectedEmail.isPhishing) {
+            // Mostra feedback negativo per link malevolo
+            setFeedback({
+                correct: false,
+                isPhishing: true,
+                explanation: selectedEmail.explanation,
+                consequence: '⚠️ ATTENZIONE! Hai cliccato su un link malevolo. Il sistema potrebbe essere compromesso!'
+            });
+            setShowFeedback(true);
+            
+            // Notifica il livello del danno
+            if (onEmailAction) {
+                onEmailAction(selectedEmail, true, false);
+            }
+            
+            // Blocca l'apertura del browser
+            return false;
+        }
+        // Se non è phishing, il link si apre normalmente nel Browser
+        return true;
+    };
+
+    // Handler per click su allegati
+    const handleAttachmentClick = () => {
+        if (selectedEmail && selectedEmail.hasAttachment) {
+            if (selectedEmail.isPhishing) {
+                // Mostra feedback negativo per allegato malevolo
+                setFeedback({
+                    correct: false,
+                    isPhishing: true,
+                    explanation: selectedEmail.explanation,
+                    consequence: '⚠️ PERICOLO! Hai aperto un allegato malevolo. Il sistema è stato infettato!'
+                });
+                setShowFeedback(true);
+                
+                // Notifica il livello del danno
+                if (onEmailAction) {
+                    onEmailAction(selectedEmail, true, false);
+                }
+            } else {
+                // Allegato sicuro
+                setFeedback({
+                    correct: true,
+                    isPhishing: false,
+                    explanation: 'Questo allegato è sicuro.',
+                    consequence: '✓ Allegato sicuro aperto correttamente.'
+                });
+                setShowFeedback(true);
+            }
+        }
+    };
+
+    // Funzione per rendere i link cliccabili nell'email body
+    const renderEmailBody = (text, links = []) => {
+        if (!links || links.length === 0) {
+            return <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>;
+        }
+
+        const parts = [];
+        let lastIndex = 0;
+
+        // Cerca tutti i link nel testo
+        links.forEach((link, idx) => {
+            const linkIndex = text.indexOf(link, lastIndex);
+            if (linkIndex !== -1) {
+                // Aggiungi il testo prima del link
+                if (linkIndex > lastIndex) {
+                    parts.push(
+                        <span key={`text-${idx}`} style={{ whiteSpace: 'pre-wrap' }}>
+                            {text.substring(lastIndex, linkIndex)}
+                        </span>
+                    );
+                }
+
+                // Aggiungi il link cliccabile
+                parts.push(
+                    <Link
+                        key={`link-${idx}`}
+                        url={link}
+                        style="underline"
+                        className="font-semibold"
+                        onClick={handleLinkClick}
+                    >
+                        {link}
+                    </Link>
+                );
+
+                lastIndex = linkIndex + link.length;
+            }
+        });
+
+        // Aggiungi il testo rimanente dopo l'ultimo link
+        if (lastIndex < text.length) {
+            parts.push(
+                <span key="text-final" style={{ whiteSpace: 'pre-wrap' }}>
+                    {text.substring(lastIndex)}
+                </span>
+            );
+        }
+
+        return parts.length > 0 ? <>{parts}</> : <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>;
+    };
+
     const handleEmailClick = (email) => {
         setEmails(emails.map(e => 
             e.id === email.id ? { ...e, read: true } : e
@@ -43,18 +149,18 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
         setEmails(updatedEmails);
         setSelectedEmail({ ...selectedEmail, flagged: isPhishing });
 
-        // Mostra feedback solo se abilitato
+        // Mostra feedback immediato quando si classifica
         setFeedback({
             correct,
             isPhishing: selectedEmail.isPhishing,
             explanation: selectedEmail.explanation,
             consequence: correct
                 ? (isPhishing 
-                    ? messages.success_phishing 
-                    : messages.success_safe)
+                    ? '✓ Corretto! Email di phishing identificata.'
+                    : '✓ Corretto! Email sicura identificata.')
                 : (isPhishing
-                    ? messages.error_phishing
-                    : messages.error_safe)
+                    ? '✗ Errore! Hai segnalato un\'email legittima come phishing.'
+                    : '✗ Errore! Questa era un\'email di phishing!')
         });
         
         if (showFeedbackPopup) {
@@ -141,9 +247,12 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
                                         {selectedEmail.hasAttachment && (
                                             <div className="flex items-center gap-1">
                                                 <span className="font-semibold">Attachment:</span>
-                                                <span className={`${
-                                                    selectedEmail.attachmentName?.endsWith('.exe') ? 'text-red-600 font-bold' : 'text-blue-600'
-                                                }`}>
+                                                <span 
+                                                    onClick={handleAttachmentClick}
+                                                    className={`cursor-pointer hover:underline ${
+                                                        selectedEmail.attachmentName?.endsWith('.exe') ? 'text-red-600 font-bold' : 'text-blue-600'
+                                                    }`}
+                                                >
                                                     📎 {selectedEmail.attachmentName}
                                                 </span>
                                             </div>
@@ -201,8 +310,8 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
 
                                 {/* Email Body */}
                                 <div className="p-3 bg-white">
-                                    <div className="text-[11px] text-slate-700 whitespace-pre-wrap">
-                                        {selectedEmail.body}
+                                    <div className="text-[11px] text-slate-700">
+                                        {renderEmailBody(selectedEmail.body, selectedEmail.links)}
                                     </div>
                                 </div>
                             </div>
