@@ -19,10 +19,6 @@ const Terminal = ({
             const availableCommands = Object.keys({ ...commands, ...(helpCommand ? { help: null } : {}) }).join(', ');
             return `Available commands: ${availableCommands}`;
         },
-        clear: () => {
-            setHistory([]);
-            return null;
-        }
     };
 
     const allCommands = { ...defaultCommands, ...commands };
@@ -34,7 +30,6 @@ const Terminal = ({
             
             let output;
             
-            // Esegui il comando se esiste
             if (allCommands[command]) {
                 try {
                     output = allCommands[command](args, trimmedInput);
@@ -45,12 +40,10 @@ const Terminal = ({
                 output = `Command not found: ${command}`;
             }
             
-            // Callback opzionale per il livello
             if (onCommandExecute) {
                 onCommandExecute(command, args, output);
             }
             
-            // Aggiorna la cronologia
             const newHistory = [...history, `${prompt} ${trimmedInput}`];
             if (output !== null && output !== undefined) {
                 if (Array.isArray(output)) {
@@ -71,25 +64,36 @@ const Terminal = ({
     };
 
     return (
+        /* Aggiunto text-left e items-start per forzare l'allineamento a sinistra */
         <div 
-            className="bg-black text-green-400 font-mono text-xs p-2 h-full overflow-auto cursor-text"
+            className="bg-black text-green-400 font-mono text-xs p-4 h-full overflow-auto cursor-text text-left flex flex-col items-start"
             onClick={focusInput}
         >
-            {history.map((line, i) => (
-                <div key={i}>{line}</div>
-            ))}
-            <div className="flex items-center">
-                <span className="mr-2">{prompt}</span>
-                <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleCommand}
-                    className="bg-transparent outline-none flex-1 text-green-400"
-                    autoFocus
-                />
-                <span className="animate-pulse">_</span>
+            <div className="w-full">
+                {history.map((line, i) => (
+                    <div key={i} className="mb-1 break-all whitespace-pre-wrap">{line}</div>
+                ))}
+            </div>
+            
+            <div className="flex items-center w-full">
+                <span className="mr-2 flex-shrink-0">{prompt}</span>
+                <div className="flex items-center">
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleCommand}
+                        /* Calcoliamo la larghezza in base alla lunghezza del testo */
+                        style={{ 
+                            width: input.length > 0 ? `${input.length}ch` : '1px',
+                            minWidth: '1px' 
+                        }}
+                        className="bg-transparent outline-none text-green-400 font-mono"
+                        autoFocus
+                    />
+                    <span className="animate-pulse flex-shrink-0">_</span>
+                </div>
             </div>
         </div>
     );

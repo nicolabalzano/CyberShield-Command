@@ -9,18 +9,12 @@ import MissionDebrief from '../components/MissionDebrief';
 import { useNavigate } from 'react-router-dom';
 
 const Level7Content = () => {
-    // Destructuring only what's available in context (based on check) or mocked locally if missing
-    // FIX: LevelContext only provides health commands. Need to handle stars locally or extend context.
     const {
         health,
-        damage: takeDamage, // Aliased to match usage
+        damage: takeDamage, 
         heal,
-        // stars, // Not in provider
-        // addStar, // Not in provider
-        // completeLevel, // Not in provider
     } = useLevel();
     
-    // Local state for missing context features
     const [stars, setStars] = useState(0);
     const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
     const navigate = useNavigate();
@@ -32,25 +26,15 @@ const Level7Content = () => {
         setGameState('lost');
     };
 
-    // Check health for loss condition
     useEffect(() => {
         if (health <= 0 && gameState === 'playing') {
             failLevel();
         }
     }, [health, gameState]);
 
-
-    // Game Phase: 
-    // 0: SIEM Monitoring (Waiting for alert)
-    // 1: Analysis of auth.exe (RevEng)
-    // 2: Building/Running auth.exe (Terminal)
-    // 3: Analysis of updater.exe (RevEng - Challenge)
-    // 4: Building/Running updater.exe (Terminal)
-    // 5: Finished
     const [phase, setPhase] = useState(0);
-    const [activeView, setActiveView] = useState('SIEM'); // SIEM, REV, TERMINAL
+    const [activeView, setActiveView] = useState('SIEM'); 
     
-    // Virtual Files
     const [files, setFiles] = useState({
         'auth.exe': {
             name: 'auth.exe',
@@ -91,7 +75,7 @@ int main() {
     check_credentials(code);
     return 0;
 }`,
-            originalC: null // Populated in useEffect
+            originalC: null
         },
         'updater.exe': {
             name: 'updater.exe',
@@ -135,7 +119,6 @@ int main() {
         }
     });
 
-    // Store original C code for comparison
     useEffect(() => {
         setFiles(prev => ({
             'auth.exe': { ...prev['auth.exe'], originalC: prev['auth.exe'].c },
@@ -143,39 +126,33 @@ int main() {
         }));
     }, []);
 
-    // SIEM Logs
     const [logs, setLogs] = useState([
         { id: 1, timestamp: '10:00:01', source: '192.168.1.10', severity: 'low', message: 'System startup', threat: false },
         { id: 2, timestamp: '10:05:22', source: '192.168.1.15', severity: 'low', message: 'User login', threat: false },
     ]);
 
-    // Terminal State
     const [terminalHistory, setTerminalHistory] = useState([
         '$ CyberShield OS v4.5.2',
         '$ Waiting for tasks...'
     ]);
 
-    // Current File being edited
     const [currentFileKey, setCurrentFileKey] = useState(null);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
 
-    // Reset hint index when phase changes
     useEffect(() => {
         setHintIndex(0);
     }, [phase]);
 
-    // Timer for progressive hints in Phase 1
     useEffect(() => {
         if (phase === 1) {
             const timer = setInterval(() => {
                 setHintIndex(prev => prev + 1);
-            }, 15000); // 15 seconds per hint
+            }, 15000); 
             return () => clearInterval(timer);
         }
     }, [phase]);
 
-    // Calculate hint text based on state
     const getHintText = () => {
         switch(phase) {
             case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
@@ -194,20 +171,18 @@ int main() {
         }   
     };
 
-    // Effect to flash the hint when it changes
     useEffect(() => {
         const text = getHintText();
         if (text !== visibleHint) {
-            setVisibleHint(null); // Hide
+            setVisibleHint(null); 
             const timeout = setTimeout(() => {
-                setVisibleHint(text); // Show new
-            }, 400); // Short delay for animation reset
+                setVisibleHint(text); 
+            }, 400); 
             return () => clearTimeout(timeout);
         }
-    }, [phase, hintIndex]); // Re-run when phase or hint index changes
+    }, [phase, hintIndex]); 
 
 
-    // Trigger SIEM Alert after a delay
     useEffect(() => {
         if (phase === 0) {
             const timer = setTimeout(() => {
@@ -229,15 +204,10 @@ int main() {
         if (log.threat && phase === 0) {
             setTerminalHistory(prev => [...prev, '$ ALERT: Vulnerability detected in "auth.exe".', '$ ACTION REQUIRED: Fix the security check logic.']);
             setPhase(1);
-            // Auto switch to Rev view hint
-            setTimeout(() => {
-                // Hint/Alert handled visually or via InfoPanel normally, avoiding windows alert if possible
-            }, 500);
         }
     };
 
     const handleCodeSave = (newCode, fileKey) => {
-        // Update file in simulated filesystem
         setFiles(prev => ({
             ...prev,
             [fileKey]: {
@@ -249,53 +219,41 @@ int main() {
         if (phase === 1 && fileKey === 'auth.exe') {
             setTerminalHistory(prev => [...prev, '$ auth.exe patched. Ready to compile & test.']);
             setPhase(2);
-            // Hint user to use terminal (handled by Hint system on phase change)
         } else if (phase === 3 && fileKey === 'updater.exe') {
             setTerminalHistory(prev => [...prev, '$ updater.exe patched. Ready to compile & test.']);
             setPhase(4);
-            // Hint user to use terminal (handled by Hint system on phase change)
         }
     };
 
     const runTerminalCommand = (args, fullCommand) => {
         const cmd = args.length > 0 ? fullCommand.split(' ')[0] : fullCommand;
         
-        // BUILD COMMAND
         if (cmd === 'gcc' || cmd === 'make' || cmd === 'build') {
-            if (phase === 2) {
-                return "$ Compiling auth.exe... OK. (Binary patched)";
-            }
-            if (phase === 4) {
-                return "$ Compiling updater.exe... OK. (Binary patched)";
-            }
+            if (phase === 2) return "$ Compiling auth.exe... OK. (Binary patched)";
+            if (phase === 4) return "$ Compiling updater.exe... OK. (Binary patched)";
             return "$ Nothing to compile.";
         }
 
-        // EXECUTION COMMAND
         if (cmd === './auth.exe' && phase === 2) {
             const currentCode = files['auth.exe'].c;
-            // Check if patched correctly (Secure check IMPLEMENTED)
             const isPatched = currentCode.includes('if (input_code == 195932126)');
             
             if (isPatched) {
                 heal(10);
-                addStar(); // Star for first part
+                addStar(); // Prima stella (uguale a prima)
                 setTerminalHistory(prev => [...prev, 
                     '> Executing auth.exe...',
                     '> Enter Access Code: 195932126',
                     '[SUCCESS] Access Granted! System Unlocked.',
                     '$ STATUS: Vulnerability fixed. Code is now required.',
-                    '$ EXPLANATION: Great job patching the logic error.',
                     '$ INSTRUCTION: Now analyze "updater.exe". It has a similar flaw.'
                 ]);
                 setTimeout(() => {
                     setPhase(3);
-                    // Enable updater in hidden way? No, simple phase switch.
                     setFiles(prev => ({
                         ...prev,
                         'updater.exe': { ...prev['updater.exe'], hidden: false }
                     }));
-                    // Alert removed, hint system handles notification
                 }, 2000);
                 return null;
             } else {
@@ -311,22 +269,30 @@ int main() {
 
         if (cmd === './updater.exe' && phase === 4) {
             const currentCode = files['updater.exe'].c;
-            
-            // Normalize code to ignore extra whitespace
             const normCode = currentCode.replace(/\s+/g, ' ');
-
-            // Check if the payload is still present (we needed to run the update)
             const hasPayload = normCode.includes('system("service_update.bat")');
-
-            // If user writes 'if (is_valid == 1)' it bypass. 
-            // If user writes 'if (is_valid != 1)' it fails
             const isCheckGone = !normCode.includes('if (is_valid != 1)');
+            
+            // Nuova logica: Verifica se è stato usato il bypass "if (1)"
+            const isLazyBypass = normCode.includes('if(1)') || normCode.includes('if (1)');
 
-            const isPatched = hasPayload && isCheckGone;
-
-            if (isPatched) {
+            if (hasPayload && isCheckGone) {
                 heal(20);
-                addStar(); // Star for second part
+                
+                // Seconda Stella: solo se non è un bypass pigro
+                if (!isLazyBypass) {
+                    addStar();
+                }
+
+                // Terza Stella: facoltativa, se i commenti critici sono stati rimossi
+                const authC = files['auth.exe'].c;
+                const updC = files['updater.exe'].c;
+                const hasCriticalComments = (str) => /Debug|Vulnerability/i.test(str);
+
+                if (!hasCriticalComments(authC) && !hasCriticalComments(updC)) {
+                    addStar();
+                }
+
                 setTerminalHistory(prev => [...prev, 
                     '> Executing updater.exe...',
                     '[SUCCESS] Signature Verified (Bypassed). Running update...',
@@ -347,7 +313,6 @@ int main() {
             }
         }
 
-        // UTILS
         if (cmd === 'ls') {
             return "auth.exe   updater.exe   README.txt";
         }
@@ -355,20 +320,14 @@ int main() {
         return `Command not found: ${cmd}`;
     };
 
-    // --- RENDER ---
-
     if (gameState !== 'playing') {
         const winRecap = `VULNERABILITÀ IDENTIFICATA: Logic Bypass & Client-Side Trust.
         
-        Hai dimostrato come controlli di sicurezza implementati male lato client (es. IF nel codice locale) o verifiche di firme non robuste possono essere facilmente aggirati modificando il binario (.exe).
+        Hai dimostrato come controlli di sicurezza implementati male lato client possono essere aggirati.
         
-        LEZIONE APPRESA: Mai fidarsi dell'input lato client o di controlli che l'utente può manipolare. La validazione critica deve avvenire lato server o tramite firma digitale robusta non bypassabile.`;
+        LEZIONE APPRESA: Mai fidarsi dell'input lato client. La pulizia dei commenti e del codice di debug è fondamentale per non fornire indizi agli attaccanti.`;
 
-        const lossRecap = `MISSIONE FALLITA. Sistema compromesso o troppi errori commessi.
-        
-        Non sei riuscito a bypassare le protezioni in modo sicuro o hai esaurito la salute del sistema.
-        
-        SUGGERIMENTO: Leggi attentamente i commenti nel codice C decompilato. Usa gli hint automatici che appaiono e ricorda che il tuo obiettivo è RENDERE VERA la condizione che blocca l'accesso, non necessariamente soddisfarla legittimamente.`;
+        const lossRecap = `MISSIONE FALLITA. Sistema compromesso o troppi errori commessi.`;
 
         return (
             <MissionDebrief 
