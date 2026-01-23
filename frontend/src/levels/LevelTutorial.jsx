@@ -3,9 +3,67 @@ import { useNavigate } from 'react-router-dom';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
+import LevelCompleted from '../components/LevelCompleted';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
-import SIEMSystem from '../components/SIEMSystem';
+
+/**
+ * TUTORIAL LEVEL: INTRODUZIONE AL SOC (Security Operations Center)
+ * 
+ * Scenario educativo:
+ * - Il giocatore è un nuovo analista SOC nel suo primo giorno
+ * - Deve familiarizzare con i tool principali: Browser, Terminal, SIEM
+ * - Un semplice attacco simulato verrà presentato per imparare il workflow base
+ * - Il giocatore impara passo-passo come identificare e mitigare una minaccia
+ * 
+ * Obiettivi didattici:
+ * - Imparare a navigare nel Browser per cercare informazioni
+ * - Capire come usare i comandi Terminal
+ * - Leggere e interpretare i log del SIEM
+ * - Completare un'azione di sicurezza base (bloccare un IP)
+ */
+
+// Log SIEM tutorial - semplici e guidati
+const generateTutorialLogs = (threatBlocked) => [
+    {
+        id: 1,
+        time: '10:00:12',
+        severity: 'low',
+        source: '192.168.1.100',
+        type: 'INFO',
+        message: 'User login successful - Normal activity',
+        threat: false
+    },
+    {
+        id: 2,
+        time: '10:05:33',
+        severity: 'low',
+        source: '192.168.1.105',
+        type: 'INFO',
+        message: 'File uploaded to server - Document approved',
+        threat: false
+    },
+    {
+        id: 3,
+        time: '10:10:45',
+        severity: threatBlocked ? 'medium' : 'critical',
+        source: '203.0.113.42',
+        type: threatBlocked ? 'WARNING' : 'ALERT',
+        message: threatBlocked
+            ? 'Suspicious IP blocked - SQL Injection attempt prevented'
+            : 'CRITICAL: SQL Injection attempt from external source - Pattern: \' OR 1=1 --',
+        threat: !threatBlocked
+    },
+    {
+        id: 4,
+        time: '10:12:18',
+        severity: 'low',
+        source: '192.168.1.102',
+        type: 'INFO',
+        message: 'Database query executed - Response time: 45ms',
+        threat: false
+    }
+];
 
 const LevelTutorial = () => {
     const navigate = useNavigate();
@@ -15,451 +73,344 @@ const LevelTutorial = () => {
     const t = translations[language].tutorial;
     
     const [currentStep, setCurrentStep] = useState(0);
-    const [logs, setLogs] = useState([]);
-    const [selectedLog, setSelectedLog] = useState(null);
     const [completed, setCompleted] = useState(false);
-    const [blockedIPs, setBlockedIPs] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
-    const [networkTraffic, setNetworkTraffic] = useState({ incoming: 0, outgoing: 0 });
-    const [protocols, setProtocols] = useState({ http: 0, https: 0, ssh: 0, ftp: 0 });
-    const [showAnalysisModal, setShowAnalysisModal] = useState(false);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [trafficHistory, setTrafficHistory] = useState([
-        { time: 0, incoming: 3.5, outgoing: 1.2 },
-        { time: 1, incoming: 3.8, outgoing: 1.3 },
-        { time: 2, incoming: 4.1, outgoing: 1.4 }
-    ]);
+    const [threatBlocked, setThreatBlocked] = useState(false);
+    const [emailRead, setEmailRead] = useState(false);
+    const [siemLogClicked, setSiemLogClicked] = useState(false);
+    const [browserVisited, setBrowserVisited] = useState(false);
+    const [commandUsed, setCommandUsed] = useState(false);
     
-    // Simula l'arrivo di nuovi log SIEM
-    useEffect(() => {
-        const initialLogs = [
-            { id: 1, time: '10:23:45', type: 'INFO', source: 'WebServer-01', message: 'User login successful: admin@company.com', severity: 'low', threat: false, protocol: 'HTTPS', bytes: 1024 },
-            { id: 2, time: '10:24:12', type: 'WARNING', source: 'Firewall-01', message: 'Multiple connection attempts from 192.168.1.105', severity: 'medium', threat: false, protocol: 'SSH', bytes: 512 },
-            { id: 3, time: '10:24:58', type: 'ERROR', source: 'Database-01', message: 'Failed login attempt from 203.0.113.42', severity: 'high', threat: false, protocol: 'HTTP', bytes: 2048 },
-        ];
-        
-        setLogs(initialLogs);
-        setNetworkTraffic({ incoming: 3.5, outgoing: 1.2 });
-        setProtocols({ http: 1, https: 1, ssh: 1, ftp: 0 });
-        
-        // Aggiungi log pericoloso dopo 2 secondi
-        const timer = setTimeout(() => {
-            setLogs(prev => [...prev, {
-                id: 4,
-                time: '10:25:33',
-                type: 'CRITICAL',
-                source: 'IDS-Scanner',
-                message: 'SQL Injection attempt detected from 203.0.113.42',
-                severity: 'critical',
-                threat: true,
-                protocol: 'HTTP',
-                bytes: 4096
-            }]);
-            setNetworkTraffic({ incoming: 4.8, outgoing: 1.5 });
-            setProtocols(prev => ({ ...prev, http: prev.http + 1 }));
-        }, 2000);
-        
-        // Simula traffico di rete continuo
-        const trafficInterval = setInterval(() => {
-            setNetworkTraffic(prev => {
-                const newIncoming = parseFloat((parseFloat(prev.incoming) + Math.random() * 0.5).toFixed(1));
-                const newOutgoing = parseFloat((parseFloat(prev.outgoing) + Math.random() * 0.3).toFixed(1));
-                
-                // Aggiorna la storia del traffico per il grafico
-                setTrafficHistory(history => {
-                    const newHistory = [...history, {
-                        time: history.length,
-                        incoming: newIncoming,
-                        outgoing: newOutgoing
-                    }];
-                    // Mantieni solo gli ultimi 10 punti
-                    return newHistory.slice(-10);
-                });
-                
-                return {
-                    incoming: newIncoming,
-                    outgoing: newOutgoing
-                };
-            });
-        }, 3000);
-        
-        return () => {
-            clearTimeout(timer);
-            clearInterval(trafficInterval);
-        };
-    }, []);
-
-    const handleLogClick = (log) => {
-        setSelectedLog(log);
-        setShowAnalysisModal(true);
-        // Passa allo step 1 quando selezioniamo il log critico
-        if (currentStep === 0 && log.threat) {
-            setCurrentStep(1);
-            earnStar();
-        }
-    };
-
-    const handleAnalyze = () => {
-        if (selectedLog && selectedLog.threat && currentStep === 1) {
-            setShowAnalysisModal(false); // Chiudi il modal principale
-            setIsAnalyzing(true);
-            setTimeout(() => {
-                setCurrentStep(2);
+    // === CONFIGURAZIONE EMAIL ===
+    const emailConfig = {
+        emails: [
+            {
+                id: 1,
+                from: 'security-team@company.com',
+                timestamp: 'Oggi 10:00',
+                subject: 'Benvenuto nel SOC Team!',
+                preview: 'Benvenuto nel team! Ecco una guida introduttiva...',
+                isPhishing: false,
+                body: 'Benvenuto nel Security Operations Center!\n\nCome nuovo analista SOC, il tuo ruolo è fondamentale per proteggere l\'azienda dalle minacce cyber.\n\nStrumenti a tua disposizione:\n- Email Client: Ricevi alert e comunicazioni\n- Browser: Cerca informazioni su minacce\n- Terminal: Esegui comandi di sicurezza\n- SIEM Dashboard: Monitora i log in tempo reale\n\nBuon lavoro!\n\nSOC Team Lead',
+                hasAttachment: false,
+                read: false,
+                flagged: null
+            },
+            {
+                id: 2,
+                from: 'siem-alerts@company.com',
+                timestamp: 'Oggi 10:11',
+                subject: '🚨 ALERT: Suspicious Activity Detected',
+                preview: 'SQL Injection attempt from 203.0.113.42...',
+                isPhishing: false,
+                body: '⚠️ SECURITY ALERT\n\nTipo: SQL Injection Attempt\nIP Sorgente: 203.0.113.42\nTarget: Database Server\nSeverità: CRITICAL\n\nDettagli:\nÈ stato rilevato un tentativo di SQL Injection proveniente dall\'IP 203.0.113.42. Il pattern di attacco corrisponde a una classica query malevola (OR 1=1).\n\nAzioni raccomandate:\n1. Verifica i log nel SIEM Dashboard\n2. Analizza l\'IP nel Browser (threat intel)\n3. Blocca l\'IP usando il Terminal\n\nTempo di risposta raccomandato: IMMEDIATO',
+                hasAttachment: false,
+                read: false,
+                flagged: null,
+                explanation: 'Questa è un\'email di alert automatica dal sistema SIEM. Quando ricevi alert di sicurezza, devi agire rapidamente per proteggere i sistemi.'
+            }
+        ],
+        showFeedbackPopup: false,
+        onEmailRead: (email) => {
+            if (!emailRead && email.id === 2 && currentStep === 0) {
+                setEmailRead(true);
+                setCurrentStep(1);
                 earnStar();
-                setTimeout(() => {
-                    setIsAnalyzing(false);
-                    setShowAnalysisModal(true); // Riapri il modal principale
-                }, 2000); // Mostra il messaggio di completamento per 2 secondi
-            }, 3000); // 3 secondi di caricamento
+            }
         }
     };
 
-    const handleBlock = () => {
-        if (selectedLog && selectedLog.threat && currentStep === 2) {
-            setCurrentStep(3);
-            earnStar();
-            setBlockedIPs(1);
-            setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-            setCompleted(true);
+    // === CONFIGURAZIONE BROWSER ===
+    const browserConfig = {
+        availableSites: [
+            {
+                url: 'https://company-wiki.internal/soc-guide',
+                title: 'SOC Operations Guide',
+                icon: '📚',
+                content: (
+                    <div className="p-6 bg-blue-50 h-full overflow-y-auto">
+                        <div className="max-w-3xl mx-auto">
+                            <h1 className="text-2xl font-bold text-gray-800 mb-4">📚 Welcome to the SOC!</h1>
+                            
+                            <div className="bg-white rounded-lg shadow p-4 mb-4">
+                                <h2 className="text-lg font-semibold mb-2 text-blue-900">Your Mission</h2>
+                                <p className="text-sm text-gray-700">
+                                    As a Security Operations Center (SOC) analyst, your job is to monitor, detect, and respond to security threats in real-time.
+                                </p>
+                            </div>
+
+                            <div className="bg-white rounded-lg shadow p-4 mb-4">
+                                <h2 className="text-lg font-semibold mb-2 text-blue-900">🛠️ Available Tools</h2>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xl">📧</span>
+                                        <div>
+                                            <p className="font-semibold">Email Client</p>
+                                            <p className="text-gray-600">Receive security alerts and team communications</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xl">📊</span>
+                                        <div>
+                                            <p className="font-semibold">SIEM Dashboard</p>
+                                            <p className="text-gray-600">Monitor security logs in real-time - Click on logs to analyze them!</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xl">🌐</span>
+                                        <div>
+                                            <p className="font-semibold">Browser</p>
+                                            <p className="text-gray-600">Search for threat intelligence and security documentation</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xl">💻</span>
+                                        <div>
+                                            <p className="font-semibold">Terminal</p>
+                                            <p className="text-gray-600">Execute commands to investigate and block threats</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                <p className="text-sm font-semibold text-yellow-800 mb-1">💡 Workflow Tip</p>
+                                <p className="text-sm text-yellow-700">
+                                    1. Check Email for alerts<br/>
+                                    2. Analyze SIEM logs (click on them!)<br/>
+                                    3. Research threats in Browser<br/>
+                                    4. Take action with Terminal
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                url: 'https://threat-intel.internal/sql-injection',
+                title: 'SQL Injection Info',
+                icon: '🔍',
+                content: (
+                    <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
+                        <div className="max-w-3xl mx-auto">
+                            <h1 className="text-2xl font-bold mb-4">🔍 SQL Injection Attacks</h1>
+                            
+                            <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                                <h2 className="text-lg font-semibold mb-2 text-red-400">What is it?</h2>
+                                <p className="text-sm text-gray-300">
+                                    SQL Injection is a code injection technique that exploits vulnerabilities in an application's database layer. 
+                                    Attackers insert malicious SQL code into input fields to manipulate database queries.
+                                </p>
+                            </div>
+
+                            <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                                <h2 className="text-lg font-semibold mb-2 text-yellow-400">Common Patterns</h2>
+                                <div className="font-mono text-xs bg-black p-3 rounded">
+                                    <p className="text-red-400">' OR 1=1 --</p>
+                                    <p className="text-red-400">' UNION SELECT * FROM users --</p>
+                                    <p className="text-red-400">admin'--</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-800 rounded-lg p-4">
+                                <h2 className="text-lg font-semibold mb-2 text-green-400">How to Block</h2>
+                                <p className="text-sm text-gray-300 mb-2">
+                                    Use the Terminal command: <code className="bg-black px-2 py-1 rounded text-green-400">block-ip &lt;address&gt;</code>
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                    This will add the malicious IP to the firewall blocklist.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        ],
+        onNavigate: (url) => {
+            if (!browserVisited && currentStep === 2) {
+                setBrowserVisited(true);
+                setCurrentStep(3);
+                earnStar();
+            }
         }
     };
 
-    const getSeverityColor = (severity) => {
-        switch(severity) {
-            case 'low': return 'text-green-400';
-            case 'medium': return 'text-yellow-400';
-            case 'high': return 'text-orange-400';
-            case 'critical': return 'text-red-500 animate-pulse';
-            default: return 'text-cyber-green';
+    // === CONFIGURAZIONE TERMINAL ===
+    const terminalConfig = {
+        initialHistory: [
+            '$ SOC Analyst Workstation v1.0',
+            '$ Type "help" for available commands',
+            '$ Welcome to your first day! Let\'s learn the basics.',
+        ],
+        commands: {
+            'show-logs': () => {
+                const logs = generateTutorialLogs(threatBlocked);
+                const threatLog = logs.find(log => log.threat);
+                
+                if (!commandUsed && currentStep === 3) {
+                    setCommandUsed(true);
+                    setCurrentStep(4);
+                }
+                
+                return `=== RECENT SECURITY LOGS ===
+${logs.map(log => `[${log.time}] ${log.severity.toUpperCase()} - ${log.source}\n${log.message}`).join('\n\n')}
+
+${threatLog ? '\n⚠️ ALERT: Suspicious activity detected from IP: 203.0.113.42' : '✓ All threats mitigated'}`;
+            },
+
+            'block-ip': (args) => {
+                const ip = args[0];
+                if (!ip) {
+                    return 'Usage: block-ip <ip-address>\nExample: block-ip 203.0.113.42';
+                }
+                
+                if (ip === '203.0.113.42') {
+                    if (threatBlocked) {
+                        return '[!] IP 203.0.113.42 is already blocked';
+                    }
+                    
+                    setThreatBlocked(true);
+                    setCurrentStep(5);
+                    earnStar();
+                    setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
+                    
+                    setTimeout(() => {
+                        setCompleted(true);
+                    }, 1500);
+                    
+                    return `[✓] IP address 203.0.113.42 blocked successfully
+[✓] Firewall rule added
+[✓] SQL Injection threat neutralized
+[+] Network secured!`;
+                }
+                
+                return `[!] IP ${ip} not found in threat list. Check 'show-logs' for suspicious IPs.`;
+            },
+
+            'status': () => {
+                return `=== SECURITY STATUS ===
+Threats Detected: ${threatBlocked ? 0 : 1}
+Blocked IPs: ${threatBlocked ? 1 : 0}
+Network Status: ${threatBlocked ? '🟢 SECURE' : '🔴 VULNERABLE'}
+
+${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block malicious IP'}`;
+            }
+        },
+        prompt: 'soc-analyst@tutorial:~$',
+        helpCommand: true
+    };
+
+    // === CONFIGURAZIONE SIEM ===
+    const siemConfig = {
+        logs: generateTutorialLogs(threatBlocked),
+        blockedIPs: threatBlocked ? 1 : 0,
+        currentStep: currentStep,
+        trafficHistory: [
+            { time: '10:00', value: 15 },
+            { time: '10:05', value: 18 },
+            { time: '10:10', value: threatBlocked ? 20 : 35 },
+            { time: '10:15', value: threatBlocked ? 17 : 38 }
+        ],
+        networkTraffic: { 
+            incoming: threatBlocked ? 180 : 280, 
+            outgoing: threatBlocked ? 150 : 220 
+        },
+        protocols: { 
+            http: threatBlocked ? 250 : 380,
+            https: 120, 
+            ssh: 30, 
+            ftp: 0 
+        },
+        selectedLog: null,
+        onLogClick: (log) => {
+            console.log('Log clicked:', log);
+            if (!siemLogClicked && log.threat && currentStep === 1) {
+                setSiemLogClicked(true);
+                setCurrentStep(2);
+            }
         }
     };
 
+    // === HINT PROGRESSIVI ===
     const getHintText = () => {
         switch(currentStep) {
             case 0:
-                return t.hints.step1;
+                return '� STEP 1: Inizia controllando le Email! Clicca sull\'icona Email 📧 e leggi l\'alert di sicurezza. È da lì che parte tutto!';
             case 1:
-                return t.hints.step2;
+                return '📊 STEP 2: Ottimo! Ora guarda il SIEM Dashboard (pannello in basso). CLICCA sul log rosso CRITICAL per analizzarlo in dettaglio!';
             case 2:
-                return t.hints.step3;
+                return '🌐 STEP 3: Perfetto! Ora usa il Browser per cercare info. Visita "SQL Injection Info" per capire come funziona questo attacco.';
             case 3:
-                return t.hints.step4;
+                return '💻 STEP 4: Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
+            case 4:
+                return '🚫 STEP 5: Hai trovato l\'IP malevolo (203.0.113.42)! Usa "block-ip 203.0.113.42" per bloccarlo e completare il tutorial!';
             default:
-                return t.hints.step1;
+                return '✅ Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere!';
         }
     };
 
     return (
-        <LevelTemplate 
-            stars={stars} 
-            hint={showHint ? <InfoPanel text={getHintText()} /> : null}
-            musicTrack="/background-music.mp3"
-        >
-            <div className="relative flex flex-col h-full w-full p-2">
-                {/* Header */}
-                <div className="flex justify-between items-center border-b border-cyber-green/30 pb-2 mb-2">
-                    <h2 className="text-xl font-bold text-cyber-green">{t.title}</h2>
-                    <div className="flex gap-2">
-                        <button 
-                            onClick={() => setShowHint(!showHint)}
-                            className="px-3 py-1 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/20 text-xs rounded transition-all"
-                        >
-                            [ HINT ]
-                        </button>
-                        <button 
-                            onClick={() => navigate('/map')}
-                            className="px-3 py-1 border border-cyber-red text-cyber-red hover:bg-cyber-red/20 text-xs rounded transition-all"
-                        >
-                            [ ABORT ]
-                        </button>
+        <>
+            {/* Status Bar */}
+            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
+                <div className="text-cyan-400 text-lg font-mono flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold">NETWORK:</span>
+                        <span className={`text-xl font-bold ${
+                            threatBlocked ? 'text-green-500' : 'text-red-500 animate-pulse'
+                        }`}>
+                            {threatBlocked ? 'SECURE' : 'VULNERABLE'}
+                        </span>
                     </div>
                 </div>
-
-                {/* SIEM Dashboard */}
-                <SIEMSystem 
-                    logs={logs}
-                    blockedIPs={blockedIPs}
-                    currentStep={currentStep}
-                    trafficHistory={trafficHistory}
-                    networkTraffic={networkTraffic}
-                    protocols={protocols}
-                    selectedLog={selectedLog}
-                    onLogClick={handleLogClick}
-                />
-                
-                {/* Analysis Modal */}
-                {showAnalysisModal && selectedLog && (
-                    <div className="absolute inset-0 bg-cyber-black/80 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowAnalysisModal(false)}>
-                        <div className="bg-gradient-to-br from-cyber-black to-cyber-deep-blue border border-cyber-blue rounded p-1.5 max-w-md w-full mx-4 shadow-2xl shadow-cyber-blue/30" onClick={e => e.stopPropagation()}>
-                            {/* Modal Header */}
-                            <div className="flex justify-between items-start mb-1 pb-1 border-b border-cyber-blue/30">
-                                <div>
-                                    <h3 className="text-xs font-bold text-cyber-blue flex items-center gap-1">
-                                        <span>🔍</span> EVENT ANALYSIS
-                                    </h3>
-                                </div>
-                                <button 
-                                    onClick={() => setShowAnalysisModal(false)}
-                                    className="text-cyber-red hover:text-red-400 text-sm font-bold transition-colors"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                            
-                            {/* Modal Content */}
-                            <div className="space-y-1.5">
-                                {/* Event Details Grid */}
-                                <div className="grid grid-cols-2 gap-1">
-                                    <div className="bg-cyber-black/40 border border-cyan-500/30 rounded p-1">
-                                        <div className="text-[6px] text-cyan-400/70">TIMESTAMP</div>
-                                        <div className="text-[9px] text-cyan-300 font-bold">{selectedLog.time}</div>
-                                    </div>
-                                    <div className="bg-cyber-black/40 border border-purple-500/30 rounded p-1">
-                                        <div className="text-[6px] text-purple-400/70">TYPE</div>
-                                        <div className="text-[9px] text-purple-300 font-bold">{selectedLog.type}</div>
-                                    </div>
-                                    <div className="bg-cyber-black/40 border border-yellow-500/30 rounded p-1">
-                                        <div className="text-[6px] text-yellow-400/70">SOURCE</div>
-                                        <div className="text-[9px] text-yellow-300 font-bold">{selectedLog.source}</div>
-                                    </div>
-                                    <div className="bg-cyber-black/40 border border-orange-500/30 rounded p-1">
-                                        <div className="text-[6px] text-orange-400/70">SEVERITY</div>
-                                        <div className={`text-[9px] font-bold ${getSeverityColor(selectedLog.severity)}`}>{selectedLog.severity.toUpperCase()}</div>
-                                    </div>
-                                </div>
-                                
-                                {/* Threat Assessment */}
-                                <div className={`border rounded p-1 ${selectedLog.threat ? 'bg-red-900/20 border-red-500/50' : 'bg-green-900/20 border-green-500/50'}`}>
-                                    <div className={`text-[7px] font-bold flex items-center gap-1 ${selectedLog.threat ? 'text-red-400' : 'text-green-400'}`}>
-                                        {selectedLog.threat ? <span>⚠️ THREAT DETECTED</span> : <span>✅ NO THREAT</span>}
-                                    </div>
-                                </div>
-                                
-                                {/* Event Message */}
-                                <div className="bg-cyber-black/60 border border-cyber-green/30 rounded p-1">
-                                    <div className="text-[6px] text-cyber-green/70 font-bold">MESSAGE</div>
-                                    <div className="text-[8px] text-cyber-green font-mono leading-snug">{selectedLog.message}</div>
-                                </div>
-                                
-                                {/* Educational Info */}
-                                {selectedLog.threat && (
-                                    <div className="bg-yellow-900/20 border border-yellow-500/50 rounded p-1">
-                                        <div className="text-[7px] font-bold text-yellow-400 flex items-center gap-1">
-                                            <span>💡</span> SQL INJECTION
-                                        </div>
-                                        <div className="text-[7px] text-yellow-300/90 leading-tight mt-0.5">
-                                            {language === 'italiano' 
-                                                ? 'Attacco che sfrutta vulnerabilità SQL per accedere/modificare il database inserendo codice malevolo.'
-                                                : language === 'francais'
-                                                ? 'Attaque exploitant des vulnérabilités SQL pour accéder/modifier la base de données.'
-                                                : language === 'deutsch'
-                                                ? 'Angriff der SQL-Schwachstellen ausnutzt um auf die Datenbank zuzugreifen.'
-                                                : language === 'espanol'
-                                                ? 'Ataque que explota vulnerabilidades SQL para acceder/modificar la base de datos.'
-                                                : 'Attack exploiting SQL vulnerabilities to access/modify the database.'}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-2 gap-1 pt-1">
-                                    <button 
-                                        onClick={handleAnalyze}
-                                        disabled={currentStep < 1 || currentStep > 1 || !selectedLog?.threat || isAnalyzing}
-                                        className={`px-2 py-1 border text-[9px] font-bold transition-all rounded ${
-                                            currentStep > 1 || isAnalyzing
-                                                ? 'border-cyber-green/20 text-cyber-green/30 cursor-not-allowed bg-cyber-black/20'
-                                                : currentStep === 1 && selectedLog?.threat
-                                                    ? 'border-cyber-blue hover:bg-cyber-blue/30 text-cyber-blue shadow-lg shadow-cyber-blue/20'
-                                                    : 'border-cyber-green/20 text-cyber-green/40 cursor-not-allowed bg-cyber-black/20'
-                                        }`}
-                                    >
-                                        🔬 {t.analyzeBtn || 'ANALYZE THREAT'}
-                                    </button>
-                                    <button 
-                                        onClick={handleBlock}
-                                        disabled={currentStep < 2 || currentStep > 2 || !selectedLog?.threat || isAnalyzing}
-                                        className={`px-2 py-1 border text-[9px] font-bold transition-all rounded ${
-                                            currentStep > 2 
-                                                ? 'border-cyber-green/20 text-cyber-green/30 cursor-not-allowed bg-cyber-black/20'
-                                                : currentStep === 2 && selectedLog?.threat
-                                                    ? 'border-red-500 hover:bg-red-500/30 text-red-400 shadow-lg shadow-red-500/20'
-                                                    : 'border-cyber-green/20 text-cyber-green/40 cursor-not-allowed bg-cyber-black/20'
-                                        }`}
-                                    >
-                                        🚫 {t.blockBtn || 'BLOCK IP'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Analysis Loading Modal */}
-                {isAnalyzing && (
-                    <div className="absolute inset-0 bg-cyber-black/90 backdrop-blur-md flex items-center justify-center z-[150]">
-                        <div className="bg-gradient-to-br from-cyber-black to-cyber-deep-blue border-2 border-cyber-blue rounded-lg p-6 max-w-lg w-full mx-4 shadow-2xl shadow-cyber-blue/50">
-                            {currentStep < 2 ? (
-                                // Fase di caricamento
-                                <div className="text-center">
-                                    <div className="text-4xl mb-4 animate-spin inline-block">⚙️</div>
-                                    <h3 className="text-lg font-bold text-cyber-blue mb-4">
-                                        {language === 'italiano' ? 'ANALISI IN CORSO...' : 
-                                         language === 'francais' ? 'ANALYSE EN COURS...' :
-                                         language === 'deutsch' ? 'ANALYSE LÄUFT...' :
-                                         language === 'espanol' ? 'ANÁLISIS EN CURSO...' : 'ANALYZING THREAT...'}
-                                    </h3>
-                                    <div className="space-y-3">
-                                        <div className="text-left">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-xs text-cyber-blue">
-                                                    {language === 'italiano' ? 'Scansione pattern di attacco' : 
-                                                     language === 'francais' ? 'Analyse des motifs d\'attaque' :
-                                                     language === 'deutsch' ? 'Angriffsmuster scannen' :
-                                                     language === 'espanol' ? 'Escaneando patrones de ataque' : 'Scanning attack patterns'}
-                                                </span>
-                                                <span className="text-xs text-cyber-blue/70">33%</span>
-                                            </div>
-                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-cyber-blue to-cyan-400 animate-pulse" style={{width: '33%'}}></div>
-                                            </div>
-                                        </div>
-                                        <div className="text-left">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-xs text-cyan-400">
-                                                    {language === 'italiano' ? 'Correlazione eventi di sicurezza' : 
-                                                     language === 'francais' ? 'Corrélation des événements' :
-                                                     language === 'deutsch' ? 'Ereignisse korrelieren' :
-                                                     language === 'espanol' ? 'Correlacionando eventos' : 'Correlating security events'}
-                                                </span>
-                                                <span className="text-xs text-cyan-400/70">66%</span>
-                                            </div>
-                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-400 animate-pulse" style={{width: '66%', animationDelay: '0.3s'}}></div>
-                                            </div>
-                                        </div>
-                                        <div className="text-left">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-xs text-green-400">
-                                                    {language === 'italiano' ? 'Generazione report di sicurezza' : 
-                                                     language === 'francais' ? 'Génération du rapport' :
-                                                     language === 'deutsch' ? 'Bericht erstellen' :
-                                                     language === 'espanol' ? 'Generando informe' : 'Generating security report'}
-                                                </span>
-                                                <span className="text-xs text-green-400/70">90%</span>
-                                            </div>
-                                            <div className="bg-cyber-black/50 h-2 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-green-400 to-emerald-400 animate-pulse" style={{width: '90%', animationDelay: '0.6s'}}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                // Analisi completata
-                                <div className="text-center">
-                                    <div className="text-5xl mb-4 text-green-400">✓</div>
-                                    <h3 className="text-xl font-bold text-green-400 mb-2">
-                                        {language === 'italiano' ? 'ANALISI COMPLETATA' : 
-                                         language === 'francais' ? 'ANALYSE TERMINÉE' :
-                                         language === 'deutsch' ? 'ANALYSE ABGESCHLOSSEN' :
-                                         language === 'espanol' ? 'ANÁLISIS COMPLETADO' : 'ANALYSIS COMPLETE'}
-                                    </h3>
-                                    <p className="text-sm text-cyber-green/70">
-                                        {language === 'italiano' ? 'Minaccia SQL Injection confermata. Procedere con il blocco dell\'IP.' : 
-                                         language === 'francais' ? 'Menace d\'injection SQL confirmée. Procéder au blocage de l\'IP.' :
-                                         language === 'deutsch' ? 'SQL-Injection-Bedrohung bestätigt. Fahren Sie mit der IP-Sperrung fort.' :
-                                         language === 'espanol' ? 'Amenaza de inyección SQL confirmada. Proceder con el bloqueo de IP.' : 'SQL Injection threat confirmed. Proceed with IP blocking.'}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Success Message - Detailed Report */}
-                {completed && (
-                    <div className="absolute inset-0 bg-cyber-black/90 flex items-center justify-center z-50">
-                        <div className="text-center p-6 border border-cyber-green rounded-lg bg-cyber-black max-w-md">
-                            <div className="text-3xl font-bold text-cyber-green mb-3">✓ {t.success}</div>
-                            <div className="text-sm text-cyber-green/70 mb-4">{t.successMsg}</div>
-                            
-                            {/* Detailed Report */}
-                            <div className="border-t border-cyber-green/30 pt-4 text-left space-y-2">
-                                <div className="text-xs font-bold text-cyber-blue mb-2">
-                                    {language === 'italiano' ? 'RAPPORTO MISSIONE' : 
-                                     language === 'francais' ? 'RAPPORT DE MISSION' :
-                                     language === 'deutsch' ? 'MISSIONSBERICHT' :
-                                     language === 'espanol' ? 'INFORME DE MISIÓN' : 'MISSION REPORT'}
-                                </div>
-                                
-                                <div className="space-y-1 text-[10px]">
-                                    <div className="flex justify-between">
-                                        <span className="text-cyber-green/70">
-                                            {language === 'italiano' ? 'Tempo impiegato:' : 
-                                             language === 'francais' ? 'Temps écoulé:' :
-                                             language === 'deutsch' ? 'Benötigte Zeit:' :
-                                             language === 'espanol' ? 'Tiempo empleado:' : 'Time elapsed:'}
-                                        </span>
-                                        <span className="text-cyber-blue font-bold">{completionTime}s</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between">
-                                        <span className="text-cyber-green/70">
-                                            {language === 'italiano' ? 'Minaccia identificata:' : 
-                                             language === 'francais' ? 'Menace identifiée:' :
-                                             language === 'deutsch' ? 'Bedrohung identifiziert:' :
-                                             language === 'espanol' ? 'Amenaza identificada:' : 'Threat identified:'}
-                                        </span>
-                                        <span className="text-red-500 font-bold">SQL Injection</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between">
-                                        <span className="text-cyber-green/70">
-                                            {language === 'italiano' ? 'IP bloccato:' : 
-                                             language === 'francais' ? 'IP bloqué:' :
-                                             language === 'deutsch' ? 'IP gesperrt:' :
-                                             language === 'espanol' ? 'IP bloqueada:' : 'IP blocked:'}
-                                        </span>
-                                        <span className="text-yellow-400 font-bold">203.0.113.42</span>
-                                    </div>
-                                    
-                                    <div className="flex justify-between">
-                                        <span className="text-cyber-green/70">
-                                            {language === 'italiano' ? 'Stelle guadagnate:' : 
-                                             language === 'francais' ? 'Étoiles gagnées:' :
-                                             language === 'deutsch' ? 'Sterne verdient:' :
-                                             language === 'espanol' ? 'Estrellas ganadas:' : 'Stars earned:'}
-                                        </span>
-                                        <span className="text-cyber-green font-bold">{stars}/3</span>
-                                    </div>
-                                </div>
-                                
-                                <div className="mt-3 pt-3 border-t border-cyber-green/30">
-                                    <div className="text-[9px] text-cyber-green/60 italic">
-                                        {language === 'italiano' ? '✅ Sistema protetto con successo! I log correlati hanno rivelato un pattern di attacco.' : 
-                                         language === 'francais' ? '✅ Système protégé avec succès! Les logs corrélés ont révélé un schéma d\'attaque.' :
-                                         language === 'deutsch' ? '✅ System erfolgreich geschützt! Korrelierte Logs zeigten ein Angriffsmuster.' :
-                                         language === 'espanol' ? '✅ ¡Sistema protegido con éxito! Los logs correlacionados revelaron un patrón de ataque.' : '✅ System successfully protected! Correlated logs revealed an attack pattern.'}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Continue Button */}
-                            <button 
-                                onClick={() => navigate('/map')}
-                                className="mt-4 px-6 py-2 border-2 border-cyber-green bg-cyber-green/10 hover:bg-cyber-green/30 text-cyber-green font-bold text-sm rounded transition-all shadow-lg shadow-cyber-green/20"
-                            >
-                                {language === 'italiano' ? 'PROSEGUI' : 
-                                 language === 'francais' ? 'CONTINUER' :
-                                 language === 'deutsch' ? 'WEITER' :
-                                 language === 'espanol' ? 'CONTINUAR' : 'CONTINUE'}
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
-        </LevelTemplate>
+
+            <LevelTemplate 
+                stars={stars}
+                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                browserConfig={browserConfig}
+                terminalConfig={terminalConfig}
+                siemConfig={siemConfig}
+                emailConfig={emailConfig}
+            >                
+                {completed && (
+                    <LevelCompleted
+                        stars={stars}
+                        maxStars={3}
+                        completionTime={completionTime}
+                        levelTitle="Tutorial - SOC Basics"
+                        additionalStats={[
+                            {
+                                label: 'Email lette',
+                                value: emailRead ? 'SÌ' : 'NO',
+                                color: emailRead ? 'text-cyber-green' : 'text-yellow-400'
+                            },
+                            {
+                                label: 'SIEM log analizzati',
+                                value: siemLogClicked ? 'SÌ' : 'NO',
+                                color: siemLogClicked ? 'text-cyber-green' : 'text-yellow-400'
+                            },
+                            {
+                                label: 'Browser esplorato',
+                                value: browserVisited ? 'SÌ' : 'NO',
+                                color: browserVisited ? 'text-cyber-green' : 'text-yellow-400'
+                            },
+                            {
+                                label: 'Comandi terminal usati',
+                                value: commandUsed ? 'SÌ' : 'NO',
+                                color: commandUsed ? 'text-cyber-green' : 'text-yellow-400'
+                            },
+                            {
+                                label: 'Minaccia bloccata',
+                                value: threatBlocked ? 'SÌ' : 'NO',
+                                color: threatBlocked ? 'text-cyber-green' : 'text-red-500'
+                            }
+                        ]}
+                    />
+                )}
+            </LevelTemplate>
+        </>
     );
 };
 
