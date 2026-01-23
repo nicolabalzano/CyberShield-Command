@@ -21,6 +21,7 @@ function LevelTemplateContent({
     siemConfig = {},
     emailConfig = {},
     revEngConfig = null,
+    codeEditorConfig = null,
     onEmailAction
 }) {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ function LevelTemplateContent({
                 siemConfig={siemConfig}
                 emailConfig={emailConfig}
                 revEngConfig={revEngConfig}
+                codeEditorConfig={codeEditorConfig}
                 onEmailAction={onEmailAction}
             >
                 {children}

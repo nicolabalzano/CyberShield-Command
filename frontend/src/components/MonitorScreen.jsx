@@ -5,6 +5,7 @@ import Terminal from './Terminal';
 import Browser from './Browser';
 import SIEMSystem from './SIEMSystem';
 import ReverseEngineeringViewer from './ReverseEngineeringViewer';
+import CodeEditor from './CodeEditor';
 import { BrowserProvider } from '../contexts/BrowserContext';
 
 /**
@@ -20,6 +21,7 @@ const MonitorScreen = ({
   emailConfig = {},
   browserConfig = {},
   revEngConfig = null,
+  codeEditorConfig = null,
   statusText = null,
   className = "",
   children
@@ -122,6 +124,14 @@ const MonitorScreen = ({
                     onClick={() => openWindow('Reverse Engineering Tool', 'reveng')} 
                   />
                 )}
+                
+                {codeEditorConfig && (
+                  <DesktopIcon 
+                    icon="📝" 
+                    label="Code Editor" 
+                    onClick={() => openWindow('Code Editor', 'code-editor')} 
+                  />
+                )}
               </div>
 
               {windows.map(window => (
@@ -139,6 +149,7 @@ const MonitorScreen = ({
                     emailConfig={emailConfig}
                     browserConfig={browserConfig}
                     revEngConfig={revEngConfig}
+                    codeEditorConfig={codeEditorConfig}
                   />
                 )
               ))}
@@ -197,7 +208,8 @@ const Window = ({
   siemConfig,
   emailConfig,
   browserConfig,
-  revEngConfig
+  revEngConfig,
+  codeEditorConfig
 }) => {
   const [position, setPosition] = useState(windowData.position);
   const [isDragging, setIsDragging] = useState(false);
@@ -308,6 +320,7 @@ const Window = ({
           />
         )}
         {windowData.contentType === 'reveng' && <ReverseEngineeringViewer {...revEngConfig} />}
+        {windowData.contentType === 'code-editor' && <CodeEditor {...codeEditorConfig} />}
       </div>
     </div>
   );

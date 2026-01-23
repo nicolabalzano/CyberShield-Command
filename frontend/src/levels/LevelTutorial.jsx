@@ -336,35 +336,22 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
     const getHintText = () => {
         switch(currentStep) {
             case 0:
-                return '� STEP 1: Inizia controllando le Email! Clicca sull\'icona Email 📧 e leggi l\'alert di sicurezza. È da lì che parte tutto!';
+                return 'Inizia controllando le Email! Clicca sull\'icona Email e leggi l\'alert di sicurezza. È da lì che parte tutto!';
             case 1:
-                return '📊 STEP 2: Ottimo! Ora guarda il SIEM Dashboard (pannello in basso). CLICCA sul log rosso CRITICAL per analizzarlo in dettaglio!';
+                return 'Ottimo! Ora guarda il SIEM Dashboard (pannello in basso). CLICCA sul log rosso CRITICAL per analizzarlo in dettaglio!';
             case 2:
-                return '🌐 STEP 3: Perfetto! Ora usa il Browser per cercare info. Visita "SQL Injection Info" per capire come funziona questo attacco.';
+                return 'Perfetto! Ora usa il Browser per cercare info. Visita "SQL Injection Info" per capire come funziona questo attacco.';
             case 3:
-                return '💻 STEP 4: Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
+                return 'Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
             case 4:
-                return '🚫 STEP 5: Hai trovato l\'IP malevolo (203.0.113.42)! Usa "block-ip 203.0.113.42" per bloccarlo e completare il tutorial!';
+                return 'Hai trovato l\'IP malevolo (203.0.113.42)! Usa "block-ip 203.0.113.42" per bloccarlo e completare il tutorial!';
             default:
-                return '✅ Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere!';
+                return 'Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere!';
         }
     };
 
     return (
         <>
-            {/* Status Bar */}
-            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
-                <div className="text-cyan-400 text-lg font-mono flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="font-bold">NETWORK:</span>
-                        <span className={`text-xl font-bold ${
-                            threatBlocked ? 'text-green-500' : 'text-red-500 animate-pulse'
-                        }`}>
-                            {threatBlocked ? 'SECURE' : 'VULNERABLE'}
-                        </span>
-                    </div>
-                </div>
-            </div>
 
             <LevelTemplate 
                 stars={stars}
