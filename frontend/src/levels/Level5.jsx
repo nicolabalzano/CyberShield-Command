@@ -572,31 +572,6 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
 
     return (
         <div>
-            {/* Status Bar */}
-            <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[15]">
-                <div className="text-cyan-400 text-lg font-mono flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="font-bold">CACHE:</span>
-                        <span className={`text-xl font-bold ${
-                            cachePoisoned ? 'text-red-500 animate-pulse' : 'text-green-500'
-                        }`}>
-                            {cachePoisoned ? 'POISONED' : 'CLEAN'}
-                        </span>
-                    </div>
-                    <div className="text-sm">
-                        <span className="text-gray-400">Entries: </span>
-                        <span className="text-white font-bold">{Object.keys(cacheEntries).length}</span>
-                    </div>
-                    <div className="text-sm">
-                        {cachePoisoned ? (
-                            <span className="text-red-500 font-bold animate-pulse">⚠️ MALICIOUS CONTENT CACHED</span>
-                        ) : (
-                            <span className="text-green-500 font-bold">✅ CACHE SECURE</span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
             <LevelTemplate 
                 stars={stars}
                 hint={showHint ? <InfoPanel text={getHintText()} /> : null}
