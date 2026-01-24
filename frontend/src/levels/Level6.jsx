@@ -27,6 +27,12 @@ const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
     return null;
 };
 
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
+
 /**
  * LEVEL 6: CSRF (CROSS-SITE REQUEST FORGERY) DEFENSE
  * 
@@ -959,9 +965,9 @@ Active Protections:
                 </div>
                 
                 {completed && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={missionSuccess}
-                        stats={{ stars, health: 100 }}
+                        stats={{ stars }}
                         recapText={missionSuccess ? 
                             `CSRF DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +

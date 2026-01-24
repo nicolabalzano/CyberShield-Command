@@ -139,6 +139,7 @@ const Level1Content = ({
     emailConfig,
     onEmailAction
 }) => {
+    const { health } = useLevel();
     return (
         <>
             {/* Status Bar - mostrato sopra tutto */}
@@ -169,7 +170,7 @@ const Level1Content = ({
                 {(completed || failed) && (
                     <MissionDebrief
                         success={completed && !failed}
-                        stats={{ stars, health: completed ? 100 : 0 }}
+                        stats={{ stars, health: completed ? health : 0 }}
                         recapText={completed && !failed
                             ? `PHISHING DETECTION ANALYSIS\n\n` +
                                 `Email classificate: ${finalStats.total}/6\n` +

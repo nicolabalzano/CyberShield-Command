@@ -25,6 +25,12 @@ const HealthSetter = ({ healthSetterRef, onGameOver }) => {
     return null;
 };
 
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
+
 /**
  * LEVEL 5: CACHE POISONING DEFENSE
  * 
@@ -692,9 +698,9 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                     <Timer secondsRemaining={secondsRemaining} />
                 </div>
                 {completed && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={!failed}
-                        stats={{ stars, health: 100 }}
+                        stats={{ stars }}
                         recapText={!failed ? 
                             `CACHE POISONING DEFENSE ANALYSIS\n\n` +
                             `Cache cleared: ${cacheCleared ? 'YES' : 'NO'}\n` +
