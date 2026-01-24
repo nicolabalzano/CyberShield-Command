@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel as useLevelFromTemplate } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import { useLevel } from '../contexts/LevelContext';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
+
+// Componente interno per monitorare la salute e gestire il game over
+const HealthMonitor = ({ completed, onGameOver }) => {
+    const { health } = useLevel();
+    
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            onGameOver();
+        }
+    }, [health, completed, onGameOver]);
+    
+    return null;
+};
 
 /**
  * LEVEL 6: CSRF (CROSS-SITE REQUEST FORGERY) DEFENSE
@@ -180,9 +193,6 @@ const Level6 = () => {
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level6', 0);
     const { earnStar } = useReputation('level6', 0);
-    
-    // Health system
-    const { health } = useLevel();
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // CSRF attivo
@@ -201,6 +211,7 @@ const Level6 = () => {
     
     // UI State
     const [completed, setCompleted] = useState(false);
+    const [failed, setFailed] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
@@ -325,14 +336,6 @@ const Level6 = () => {
             }, 2000);
         }
     }, [attackActive, unauthorizedActions, appRestarted, completed, legitimateBlocked, protectionsEnabled, csrfType, stars, earnStar, startTime]);
-
-    // === GAME OVER CONDITION ===
-    useEffect(() => {
-        if (health <= 0 && !completed) {
-            setMissionSuccess(false);
-            setCompleted(true);
-        }
-    }, [health, completed]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -892,6 +895,15 @@ Active Protections:
                 decayInterval={8000}
                 decayAmount={5}
             >                
+                <HealthMonitor 
+                    completed={completed} 
+                    onGameOver={() => {
+                        setMissionSuccess(false);
+                        setFailed(true);
+                        setCompleted(true);
+                    }} 
+                />
+                
                 {completed && (
                     <MissionDebrief
                         success={missionSuccess}

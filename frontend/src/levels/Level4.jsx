@@ -4,6 +4,19 @@ import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 
+// Componente interno per monitorare la salute e gestire il game over
+const HealthMonitor = ({ completed, onGameOver }) => {
+    const { health } = useLevel();
+    
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            onGameOver();
+        }
+    }, [health, completed, onGameOver]);
+    
+    return null;
+};
+
 /**
  * LEVEL 4: XSS (CROSS-SITE SCRIPTING) DEFENSE
  * 
@@ -164,7 +177,6 @@ const Level4 = () => {
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level4', 0);
     const { earnStar } = useReputation('level4', 0);
-    const { health } = useLevel();
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // XSS attivo
@@ -182,6 +194,7 @@ const Level4 = () => {
     
     // UI State
     const [completed, setCompleted] = useState(false);
+    const [failed, setFailed] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
@@ -290,14 +303,6 @@ const Level4 = () => {
             }, 2000);
         }
     }, [attackActive, scriptExecuted, appRestarted, completed, legitimateBlocked, protectionsEnabled, xssType, stars, earnStar, startTime]);
-
-    // === GAME OVER CONDITION ===
-    useEffect(() => {
-        if (health <= 0 && !completed) {
-            setMissionSuccess(false);
-            setCompleted(true);
-        }
-    }, [health, completed]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -760,6 +765,15 @@ Active Protections:
                 decayInterval={8000}
                 decayAmount={5}
             >                
+                <HealthMonitor 
+                    completed={completed} 
+                    onGameOver={() => {
+                        setMissionSuccess(false);
+                        setFailed(true);
+                        setCompleted(true);
+                    }} 
+                />
+                
                 {completed && (
                     <MissionDebrief
                         success={missionSuccess}
