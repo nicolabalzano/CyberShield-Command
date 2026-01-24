@@ -4,10 +4,18 @@ import { useReputation } from '../components/ReputationStars';
 import { useLevel } from '../contexts/LevelContext';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
+import Timer from '../components/Timer';
 
 // Componente interno per monitorare la salute e gestire il game over
-const HealthMonitor = ({ completed, onGameOver }) => {
-    const { health } = useLevel();
+const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
+    const { health, setHealth } = useLevel();
+    
+    // Assegna setHealth al ref
+    React.useEffect(() => {
+        if (healthSetterRef) {
+            healthSetterRef.current = setHealth;
+        }
+    }, [setHealth, healthSetterRef]);
     
     useEffect(() => {
         if (health <= 0 && !completed) {
@@ -197,6 +205,14 @@ const Level6 = () => {
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // CSRF attivo
     const [unauthorizedActions, setUnauthorizedActions] = useState(true); // Azioni non autorizzate eseguite
+    
+    // Timer State (5 minutes)
+    const MAX_TIME = 300;
+    const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
+    
+    // Ref per accedere a setHealth da Level6Content
+    const healthSetterRef = React.useRef(null);
+    
     const [protectionsEnabled, setProtectionsEnabled] = useState({
         csrfTokens: false,
         sameSiteCookies: false,
@@ -246,6 +262,40 @@ const Level6 = () => {
             return () => clearTimeout(timeout);
         }
     }, [currentStep, hintIndex]);
+    
+    // Timer logic - countdown every second
+    useEffect(() => {
+        if (completed || failed) return; // Don't count down after completion or failure
+
+        const interval = setInterval(() => {
+            setSecondsRemaining(prev => {
+                const newVal = prev - 1;
+                
+                if (newVal <= 0) {
+                    if (healthSetterRef.current) {
+                        healthSetterRef.current(0); // Game Over
+                    }
+                    clearInterval(interval);
+                    return 0;
+                }
+                return newVal;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [completed, failed]);
+
+    // Update health based on remaining time (linear decrease)
+    useEffect(() => {
+        if (completed || failed) return;
+        
+        // Calculate health based on remaining time (linear decrease)
+        // 300s = 100%, 0s = 0%
+        const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
+        if (healthSetterRef.current) {
+            healthSetterRef.current(Math.max(0, healthPercentage));
+        }
+    }, [secondsRemaining, completed, failed]);
 
     // === LOGICA DI MITIGAZIONE ===
     useEffect(() => {
@@ -891,18 +941,20 @@ Active Protections:
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-                enableHealthDecay={true}
-                decayInterval={8000}
-                decayAmount={5}
             >                
                 <HealthMonitor 
                     completed={completed} 
+                    healthSetterRef={healthSetterRef}
                     onGameOver={() => {
                         setMissionSuccess(false);
                         setFailed(true);
                         setCompleted(true);
                     }} 
                 />
+                {/* TIMER */}
+                <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                    <Timer secondsRemaining={secondsRemaining} />
+                </div>
                 
                 {completed && (
                     <MissionDebrief
