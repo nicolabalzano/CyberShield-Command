@@ -201,6 +201,35 @@ const Level6 = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 3) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
 
     // === LOGICA DI MITIGAZIONE ===
     useEffect(() => {
@@ -806,6 +835,14 @@ Active Protections:
                 return 'Hai identificato CSRF! Usa "enable-csrf-tokens" per proteggere le richieste state-changing.';
             case 2:
                 return 'Aggiungi "enable-samesite" per protezione extra, poi riavvia con "restart-app".';
+            case 3: {
+                const hints = [
+                    '✅ Bene! Le protezioni CSRF sono attive. Controlla il balance nel browser.',
+                    'Ricorda: CSRF tokens e SameSite cookies proteggono dalle richieste non autorizzate.',
+                    'Stai per completare il livello! Verifica che i fondi siano protetti.'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return '✅ Controlla lo stato con "status" e verifica il balance nel browser!';
         }
@@ -834,7 +871,7 @@ Active Protections:
         <div>
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

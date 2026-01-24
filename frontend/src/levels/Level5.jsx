@@ -170,6 +170,35 @@ const Level5 = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 4) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
 
     // === LOGICA DI MITIGAZIONE ===
     // Cache è sicura quando è svuotata E configurata correttamente
@@ -546,6 +575,14 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                 return '🛡️ STEP 3: Abilita "Vary" header con "enable-vary-header" e imposta "set-cache-control no-store" per contenuti dinamici.';
             case 3:
                 return '🔄 STEP 4: Riavvia il proxy con "restart-proxy" per applicare tutte le modifiche di sicurezza.';
+            case 4: {
+                const hints = [
+                    '✅ Stai quasi terminando! Verifica che tutte le protezioni siano attive.',
+                    'Ricorda: il Vary header deve includere Host e X-Forwarded-Host.',
+                    'Ultimo passo! Assicurati che il proxy sia riavviato e la cache sia pulita.'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return '✅ Usa "status" per verificare che tutte le protezioni siano attive!';
         }
@@ -574,7 +611,7 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
         <div>
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

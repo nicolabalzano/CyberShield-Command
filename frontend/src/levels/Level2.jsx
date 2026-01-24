@@ -177,6 +177,35 @@ const Level2 = () => {
     const [startTime, setStartTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
     const [terminalOutput, setTerminalOutput] = useState([]);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 3) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
 
     // Quando il giocatore blocca IP o attiva protezioni, il traffico diminuisce
     useEffect(() => {
@@ -440,6 +469,14 @@ Normal users:
                 return 'Usa il comando per vedere gli IP sospetti e blocca quelli malevoli.';
             case 2:
                 return 'Abilita il firewall per filtrare automaticamente pattern sospetti.';
+            case 3: {
+                const hints = [
+                    'Bene! Il traffico sta diminuendo. Continua a bloccare gli IP malevoli.',
+                    'Ricorda: blocca solo gli IP sospetti. Attenzione ai falsi positivi (IP legittimi)!',
+                    'Quasi fatto! Completa la mitigazione bloccando tutti gli IP malevoli rimanenti.'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return 'Continua a mitigare l\'attacco!';
         }
@@ -478,7 +515,7 @@ Normal users:
         <div>
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

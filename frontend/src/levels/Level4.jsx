@@ -185,6 +185,35 @@ const Level4 = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 3) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
 
     // === LOGICA DI MITIGAZIONE ===
     useEffect(() => {
@@ -677,6 +706,14 @@ Active Protections:
                 return 'Hai identificato XSS Stored! Usa "enable-sanitization" per bloccare i tag pericolosi.';
             case 2:
                 return 'Attiva anche "enable-csp" per protezione extra, poi riavvia con "restart-app".';
+            case 3: {
+                const hints = [
+                    '✅ Bene! Le protezioni sono attive. Controlla che il forum sia sicuro nel browser.',
+                    'Verifica con "status" che sanitization e CSP siano entrambe abilitate.',
+                    'Stai per completare il livello! Assicurati che tutti gli XSS siano bloccati.'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return '✅ Controlla lo stato con "status" e verifica il forum nel browser!';
         }
@@ -705,7 +742,7 @@ Active Protections:
         <div>
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

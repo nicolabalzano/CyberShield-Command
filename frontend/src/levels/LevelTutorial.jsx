@@ -81,6 +81,35 @@ const LevelTutorial = () => {
     const [siemLogClicked, setSiemLogClicked] = useState(false);
     const [browserVisited, setBrowserVisited] = useState(false);
     const [commandUsed, setCommandUsed] = useState(false);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 4) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
     
     // === CONFIGURAZIONE EMAIL ===
     const emailConfig = {
@@ -343,8 +372,14 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                 return 'Perfetto! Ora usa il Browser per cercare info. Visita "SQL Injection Info" per capire come funziona questo attacco.';
             case 3:
                 return 'Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
-            case 4:
-                return 'Hai trovato l\'IP malevolo (203.0.113.42)! Usa "block-ip 203.0.113.42" per bloccarlo e completare il tutorial!';
+            case 4: {
+                const hints = [
+                    'Hai trovato l\'IP malevolo (203.0.113.42)! Usa il Terminal per bloccarlo.',
+                    'Ricorda il comando: "block-ip 203.0.113.42" - questo aggiungerà l\'IP alla lista nera del firewall.',
+                    'Una volta bloccato, il sistema sarà completamente protetto e avrai completato il tutorial!'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return 'Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere!';
         }
@@ -355,7 +390,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
 
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}

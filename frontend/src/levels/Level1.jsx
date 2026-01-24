@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -180,7 +180,7 @@ const Level1Content = ({
     totalEmails,
     damagePerError,
     lastErrorTrigger,
-    getHintText,
+    visibleHint,
     browserConfig,
     emailConfig,
     onEmailAction
@@ -197,7 +197,7 @@ const Level1Content = ({
 
             <LevelTemplate 
                 stars={stars}
-                hint={showHint ? <InfoPanel text={getHintText()} /> : null}
+                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 emailConfig={emailConfig}
                 onEmailAction={onEmailAction}
@@ -275,6 +275,35 @@ const Level1 = () => {
     const [emailsChecked, setEmailsChecked] = useState(0);
     const [correctIdentifications, setCorrectIdentifications] = useState(0);
     const [lastErrorTrigger, setLastErrorTrigger] = useState(null);
+    const [hintIndex, setHintIndex] = useState(0);
+    const [visibleHint, setVisibleHint] = useState(null);
+
+    // Reset hint index quando cambia step
+    useEffect(() => {
+        setHintIndex(0);
+    }, [currentStep]);
+
+    // Timer che incrementa hint index ogni 15 secondi per step con hint multipli
+    useEffect(() => {
+        if (currentStep === 3) {
+            const timer = setInterval(() => {
+                setHintIndex(prev => prev + 1);
+            }, 15000);
+            return () => clearInterval(timer);
+        }
+    }, [currentStep]);
+
+    // Transizione smooth del testo hint
+    useEffect(() => {
+        const text = getHintText();
+        if (text !== visibleHint) {
+            setVisibleHint(null);
+            const timeout = setTimeout(() => {
+                setVisibleHint(text);
+            }, 400);
+            return () => clearTimeout(timeout);
+        }
+    }, [currentStep, hintIndex]);
 
     // Calcola il danno in base al numero totale di email
     const totalEmails = LEVEL1_EMAILS.length;
@@ -328,6 +357,14 @@ const Level1 = () => {
                 return 'Usa il pulsante "Ispeziona Header" per vedere i dettagli tecnici. SPF e DKIM in "FAIL" indicano che l\'email non è autentica!';
             case 2:
                 return 'Leggi attentamente il contenuto. Attento a: richieste urgenti, errori grammaticali, richieste di denaro/password, tono sospetto.';
+            case 3: {
+                const hints = [
+                    '✅ Continua! Classifica ogni email con "Email Sicura" o "Segnala Phishing". Riceverai feedback immediato dopo ogni scelta.',
+                    'Attenzione agli allegati! File .exe è un grande segnale di pericolo. Controlla sempre il dominio del mittente.',
+                    'Stai facendo bene! Ricorda: quando hai dubbi, meglio marcare come phishing che rischiare. Mancano poche email!'
+                ];
+                return hints[Math.min(hintIndex, hints.length - 1)];
+            }
             default:
                 return '✅ Continua! Classifica ogni email con "Email Sicura" o "Segnala Phishing". Riceverai feedback immediato dopo ogni scelta. Attenzione agli allegati .exe!';
         }
@@ -345,7 +382,7 @@ const Level1 = () => {
             totalEmails={totalEmails}
             damagePerError={damagePerError}
             lastErrorTrigger={lastErrorTrigger}
-            getHintText={getHintText}
+            visibleHint={visibleHint}
             browserConfig={browserConfig}
             emailConfig={emailConfig}
             onEmailAction={handleEmailAction}
