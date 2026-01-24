@@ -94,8 +94,8 @@ const LEVEL1_EMAILS = [
 ];
 
 // Componente interno per gestire il danno usando useLevel
-const DamageHandler = ({ errorTrigger, damageAmount }) => {
-    const { damage } = useLevel();
+const DamageHandler = ({ errorTrigger, damageAmount, onGameOver }) => {
+    const { damage, health } = useLevel();
     const lastProcessedRef = React.useRef(null);
     
     React.useEffect(() => {
@@ -107,6 +107,13 @@ const DamageHandler = ({ errorTrigger, damageAmount }) => {
             lastProcessedRef.current = errorTrigger;
         }
     }, [errorTrigger, damageAmount, damage]);
+
+    // Monitora il game over quando health <= 0
+    React.useEffect(() => {
+        if (health <= 0 && onGameOver) {
+            onGameOver();
+        }
+    }, [health, onGameOver]);
     
     return null;
 };
@@ -117,6 +124,8 @@ const Level1Content = ({
     currentStep,
     showHint,
     completed,
+    failed,
+    setFailed,
     finalStats,
     completionTime,
     emailsChecked,
@@ -149,23 +158,28 @@ const Level1Content = ({
                 <DamageHandler 
                     key={lastErrorTrigger} 
                     errorTrigger={lastErrorTrigger} 
-                    damageAmount={damagePerError} 
+                    damageAmount={damagePerError}
+                    onGameOver={() => setFailed(true)}
                 />
                 
-                {completed && (
+                {(completed || failed) && (
                     <MissionDebrief
-                        success={true}
-                        stats={{ stars, health: 100 }}
-                        recapText={`PHISHING DETECTION ANALYSIS\n\n` +
-                            `Email classificate: ${finalStats.total}/6\n` +
-                            `Identificazioni corrette: ${finalStats.correct}/${finalStats.total}\n` +
-                            `Precisione: ${Math.round((finalStats.correct / finalStats.total) * 100)}%\n` +
-                            `Tempo completamento: ${completionTime}s\n\n` +
-                            `${finalStats.correct === finalStats.total 
-                                ? 'RISULTATO: ECCELLENTE - Perfetta identificazione di tutti gli email di phishing!' 
-                                : finalStats.correct >= 5 
-                                ? 'RISULTATO: BUONO - Hai identificato correttamente quasi tutti i phishing.' 
-                                : 'RISULTATO: ACCETTABILE - Hai completato il livello ma con alcuni errori.'}`}
+                        success={completed && !failed}
+                        stats={{ stars, health: completed ? 100 : 0 }}
+                        recapText={completed && !failed
+                            ? `PHISHING DETECTION ANALYSIS\n\n` +
+                                `Email classificate: ${finalStats.total}/6\n` +
+                                `Identificazioni corrette: ${finalStats.correct}/${finalStats.total}\n` +
+                                `Precisione: ${Math.round((finalStats.correct / finalStats.total) * 100)}%\n` +
+                                `Tempo completamento: ${completionTime}s\n\n` +
+                                `${finalStats.correct === finalStats.total 
+                                    ? 'RISULTATO: ECCELLENTE - Perfetta identificazione di tutti gli email di phishing!' 
+                                    : finalStats.correct >= 5 
+                                    ? 'RISULTATO: BUONO - Hai identificato correttamente quasi tutti i phishing.' 
+                                    : 'RISULTATO: ACCETTABILE - Hai completato il livello ma con alcuni errori.'}`
+                            : `PHISHING DETECTION FAILED\n\nHai commesso troppi errori e perso credibilità presso il team di sicurezza.\n\nRiprova a classificare gli email con più attenzione:\n- Controlla il dominio del mittente\n- Ispeziona gli header SPF e DKIM\n- Verifica i link sospetti`
+                        }
+                        onRetry={() => window.location.reload()}
                         onExit={() => window.location.href = '/'}
                     />
                 )}
@@ -209,6 +223,7 @@ const Level1 = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [showHint, setShowHint] = useState(true);
     const [completed, setCompleted] = useState(false);
+    const [failed, setFailed] = useState(false);
     const [finalStats, setFinalStats] = useState({ correct: 0, total: 6 });
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
@@ -393,6 +408,8 @@ const Level1 = () => {
             currentStep={currentStep}
             showHint={showHint}
             completed={completed}
+            failed={failed}
+            setFailed={setFailed}
             finalStats={finalStats}
             completionTime={completionTime}
             emailsChecked={emailsChecked}

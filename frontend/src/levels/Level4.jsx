@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
@@ -164,6 +164,7 @@ const Level4 = () => {
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level4', 0);
     const { earnStar } = useReputation('level4', 0);
+    const { health } = useLevel();
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // XSS attivo
@@ -187,6 +188,7 @@ const Level4 = () => {
     const [completionTime, setCompletionTime] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    const [missionSuccess, setMissionSuccess] = useState(true);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -288,6 +290,14 @@ const Level4 = () => {
             }, 2000);
         }
     }, [attackActive, scriptExecuted, appRestarted, completed, legitimateBlocked, protectionsEnabled, xssType, stars, earnStar, startTime]);
+
+    // === GAME OVER CONDITION ===
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            setMissionSuccess(false);
+            setCompleted(true);
+        }
+    }, [health, completed]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -752,14 +762,17 @@ Active Protections:
             >                
                 {completed && (
                     <MissionDebrief
-                        success={true}
+                        success={missionSuccess}
                         stats={{ stars, health: 100 }}
-                        recapText={`XSS DEFENSE ANALYSIS\n\n` +
+                        recapText={missionSuccess ? 
+                            `XSS DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
                             `Script execution: ${scriptExecuted ? 'VULNERABLE' : 'BLOCKED'}\n` +
                             `XSS Type identified: ${xssType || 'N/A'}\n` +
                             `Tempo completamento: ${completionTime}s\n\n` +
-                            `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`}
+                            `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`
+                            : 'XSS vulnerabilities not fully mitigated. System still vulnerable to script injection attacks.\n\nTry again with stronger protections: enable both sanitization AND CSP.'}
+                        onRetry={() => window.location.reload()}
                         onExit={() => window.location.href = '/'}
                     />
                 )}

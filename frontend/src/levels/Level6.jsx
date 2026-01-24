@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
+import { useLevel } from '../contexts/LevelContext';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 
@@ -179,6 +180,9 @@ const Level6 = () => {
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level6', 0);
     const { earnStar } = useReputation('level6', 0);
+    
+    // Health system
+    const { health } = useLevel();
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // CSRF attivo
@@ -203,6 +207,7 @@ const Level6 = () => {
     const [completionTime, setCompletionTime] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    const [missionSuccess, setMissionSuccess] = useState(true);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -320,6 +325,14 @@ const Level6 = () => {
             }, 2000);
         }
     }, [attackActive, unauthorizedActions, appRestarted, completed, legitimateBlocked, protectionsEnabled, csrfType, stars, earnStar, startTime]);
+
+    // === GAME OVER CONDITION ===
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            setMissionSuccess(false);
+            setCompleted(true);
+        }
+    }, [health, completed]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -881,14 +894,17 @@ Active Protections:
             >                
                 {completed && (
                     <MissionDebrief
-                        success={true}
+                        success={missionSuccess}
                         stats={{ stars, health: 100 }}
-                        recapText={`CSRF DEFENSE ANALYSIS\n\n` +
+                        recapText={missionSuccess ? 
+                            `CSRF DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
                             `Unauthorized actions: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
                             `Account balance: $${accountBalance.toLocaleString()}\n` +
                             `Tempo completamento: ${completionTime}s\n\n` +
-                            `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`}
+                            `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`
+                            : 'Account funds were stolen through successful CSRF attacks.\n\nActivate CSRF tokens and SameSite cookie protection before restarting.'}
+                        onRetry={() => window.location.reload()}
                         onExit={() => window.location.href = '/'}
                     />
                 )}
