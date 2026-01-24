@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
 
@@ -397,38 +397,20 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                 emailConfig={emailConfig}
             >                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="Tutorial - SOC Basics"
-                        additionalStats={[
-                            {
-                                label: 'Email lette',
-                                value: emailRead ? 'SÌ' : 'NO',
-                                color: emailRead ? 'text-cyber-green' : 'text-yellow-400'
-                            },
-                            {
-                                label: 'SIEM log analizzati',
-                                value: siemLogClicked ? 'SÌ' : 'NO',
-                                color: siemLogClicked ? 'text-cyber-green' : 'text-yellow-400'
-                            },
-                            {
-                                label: 'Browser esplorato',
-                                value: browserVisited ? 'SÌ' : 'NO',
-                                color: browserVisited ? 'text-cyber-green' : 'text-yellow-400'
-                            },
-                            {
-                                label: 'Comandi terminal usati',
-                                value: commandUsed ? 'SÌ' : 'NO',
-                                color: commandUsed ? 'text-cyber-green' : 'text-yellow-400'
-                            },
-                            {
-                                label: 'Minaccia bloccata',
-                                value: threatBlocked ? 'SÌ' : 'NO',
-                                color: threatBlocked ? 'text-cyber-green' : 'text-red-500'
-                            }
-                        ]}
+                    <MissionDebrief
+                        success={true}
+                        stats={{ stars }}
+                        recapText={`TUTORIAL COMPLETION\n\n` +
+                            `Welcome to the SOC!\n\n` +
+                            `You've learned the basics:\n` +
+                            `- Email analysis: ${emailRead ? '✓' : '✗'}\n` +
+                            `- SIEM log review: ${siemLogClicked ? '✓' : '✗'}\n` +
+                            `- Browser exploration: ${browserVisited ? '✓' : '✗'}\n` +
+                            `- Terminal usage: ${commandUsed ? '✓' : '✗'}\n` +
+                            `- Threat mitigation: ${threatBlocked ? '✓' : '✗'}\n\n` +
+                            `Completion time: ${completionTime}s\n\n` +
+                            `You're ready to handle real threats. Good luck!`}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>
