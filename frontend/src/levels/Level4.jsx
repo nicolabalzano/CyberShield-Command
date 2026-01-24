@@ -716,21 +716,21 @@ Active Protections:
         
         switch(currentStep) {
             case 0:
-                return 'Analizza i commenti nel forum. Vedi tag <script> o attributi strani? Usa "analyze-comments" per i dettagli.';
+                return 'Analizza i commenti nel BROWSER. Vedi tag <script> o attributi strani? Nel TERMINALE usa "analyze-comments" per analizzare il payload XSS.';
             case 1:
-                return 'Hai identificato XSS Stored! Usa "enable-sanitization" per bloccare i tag pericolosi.';
+                return 'Hai identificato XSS Stored! Nel TERMINALE usa "enable-sanitization" per bloccare i tag e gli attributi pericolosi come <script> e onerror.';
             case 2:
-                return 'Attiva anche "enable-csp" per protezione extra, poi riavvia con "restart-app".';
+                return 'Nel TERMINALE attiva "enable-csp" per aggiungere protezione extra, poi usa "restart-app" per riavviare l\'applicazione con le nuove protezioni.';
             case 3: {
                 const hints = [
-                    '✅ Bene! Le protezioni sono attive. Controlla che il forum sia sicuro nel browser.',
-                    'Verifica con "status" che sanitization e CSP siano entrambe abilitate.',
-                    'Stai per completare il livello! Assicurati che tutti gli XSS siano bloccati.'
+                    '✅ Bene! Le protezioni sono attive. Nel TERMINALE usa "status" per verificare che sia sanitization che CSP siano abilitate, poi controlla il forum nel BROWSER.',
+                    'Verifica con il comando "status" che sanitization e CSP siano entrambe abilitate. Analizza di nuovo i commenti per confermare che gli XSS sono bloccati.',
+                    'Stai per completare il livello! Nel TERMINALE usa "analyze-comments" per assicurati che tutti gli script XSS siano bloccati dalle protezioni.'
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return '✅ Controlla lo stato con "status" e verifica il forum nel browser!';
+                return '✅ Nel TERMINALE controlla lo stato con "status" e verifica il forum nel BROWSER per assicurarti che gli XSS siano bloccati!';
         }
     };
 

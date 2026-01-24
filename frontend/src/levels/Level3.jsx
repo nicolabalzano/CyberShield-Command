@@ -101,17 +101,17 @@ if ($_POST['action'] == 'login') {
     const getHintText = () => {
         switch(phase) {
             case 0: 
-                return "Monitora il SIEM. Attendi un alert di sicurezza SQL.";
+                return "Monitora il SIEM. Attendi un alert di sicurezza SQL Injection. Presta attenzione ai log che indicano tentativi di accesso sospetti.";
             case 1:
                 const hints = [
-                    "Abbiamo rilevato SQL Injection nel login! Apri il Code Viewer e analizza 'login.php'.",
-                    "Il problema è nella funzione 'authenticate_user'. La query concatena direttamente l'input utente.",
-                    "Un attaccante può inserire: admin' OR '1'='1 per bypassare l'autenticazione.",
-                    "Modifica il codice usando prepared statements con bind_param per proteggere la query."
+                    "Abbiamo rilevato SQL Injection nel login! Apri il CODE VIEWER (icona 📝) e analizza 'login.php' per vedere il codice vulnerabile.",
+                    "Il problema è nella funzione 'authenticate_user'. La query concatena direttamente l'input utente senza validazione. Nel TERMINALE usa 'show-vulnerability' per vedere il payload.",
+                    "Un attaccante può inserire: admin' OR '1'='1 per bypassare l'autenticazione. Usa il CODE VIEWER per modificare il codice e usare prepared statements.",
+                    "Modifica il codice usando prepared statements con bind_param. Nel TERMINALE usa 'compile-code' per compilare il codice corretto e testarlo."
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             case 2:
-                return "Codice modificato! Ora compila e testa con 'test-login' per verificare che sia sicuro.";
+                return "Codice modificato! Nel TERMINALE usa il comando 'test-login' per verificare che la vulnerabilità sia stata risolta. Poi usa 'compile-code' per finalizzare.";
             default:
                 return null;
         }
