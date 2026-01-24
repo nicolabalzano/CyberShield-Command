@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
 
 /**
  * LEVEL 6: CSRF (CROSS-SITE REQUEST FORGERY) DEFENSE
@@ -880,12 +880,16 @@ Active Protections:
                 decayAmount={5}
             >                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="CSRF Defense"
-                        additionalStats={additionalStats}
+                    <MissionDebrief
+                        success={true}
+                        stats={{ stars, health: 100 }}
+                        recapText={`CSRF DEFENSE ANALYSIS\n\n` +
+                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
+                            `Unauthorized actions: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
+                            `Account balance: $${accountBalance.toLocaleString()}\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>

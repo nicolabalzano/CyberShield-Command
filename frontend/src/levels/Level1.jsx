@@ -3,7 +3,7 @@ import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MonitorScreen from '../components/MonitorScreen';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
 import Link from '../components/Link';
 
 const LEVEL1_EMAILS = [
@@ -93,63 +93,6 @@ const LEVEL1_EMAILS = [
     }
 ];
 
-// Configurazione Browser con siti utili per il phishing detection (fuori dal componente per evitare re-creazione)
-const browserConfig = {
-    availableSites: [
-        {
-            url: 'https://paypal.com',
-            title: 'PayPal Official',
-            icon: '💳',
-            content: (
-                <div className="p-6 bg-blue-50 h-full">
-                    <div className="max-w-2xl mx-auto">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="text-4xl">💳</div>
-                            <h1 className="text-2xl font-bold text-blue-900">PayPal</h1>
-                        </div>
-                        <div className="bg-white rounded-lg p-4 shadow">
-                            <h2 className="font-semibold mb-2">Sito Ufficiale PayPal</h2>
-                            <p className="text-sm text-gray-600">URL corretto: https://paypal.com</p>
-                            <p className="text-sm text-gray-600 mt-2">Certificato SSL valido ✅</p>
-                        </div>
-                    </div>
-                </div>
-            )
-        },
-        {
-            url: 'https://support.google.com/mail/answer/8253',
-            title: 'Gmail Anti-Phishing Guide',
-            icon: '📧',
-            content: (
-                <div className="p-6 bg-white h-full">
-                    <div className="max-w-2xl mx-auto">
-                        <h1 className="text-2xl font-bold mb-4">Come riconoscere email di phishing</h1>
-                        <div className="space-y-4 text-sm">
-                            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
-                                <h3 className="font-semibold">⚠️ Segnali di pericolo:</h3>
-                                <ul className="list-disc ml-4 mt-2 space-y-1">
-                                    <li>Mittente sospetto o sconosciuto</li>
-                                    <li>Errori ortografici nel dominio</li>
-                                    <li>Richieste urgenti di azione</li>
-                                    <li>Link che non corrispondono al dominio dichiarato</li>
-                                </ul>
-                            </div>
-                            <div className="bg-green-50 border-l-4 border-green-400 p-3">
-                                <h3 className="font-semibold">✅ Verifica sempre:</h3>
-                                <ul className="list-disc ml-4 mt-2 space-y-1">
-                                    <li>SPF e DKIM negli header</li>
-                                    <li>Dominio del mittente</li>
-                                    <li>Destinazione dei link</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-    ]
-};
-
 // Componente interno per gestire il danno usando useLevel
 const DamageHandler = ({ errorTrigger, damageAmount }) => {
     const { damage } = useLevel();
@@ -210,23 +153,20 @@ const Level1Content = ({
                 />
                 
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="il livello di Phishing Detection"
-                        additionalStats={[
-                            {
-                                label: 'Email identificate correttamente',
-                                value: `${finalStats.correct}/${finalStats.total}`,
-                                color: finalStats.correct === finalStats.total ? 'text-cyber-green' : 'text-yellow-400'
-                            },
-                            {
-                                label: 'Precisione',
-                                value: `${Math.round((finalStats.correct / finalStats.total) * 100)}%`,
-                                color: finalStats.correct >= 5 ? 'text-cyber-green' : finalStats.correct >= 3 ? 'text-yellow-400' : 'text-red-500'
-                            }
-                        ]}
+                    <MissionDebrief
+                        success={true}
+                        stats={{ stars, health: 100 }}
+                        recapText={`PHISHING DETECTION ANALYSIS\n\n` +
+                            `Email classificate: ${finalStats.total}/6\n` +
+                            `Identificazioni corrette: ${finalStats.correct}/${finalStats.total}\n` +
+                            `Precisione: ${Math.round((finalStats.correct / finalStats.total) * 100)}%\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${finalStats.correct === finalStats.total 
+                                ? 'RISULTATO: ECCELLENTE - Perfetta identificazione di tutti gli email di phishing!' 
+                                : finalStats.correct >= 5 
+                                ? 'RISULTATO: BUONO - Hai identificato correttamente quasi tutti i phishing.' 
+                                : 'RISULTATO: ACCETTABILE - Hai completato il livello ma con alcuni errori.'}`}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>
@@ -277,6 +217,8 @@ const Level1 = () => {
     const [lastErrorTrigger, setLastErrorTrigger] = useState(null);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    const [headerInspected, setHeaderInspected] = useState(false);
+    const [instructionsRead, setInstructionsRead] = useState(false);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -305,6 +247,27 @@ const Level1 = () => {
         }
     }, [currentStep, hintIndex]);
 
+    // Sistema di assegnazione stelle:
+    // Stella 1: Tutte le 6 email controllate
+    // Stella 2: Almeno un header ispezionato
+    // Stella 3: Istruzioni lette (CyberNav)
+    useEffect(() => {
+        if (!completed) return;
+        
+        // Stella 1: Tutte le email controllate
+        if (emailsChecked === LEVEL1_EMAILS.length && stars === 0) {
+            earnStar();
+        }
+        // Stella 2: Almeno un header ispezionato
+        else if (headerInspected && stars === 1) {
+            earnStar();
+        }
+        // Stella 3: Istruzioni lette
+        else if (instructionsRead && stars === 2) {
+            earnStar();
+        }
+    }, [completed, emailsChecked, headerInspected, instructionsRead, stars, earnStar]);
+
     // Calcola il danno in base al numero totale di email
     const totalEmails = LEVEL1_EMAILS.length;
     const damagePerError = Math.round(100 / totalEmails);
@@ -319,16 +282,7 @@ const Level1 = () => {
         if (isCorrect) {
             finalCorrect = correctIdentifications + 1;
             setCorrectIdentifications(finalCorrect);
-            
-            // Guadagna stella ogni 2 identificazioni corrette
-            if (finalCorrect % 2 === 0) {
-                earnStar();
-            }
-            
-            // Cambia step ogni 2 email corrette
-            if (finalCorrect % 2 === 0 && finalCorrect < 6) {
-                setCurrentStep(Math.floor(finalCorrect / 2));
-            }        } else {
+        } else {
             // Trigger per il danno
             console.log('Triggering damage:', damagePerError);
             setLastErrorTrigger(Date.now());
@@ -346,7 +300,70 @@ const Level1 = () => {
 
     const emailConfig = {
         emails: LEVEL1_EMAILS,
-        showFeedbackPopup: true
+        showFeedbackPopup: true,
+        onHeaderInspect: () => {
+            setHeaderInspected(true);
+        }
+    };
+
+    // Configurazione browser con callback per tracciare istruzioni lette
+    const dynamicBrowserConfig = {
+        availableSites: [
+            {
+                url: 'https://paypal.com',
+                title: 'PayPal Official',
+                icon: '💳',
+                content: (
+                    <div className="p-6 bg-blue-50 h-full">
+                        <div className="max-w-2xl mx-auto">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="text-4xl">💳</div>
+                                <h1 className="text-2xl font-bold text-blue-900">PayPal</h1>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 shadow">
+                                <h2 className="font-semibold mb-2">Sito Ufficiale PayPal</h2>
+                                <p className="text-sm text-gray-600">URL corretto: https://paypal.com</p>
+                                <p className="text-sm text-gray-600 mt-2">Certificato SSL valido ✅</p>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                url: 'https://support.google.com/mail/answer/8253',
+                title: 'Gmail Anti-Phishing Guide',
+                icon: '📧',
+                content: (
+                    <div className="p-6 bg-white h-full">
+                        <div className="max-w-2xl mx-auto">
+                            <h1 className="text-2xl font-bold mb-4">Come riconoscere email di phishing</h1>
+                            <div className="space-y-4 text-sm">
+                                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+                                    <h3 className="font-semibold">⚠️ Segnali di pericolo:</h3>
+                                    <ul className="list-disc ml-4 mt-2 space-y-1">
+                                        <li>Mittente sospetto o sconosciuto</li>
+                                        <li>Errori ortografici nel dominio</li>
+                                        <li>Richieste urgenti di azione</li>
+                                        <li>Link che non corrispondono al dominio dichiarato</li>
+                                    </ul>
+                                </div>
+                                <div className="bg-green-50 border-l-4 border-green-400 p-3">
+                                    <h3 className="font-semibold">✅ Verifica sempre:</h3>
+                                    <ul className="list-disc ml-4 mt-2 space-y-1">
+                                        <li>SPF e DKIM negli header</li>
+                                        <li>Dominio del mittente</li>
+                                        <li>Destinazione dei link</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        ],
+        onNavigate: () => {
+            setInstructionsRead(true);
+        }
     };
 
     const getHintText = () => {
@@ -383,7 +400,7 @@ const Level1 = () => {
             damagePerError={damagePerError}
             lastErrorTrigger={lastErrorTrigger}
             visibleHint={visibleHint}
-            browserConfig={browserConfig}
+            browserConfig={dynamicBrowserConfig}
             emailConfig={emailConfig}
             onEmailAction={handleEmailAction}
         />

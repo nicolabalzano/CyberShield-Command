@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
 
 /**
  * LEVEL 4: XSS (CROSS-SITE SCRIPTING) DEFENSE
@@ -751,12 +751,16 @@ Active Protections:
                 decayAmount={5}
             >                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="XSS Defense"
-                        additionalStats={additionalStats}
+                    <MissionDebrief
+                        success={true}
+                        stats={{ stars, health: 100 }}
+                        recapText={`XSS DEFENSE ANALYSIS\n\n` +
+                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
+                            `Script execution: ${scriptExecuted ? 'VULNERABLE' : 'BLOCKED'}\n` +
+                            `XSS Type identified: ${xssType || 'N/A'}\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>
