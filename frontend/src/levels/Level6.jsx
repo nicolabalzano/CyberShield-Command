@@ -846,21 +846,21 @@ Active Protections:
         
         switch(currentStep) {
             case 0:
-                return 'Analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Usa "analyze-requests".';
+                return 'Nel SIEM analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Nel TERMINALE usa "analyze-requests" per analizzare i dettagli della richiesta CSRF.';
             case 1:
-                return 'Hai identificato CSRF! Usa "enable-csrf-tokens" per proteggere le richieste state-changing.';
+                return 'Hai identificato CSRF! Nel TERMINALE usa "enable-csrf-tokens" per aggiungere token di verifica alle richieste state-changing (transfer, delete, etc).';
             case 2:
-                return 'Aggiungi "enable-samesite" per protezione extra, poi riavvia con "restart-app".';
+                return 'Nel TERMINALE aggiungi "enable-samesite" per protezione extra sui cookie, poi usa "restart-app" per riavviare l\'applicazione con le nuove protezioni.';
             case 3: {
                 const hints = [
-                    '✅ Bene! Le protezioni CSRF sono attive. Controlla il balance nel browser.',
-                    'Ricorda: CSRF tokens e SameSite cookies proteggono dalle richieste non autorizzate.',
-                    'Stai per completare il livello! Verifica che i fondi siano protetti.'
+                    '✅ Bene! Le protezioni CSRF sono attive. Nel TERMINALE usa "status" per verificare i token, poi controlla il balance nel BROWSER.',
+                    'Ricorda: CSRF tokens e SameSite cookies proteggono dalle richieste non autorizzate provenienti da siti malvagi. Nel TERMINALE verifica con "status".',
+                    'Stai per completare il livello! Nel TERMINALE assicurati che "enable-csrf-tokens" e "enable-samesite" siano entrambi attivi, poi verifica i fondi nel BROWSER.'
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return '✅ Controlla lo stato con "status" e verifica il balance nel browser!';
+                return '✅ Nel TERMINALE controlla lo stato con "status" e verifica il balance nel BROWSER!';
         }
     };
 

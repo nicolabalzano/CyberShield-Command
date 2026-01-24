@@ -464,15 +464,15 @@ Normal users:
         
         switch(currentStep) {
             case 0:
-                return 'Analizza i log SIEM. Noti molte richieste HTTP ripetute? Prova a limitare il traffico.';
+                return 'Analizza i log SIEM per capire il pattern dell\'attacco. Vedrai molte richieste HTTP da IP diversi. Apri il TERMINALE per eseguire i comandi di mitigazione.';
             case 1:
-                return 'Usa il comando per vedere gli IP sospetti e blocca quelli malevoli.';
+                return 'Nel TERMINALE, usa il comando "list-ips" per vedere gli IP sospetti. Poi usa "block-ip <ip>" per bloccare quelli malevoli uno per uno. Attenzione: non bloccare gli IP verdi (legittimi)!';
             case 2:
-                return 'Abilita il firewall per filtrare automaticamente pattern sospetti.';
+                return 'Usa il comando "enable-firewall" nel TERMINALE per filtrare automaticamente il traffico sospetto. Questo aiuterà a ridurre ulteriormente l\'attacco DDoS.';
             case 3: {
                 const hints = [
-                    'Bene! Il traffico sta diminuendo. Continua a bloccare gli IP malevoli.',
-                    'Ricorda: blocca solo gli IP sospetti. Attenzione ai falsi positivi (IP legittimi)!',
+                    'Bene! Il traffico sta diminuendo. Continua a usare "block-ip" per bloccare gli IP malevoli rimanenti. Controlla la dashboard SIEM per monitorare i progressi.',
+                    'Ricorda: blocca solo gli IP sospetti con rate alto. Attenzione ai falsi positivi (IP verdi con basso rate)! Usa il TERMINALE per il comando "block-ip".',
                     'Quasi fatto! Completa la mitigazione bloccando tutti gli IP malevoli rimanenti.'
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];

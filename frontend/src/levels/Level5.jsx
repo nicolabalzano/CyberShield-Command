@@ -568,23 +568,23 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
         
         switch(currentStep) {
             case 0:
-                return '🔍 STEP 1: Analizza i log SIEM. Vedi "Cache HIT" con contenuti anomali? Usa "show-cache" per vedere cosa è memorizzato.';
+                return 'Nel SIEM analizza i log e cerca "Cache HIT" con contenuti anomali. Nel TERMINALE usa "show-cache" per vedere cosa è stato memorizzato in cache.';
             case 1:
-                return '🔑 STEP 2: Cache svuotata! Ora identifica l\'header responsabile con "identify-header" e correggi la configurazione.';
+                return 'La cache è svuotata! Nel TERMINALE identifica l\'header responsabile con "identify-header" e analizza come il proxy sta cachando i contenuti.';
             case 2:
-                return '🛡️ STEP 3: Abilita "Vary" header con "enable-vary-header" e imposta "set-cache-control no-store" per contenuti dinamici.';
+                return 'Nel TERMINALE abilita "Vary" header con "enable-vary-header" e usa "set-cache-control no-store" per i contenuti dinamici. Poi riavvia il proxy.';
             case 3:
-                return '🔄 STEP 4: Riavvia il proxy con "restart-proxy" per applicare tutte le modifiche di sicurezza.';
+                return 'Nel TERMINALE usa "restart-proxy" per applicare tutte le modifiche di sicurezza. Verifica con "status" che le protezioni siano attive.';
             case 4: {
                 const hints = [
-                    '✅ Stai quasi terminando! Verifica che tutte le protezioni siano attive.',
-                    'Ricorda: il Vary header deve includere Host e X-Forwarded-Host.',
-                    'Ultimo passo! Assicurati che il proxy sia riavviato e la cache sia pulita.'
+                    'Stai quasi terminando! Nel TERMINALE usa "status" per verificare che tutte le protezioni siano attive.',
+                    'Ricorda: il Vary header deve includere Host e X-Forwarded-Host per evitare che diverse versioni vengano cachate insieme.',
+                    'Ultimo passo! Nel TERMINALE assicurati che il proxy sia riavviato con "restart-proxy" e che la cache sia pulita con "show-cache".'
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return '✅ Usa "status" per verificare che tutte le protezioni siano attive!';
+                return 'Nel TERMINALE usa "status" per verificare che tutte le protezioni siano attive!';
         }
     };
 
