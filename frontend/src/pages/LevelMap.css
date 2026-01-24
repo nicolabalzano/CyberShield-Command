@@ -197,6 +197,10 @@
 
 .level-number {
   font-size: 1.7rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tutorial .level-number {
