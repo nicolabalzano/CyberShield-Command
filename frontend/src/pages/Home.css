@@ -87,12 +87,23 @@
   transform: translateY(-1px);
 }
 
-.play-btn {
+.continua-btn {
   border-color: var(--color-cyber-green);
   color: var(--color-cyber-green);
 }
 
-.play-btn:hover {
+.continua-btn:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: 0 0 20px var(--color-cyber-green),
+              inset 0 0 10px rgba(0, 255, 65, 0.2);
+}
+
+.newgame-btn {
+  border-color: var(--color-cyber-green);
+  color: var(--color-cyber-green);
+}
+
+.newgame-btn:hover {
   background: rgba(0, 255, 65, 0.1);
   box-shadow: 0 0 20px var(--color-cyber-green),
               inset 0 0 10px rgba(0, 255, 65, 0.2);
@@ -109,7 +120,8 @@
               inset 0 0 10px rgba(0, 243, 255, 0.2);
 }
 
-.play-icon,
+.continua-icon,
+.newgame-icon,
 .options-icon {
   display: inline-block;
   font-size: 1.4rem;
