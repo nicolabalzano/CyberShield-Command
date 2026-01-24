@@ -24,7 +24,7 @@ const MissionDebrief = ({
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
             <div className={`
-                relative w-full max-w-2xl p-1
+                relative w-full max-w-xl p-1
                 bg-gradient-to-b from-gray-800 to-black 
                 border-2 ${success ? 'border-green-500' : 'border-red-500'}
                 rounded-lg shadow-[0_0_50px_rgba(0,0,0,0.5)]
@@ -33,10 +33,10 @@ const MissionDebrief = ({
                 {/* Header Line */}
                 <div className={`h-2 w-full ${success ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
 
-                <div className="p-8 flex flex-col items-center text-center">
+                <div className="p-6 flex flex-col items-center text-center">
                     {/* Title */}
                     <h1 className={`
-                        text-4xl md:text-5xl font-black tracking-widest mb-2
+                        text-3xl md:text-4xl font-black tracking-widest mb-1
                         ${success ? 'text-green-500' : 'text-red-500'}
                         font-mono uppercase
                     `}>
@@ -44,40 +44,42 @@ const MissionDebrief = ({
                     </h1>
 
                     {/* Subtitle / Status */}
-                    <h2 className="text-white/80 font-mono text-xl mb-8">
+                    <h2 className="text-white/70 font-mono text-sm mb-4">
                         {success ? 'SYSTEM SECURED & PATCHED' : 'CONNECTION TERMINATED'}
                     </h2>
 
                     {/* Stats (Win Only) */}
                     {success && (
-                        <div className="flex gap-8 mb-8 bg-white/5 p-4 rounded-lg border border-white/10">
+                        <div className="flex gap-6 mb-4 bg-white/5 p-3 rounded-lg border border-white/10 text-sm">
                             <div className="flex flex-col items-center">
-                                <span className="text-sm text-gray-400 font-mono">REPUTATION</span>
+                                <span className="text-xs text-gray-400 font-mono mb-1">REPUTATION</span>
                                 <ReputationStars stars={stats.stars} />
                             </div>
                             <div className="flex flex-col items-center">
-                                <span className="text-sm text-gray-400 font-mono">SYSTEM HEALTH</span>
-                                <div className="text-2xl font-bold text-cyan-400">{stats.health}%</div>
+                                <span className="text-xs text-gray-400 font-mono mb-1">SYSTEM HEALTH</span>
+                                <div className="text-lg font-bold text-cyan-400">{stats.health}%</div>
                             </div>
                         </div>
                     )}
 
                     {/* Recap / Message Box */}
-                    <div className="w-full bg-black/40 border border-gray-700 p-6 rounded mb-8 text-left">
-                        <h3 className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-2">
-                            {success ? 'VULNERABILITY REPORT' : 'EVALUATION'}
-                        </h3>
-                        <p className="text-gray-200 font-mono leading-relaxed whitespace-pre-line">
-                            {recapText}
-                        </p>
-                    </div>
+                    {recapText && (
+                        <div className="w-full bg-black/40 border border-gray-700 p-4 rounded mb-4 text-left max-h-[120px] overflow-y-auto">
+                            <h3 className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">
+                                {success ? 'VULNERABILITY REPORT' : 'EVALUATION'}
+                            </h3>
+                            <p className="text-gray-300 font-mono text-xs leading-relaxed whitespace-pre-line">
+                                {recapText}
+                            </p>
+                        </div>
+                    )}
 
                     {/* Actions */}
-                    <div className="flex gap-4 w-full justify-center">
+                    <div className="flex gap-3 w-full justify-center">
                         {!success && (
                             <button 
                                 onClick={handleRetry}
-                                className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded font-mono transition-all border border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
+                                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded font-mono transition-all border border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
                             >
                                 RETRY LEVEL
                             </button>
@@ -86,7 +88,7 @@ const MissionDebrief = ({
                         <button 
                             onClick={handleExit}
                             className={`
-                                px-8 py-3 font-bold rounded font-mono transition-all 
+                                px-6 py-2 font-bold text-sm rounded font-mono transition-all 
                                 border 
                                 ${success 
                                     ? 'bg-green-600 hover:bg-green-700 text-white border-green-400 hover:shadow-[0_0_15px_rgba(22,163,74,0.6)]' 
@@ -100,8 +102,8 @@ const MissionDebrief = ({
                 </div>
 
                 {/* Footer Deco */}
-                <div className="absolute bottom-2 right-4 text-[10px] text-gray-600 font-mono">
-                    SEC_LEVEL_07 // {new Date().toLocaleDateString()}
+                <div className="absolute bottom-1 right-3 text-[9px] text-gray-600 font-mono">
+                    SEC_LEVEL // {new Date().toLocaleDateString()}
                 </div>
             </div>
         </div>

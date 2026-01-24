@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel as useLevelFromTemplate } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
+import { useLevel } from '../contexts/LevelContext';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
+
+// Componente interno per monitorare la salute e gestire il game over
+const HealthMonitor = ({ completed, onGameOver }) => {
+    const { health } = useLevel();
+    
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            onGameOver();
+        }
+    }, [health, completed, onGameOver]);
+    
+    return null;
+};
 
 /**
  * LEVEL 6: CSRF (CROSS-SITE REQUEST FORGERY) DEFENSE
@@ -197,12 +211,14 @@ const Level6 = () => {
     
     // UI State
     const [completed, setCompleted] = useState(false);
+    const [failed, setFailed] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    const [missionSuccess, setMissionSuccess] = useState(true);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -879,13 +895,29 @@ Active Protections:
                 decayInterval={8000}
                 decayAmount={5}
             >                
+                <HealthMonitor 
+                    completed={completed} 
+                    onGameOver={() => {
+                        setMissionSuccess(false);
+                        setFailed(true);
+                        setCompleted(true);
+                    }} 
+                />
+                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="CSRF Defense"
-                        additionalStats={additionalStats}
+                    <MissionDebrief
+                        success={missionSuccess}
+                        stats={{ stars, health: 100 }}
+                        recapText={missionSuccess ? 
+                            `CSRF DEFENSE ANALYSIS\n\n` +
+                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
+                            `Unauthorized actions: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
+                            `Account balance: $${accountBalance.toLocaleString()}\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`
+                            : 'Account funds were stolen through successful CSRF attacks.\n\nActivate CSRF tokens and SameSite cookie protection before restarting.'}
+                        onRetry={() => window.location.reload()}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>

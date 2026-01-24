@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
+
+// Componente interno per monitorare la salute e gestire il game over
+const HealthMonitor = ({ completed, onGameOver }) => {
+    const { health } = useLevel();
+    
+    useEffect(() => {
+        if (health <= 0 && !completed) {
+            onGameOver();
+        }
+    }, [health, completed, onGameOver]);
+    
+    return null;
+};
 
 /**
  * LEVEL 4: XSS (CROSS-SITE SCRIPTING) DEFENSE
@@ -181,12 +194,14 @@ const Level4 = () => {
     
     // UI State
     const [completed, setCompleted] = useState(false);
+    const [failed, setFailed] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
     const [completionTime, setCompletionTime] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    const [missionSuccess, setMissionSuccess] = useState(true);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -750,13 +765,29 @@ Active Protections:
                 decayInterval={8000}
                 decayAmount={5}
             >                
+                <HealthMonitor 
+                    completed={completed} 
+                    onGameOver={() => {
+                        setMissionSuccess(false);
+                        setFailed(true);
+                        setCompleted(true);
+                    }} 
+                />
+                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="XSS Defense"
-                        additionalStats={additionalStats}
+                    <MissionDebrief
+                        success={missionSuccess}
+                        stats={{ stars, health: 100 }}
+                        recapText={missionSuccess ? 
+                            `XSS DEFENSE ANALYSIS\n\n` +
+                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
+                            `Script execution: ${scriptExecuted ? 'VULNERABLE' : 'BLOCKED'}\n` +
+                            `XSS Type identified: ${xssType || 'N/A'}\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`
+                            : 'XSS vulnerabilities not fully mitigated. System still vulnerable to script injection attacks.\n\nTry again with stronger protections: enable both sanitization AND CSP.'}
+                        onRetry={() => window.location.reload()}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>

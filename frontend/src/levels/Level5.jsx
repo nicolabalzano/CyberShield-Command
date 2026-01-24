@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LevelTemplate from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
-import LevelCompleted from '../components/LevelCompleted';
+import MissionDebrief from '../components/MissionDebrief';
 
 /**
  * LEVEL 5: CACHE POISONING DEFENSE
@@ -617,12 +617,16 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                 siemConfig={siemConfig}
             >                
                 {completed && (
-                    <LevelCompleted
-                        stars={stars}
-                        maxStars={3}
-                        completionTime={completionTime}
-                        levelTitle="Cache Poisoning Defense"
-                        additionalStats={additionalStats}
+                    <MissionDebrief
+                        success={true}
+                        stats={{ stars, health: 100 }}
+                        recapText={`CACHE POISONING DEFENSE ANALYSIS\n\n` +
+                            `Cache cleared: ${cacheCleared ? 'YES' : 'NO'}\n` +
+                            `Headers fixed: ${headersFixed ? 'YES' : 'NO'}\n` +
+                            `Vary header enabled: ${varyHeaderEnabled ? 'YES' : 'NO'}\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${!cachePoisoned && proxyRestarted ? 'RISULTATO: Cache poisoning threat neutralized!' : 'RISULTATO: Completato.'}`}
+                        onExit={() => window.location.href = '/'}
                     />
                 )}
             </LevelTemplate>
