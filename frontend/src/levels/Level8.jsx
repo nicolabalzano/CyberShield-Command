@@ -199,14 +199,7 @@ bool check_unlock_code(char* input) {
             const interval = setInterval(() => {
                 setSecondsRemaining(prev => {
                     const newVal = prev - 1;
-                    const elapsed = MAX_TIME - newVal;
                     
-                    // Decrease health every 30 seconds (10% per tick)
-                    if (Math.floor(elapsed / 30) > lastDecreaseTime) {
-                        setLastDecreaseTime(Math.floor(elapsed / 30));
-                        setHealth(h => Math.max(0, h - 10));
-                    }
-
                     if (newVal <= 0) {
                         setHealth(0); // Game Over
                         clearInterval(interval);
@@ -217,7 +210,17 @@ bool check_unlock_code(char* input) {
             }, 1000);
 
             return () => clearInterval(interval);
-        }, [lastDecreaseTime, setHealth]);
+        }, [levelState, setHealth]);
+
+        // Separate effect to update health based on time remaining
+        useEffect(() => {
+            if (levelState === 'victory' || levelState === 'briefing') return;
+            
+            // Calculate health based on remaining time (linear decrease)
+            // 300s = 100%, 0s = 0%
+            const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
+            setHealth(Math.max(0, healthPercentage));
+        }, [secondsRemaining, levelState, setHealth]);
 
         // HANDLE WIN/LOSS
         useEffect(() => {
