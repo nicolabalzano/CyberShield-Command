@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -182,6 +183,7 @@ const generateXSSLogs = (attackActive, sanitizationEnabled) => [
 ];
 
 const Level4 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level4', 0);
     const { earnStar } = useReputation('level4', 0);
@@ -838,7 +840,7 @@ Active Protections:
                             `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`
                             : 'XSS vulnerabilities not fully mitigated. System still vulnerable to script injection attacks.\n\nTry again with stronger protections: enable both sanitization AND CSP.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

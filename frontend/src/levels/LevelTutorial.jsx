@@ -410,7 +410,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                             `- Threat mitigation: ${threatBlocked ? '✓' : '✗'}\n\n` +
                             `Completion time: ${completionTime}s\n\n` +
                             `You're ready to handle real threats. Good luck!`}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

@@ -255,7 +255,7 @@ bool check_unlock_code(char* input) {
                             : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
                         }
                         onRetry={() => window.location.reload()}
-                        onExit={() => navigate('/')}
+                        onExit={() => navigate('/map')}
                     />
                 )}
                 {/* TIMER & HUD */}

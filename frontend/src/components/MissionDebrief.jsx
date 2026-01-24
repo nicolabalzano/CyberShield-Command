@@ -13,7 +13,7 @@ const MissionDebrief = ({
 
     const handleExit = () => {
         if (onExit) onExit();
-        else navigate('/');
+        else navigate('/map');
     };
 
     const handleRetry = () => {

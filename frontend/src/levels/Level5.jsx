@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -169,6 +170,7 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
 ];
 
 const Level5 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level5', 0);
     const { earnStar } = useReputation('level5', 0);
@@ -702,7 +704,7 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                             `${!cachePoisoned && proxyRestarted ? 'RISULTATO: Cache poisoning threat neutralized!' : 'RISULTATO: Completato.'}`
                             : 'Time expired! The cache poisoning attack affected too many users.\n\nClear the cache and configure proper headers more quickly next time.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -128,6 +129,7 @@ const Level1Content = ({
     setFailed,
     finalStats,
     completionTime,
+    navigate,
     emailsChecked,
     totalEmails,
     damagePerError,
@@ -182,7 +184,7 @@ const Level1Content = ({
                             : `PHISHING DETECTION FAILED\n\nHai commesso troppi errori e perso credibilità presso il team di sicurezza.\n\nRiprova a classificare gli email con più attenzione:\n- Controlla il dominio del mittente\n- Ispeziona gli header SPF e DKIM\n- Verifica i link sospetti`
                         }
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>
@@ -221,6 +223,7 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, co
 };
 
 const Level1 = () => {
+    const navigate = useNavigate();
     const { stars, earnStar } = useReputation('level1', 0);
     const [currentStep, setCurrentStep] = useState(0);
     const [showHint, setShowHint] = useState(true);
@@ -414,6 +417,7 @@ const Level1 = () => {
             setFailed={setFailed}
             finalStats={finalStats}
             completionTime={completionTime}
+            navigate={navigate}
             emailsChecked={emailsChecked}
             totalEmails={totalEmails}
             damagePerError={damagePerError}

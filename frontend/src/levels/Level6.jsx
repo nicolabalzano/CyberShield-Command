@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel as useLevelFromTemplate } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import { useLevel } from '../contexts/LevelContext';
@@ -198,6 +199,7 @@ const generateCSRFLogs = (attackActive, tokensEnabled) => [
 ];
 
 const Level6 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level6', 0);
     const { earnStar } = useReputation('level6', 0);
@@ -969,7 +971,7 @@ Active Protections:
                             `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`
                             : 'Account funds were stolen through successful CSRF attacks.\n\nActivate CSRF tokens and SameSite cookie protection before restarting.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>
