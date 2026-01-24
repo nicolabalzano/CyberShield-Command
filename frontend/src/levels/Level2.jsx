@@ -1,9 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 import HealthBar from '../components/HealthBar';
+import Timer from '../components/Timer';
+
+// Componente interno per impostare il ref di setHealth e monitorare game over
+const HealthSetter = ({ healthSetterRef, onGameOver }) => {
+    const { health, setHealth } = useLevel();
+    
+    React.useEffect(() => {
+        if (healthSetterRef) {
+            healthSetterRef.current = setHealth;
+        }
+    }, [setHealth, healthSetterRef]);
+    
+    React.useEffect(() => {
+        if (health <= 0 && onGameOver) {
+            onGameOver();
+        }
+    }, [health, onGameOver]);
+    
+    return null;
+};
+
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
 
 /**
  * LEVEL 2: DDoS ATTACK MITIGATION
@@ -134,42 +160,7 @@ const Level2 = () => {
     // Health bar: calcolata in base al tempo e traffico
     const [missionEnd, setMissionEnd] = useState(false);
     const [missionSuccess, setMissionSuccess] = useState(false);
-    const [startHealthTime, setStartHealthTime] = useState(Date.now());
-    const [healthAtStart, setHealthAtStart] = useState(100);
-
-    // Stato salute dinamica
-    const [health, setHealth] = useState(100);
-
-    // Aggiorna la salute ogni secondo in base al tempo e traffico
-    useEffect(() => {
-        if (!attackActive || missionEnd) return;
-        const interval = setInterval(() => {
-            setHealth(prev => {
-                let decrement = 0;
-                if (trafficLevel > 80) decrement = 2;
-                else if (trafficLevel > 50) decrement = 1;
-                else if (trafficLevel > 30) decrement = 1;
-                else decrement = 1;
-                // Ogni 6 secondi scende di decrement
-                return Math.max(0, prev - (decrement / 6));
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [attackActive, missionEnd, trafficLevel]);
-
-    // Quando cambia il traffico o reset, aggiorna la salute di partenza
-    useEffect(() => {
-        if (!attackActive || missionEnd) return;
-        setHealth(healthAtStart);
-    }, [trafficLevel, firewallEnabled, rateLimitEnabled, blockedIPs, attackActive, missionEnd, healthAtStart]);
-
-    // Quando cambia il traffico (o protezioni), aggiorna il punto di partenza della salute
-    useEffect(() => {
-        if (!attackActive || missionEnd) return;
-        setHealthAtStart(health);
-        setStartHealthTime(Date.now());
-    }, [trafficLevel, firewallEnabled, rateLimitEnabled, blockedIPs, attackActive, missionEnd]);
-
+    
     // UI State
     const [completed, setCompleted] = useState(false);
     const [showHint, setShowHint] = useState(true);
@@ -179,6 +170,47 @@ const Level2 = () => {
     const [terminalOutput, setTerminalOutput] = useState([]);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+    
+    // Timer State (5 minutes)
+    const MAX_TIME = 300;
+    const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
+    
+    // Ref per accedere a setHealth da Level2Content
+    const healthSetterRef = React.useRef(null);
+
+    // Timer logic - countdown every second
+    useEffect(() => {
+        if (missionEnd || completed) return; // Don't count down after mission end or completion
+
+        const interval = setInterval(() => {
+            setSecondsRemaining(prev => {
+                const newVal = prev - 1;
+                
+                if (newVal <= 0) {
+                    if (healthSetterRef.current) {
+                        healthSetterRef.current(0); // Game Over
+                    }
+                    clearInterval(interval);
+                    return 0;
+                }
+                return newVal;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [missionEnd, completed]);
+
+    // Update health based on remaining time (linear decrease)
+    useEffect(() => {
+        if (missionEnd || completed) return;
+        
+        // Calculate health based on remaining time (linear decrease)
+        // 300s = 100%, 0s = 0%
+        const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
+        if (healthSetterRef.current) {
+            healthSetterRef.current(Math.max(0, healthPercentage));
+        }
+    }, [secondsRemaining, missionEnd, completed]);
 
     // Reset hint index quando cambia step
     useEffect(() => {
@@ -232,24 +264,6 @@ const Level2 = () => {
             if (correctBlocks === MALICIOUS_IPS.length && stars < 3) earnStar(); // 3 stelle: tutti i malevoli bloccati
         }
     }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, stars, earnStar, falsePositives, startTime]);
-
-    // === HEALTH BAR TIMER ===
-    useEffect(() => {
-        if (missionEnd || !attackActive) return;
-        if (health <= 0) {
-            setMissionEnd(true);
-            setMissionSuccess(false);
-            setAttackActive(false);
-            setCompleted(true);
-            return;
-        }
-        const interval = setInterval(() => {
-            // Forza il re-render per aggiornare la barra salute
-            // (usando un dummy state, oppure setStartHealthTime per triggerare)
-            setStartHealthTime(t => t);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [attackActive, missionEnd, health]);
 
     const browserConfig = {
         availableSites: [
@@ -519,24 +533,31 @@ Normal users:
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-                enableHealthDecay={true}
-                decayInterval={8000}
-                decayAmount={5}
             >
+                <HealthSetter 
+                    healthSetterRef={healthSetterRef}
+                    onGameOver={() => {
+                        setMissionEnd(true);
+                        setMissionSuccess(false);
+                        setCompleted(true);
+                    }}
+                />
+                {/* TIMER */}
+                <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                    <Timer secondsRemaining={secondsRemaining} />
+                </div>
                 {/* Schermata di fine livello: successo o sconfitta */}
                 {missionEnd && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={missionSuccess}
-                        stats={{ stars, health }}
+                        stats={{ stars }}
                         maxStars={3}
                         recapText={missionSuccess
                             ? `Hai mitigato con successo l'attacco DDoS!\n\n- IP malevoli bloccati: ${correctBlocks}/${MALICIOUS_IPS.length}\n- Falsi positivi: ${falsePositives}\n- Traffico residuo: ${trafficLevel}%\n\nOttimo lavoro, il sito è tornato online.`
                             : `Il sistema è stato sopraffatto dall'attacco DDoS.\n\n- Salute sistema: 0%\n- IP bloccati: ${blockedIPs.length}\n- Falsi positivi: ${falsePositives}\n\nRiprova a mitigare l'attacco analizzando meglio i log e bloccando solo gli IP malevoli.`
                         }
                         onRetry={() => {
-                            // Reset stato livello e salute
-                            setHealthAtStart(100);
-                            setStartHealthTime(Date.now());
+                            // Reset stato livello
                             setAttackActive(true);
                             setTrafficLevel(95);
                             setBlockedIPs([]);
@@ -547,8 +568,8 @@ Normal users:
                             setCompleted(false);
                             setShowHint(true);
                             setCurrentStep(0);
-                            setStartTime(Date.now());
                             setMissionEnd(false);
+                            window.location.reload(); // Reload per resettare anche timer e salute
                         }}
                         onExit={() => {
                             // Torna alla mappa livelli
