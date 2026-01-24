@@ -140,12 +140,14 @@ const Level1Content = ({
     return (
         <>
             {/* Status Bar - mostrato sopra tutto */}
-            <div className="fixed top-[71%] left-[69%] -translate-x-1/2 z-[15]">
-                <div className="text-cyber-green text-lg font-mono flex items-center gap-3">
-                    <span className="font-bold">EMAILS CHECKED:</span>
-                    <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / {totalEmails}</span>
+            {!completed && !failed && (
+                <div className="fixed top-[71%] left-[69%] -translate-x-1/2 z-[15]">
+                    <div className="text-cyber-green text-lg font-mono flex items-center gap-3">
+                        <span className="font-bold">EMAILS CHECKED:</span>
+                        <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / {totalEmails}</span>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <LevelTemplate 
                 stars={stars}
