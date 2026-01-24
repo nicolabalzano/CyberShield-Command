@@ -49,8 +49,8 @@ export const translations = {
         level5: { name: "Difesa Cache Poisoning", description: "Rileva e ripulisci la cache avvelenata, configura header HTTP corretti per prevenire attacchi." },
         level6: { name: "Difesa CSRF (Cross-Site Request Forgery)", description: "Analizza transazioni bancarie, blocca richieste CSRF malevole e implementa protezioni multi-livello." },
         level7: { name: "Analisi Malware & Reverse Engineering", description: "Esegui il reverse engineering di eseguibili malevoli, analizza il codice assembler e neutralizza la minaccia." },
-        level8: { name: "Risposta agli Incidenti", description: "Coordina risposte efficaci alle violazioni della sicurezza e agli incidenti." },
-        level9: { name: "Minacce Persistenti Avanzate", description: "Contrasta campagne di attacco informatico sofisticate e a lungo termine." }
+        level8: { name: "Mitigazione Ransomware", description: "Affronta un attacco Ransomware critico: attiva i protocolli di emergenza per isolare il sistema, analizza i pacchetti di rete per recuperare la chiave e decripta i file." },        
+        level9: { name: "Analisi Crittografica", description: "Individua falle nell'implementazione crittografica: analizza flussi di dati cifrati con algoritmi deboli, recupera chiavi compromesse e ripristina la riservatezza delle comunicazioni." }
       }
     },
     // Options
