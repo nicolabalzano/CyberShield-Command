@@ -137,6 +137,11 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
         setSelectedEmail(email);
         setShowFeedback(false);
         setShowInspector(false);
+        
+        // Chiama il callback quando l'email viene letta
+        if (onEmailAction) {
+            onEmailAction(email);
+        }
     };
 
     const handleFlag = (isPhishing) => {
