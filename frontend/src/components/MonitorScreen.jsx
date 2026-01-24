@@ -8,7 +8,6 @@ import ReverseEngineeringViewer from './ReverseEngineeringViewer';
 import CodeEditor from './CodeEditor';
 import PacketAnalyzer from './PacketAnalyzer';
 import RansomwareOverlay from './RansomwareOverlay';
-import DecryptionTool from './DecryptionTool';
 import { BrowserProvider } from '../contexts/BrowserContext';
 
 /**
@@ -27,7 +26,6 @@ const MonitorScreen = ({
   codeEditorConfig = null,
   packetAnalyzerConfig = null,
   ransomwareOverlayConfig = null,
-  decryptionToolConfig = null,
   statusText = null,
   className = "",
   children
@@ -36,8 +34,6 @@ const MonitorScreen = ({
 
   const [windows, setWindows] = useState([]);
   const [nextWindowId, setNextWindowId] = useState(1);
-  const [hasTriggeredRansomware, setHasTriggeredRansomware] = useState(false);
-  const [hasTriggeredDecryption, setHasTriggeredDecryption] = useState(false);
 
   // Aggiorna l'ora ogni secondo
   React.useEffect(() => {
@@ -63,22 +59,6 @@ const MonitorScreen = ({
     setWindows(prevWindows => [...prevWindows, newWindow]);
     setNextWindowId(prevId => prevId + 1);
   };
-
-  // Effect to automatically open Ransomware window when active
-  React.useEffect(() => {
-    if (ransomwareOverlayConfig?.isActive && !hasTriggeredRansomware) {
-      openWindow('⚠️ CRITICAL SYSTEM ALERT ⚠️', 'ransomware', { width: 800, height: 600 });
-      setHasTriggeredRansomware(true);
-    }
-  }, [ransomwareOverlayConfig?.isActive, hasTriggeredRansomware]);
-
-  // Effect to automatically open Decryption Tool when available
-  React.useEffect(() => {
-    if (decryptionToolConfig && !hasTriggeredDecryption) {
-      openWindow('Decryption Tool', 'decryption-tool', { width: 500, height: 400 });
-      setHasTriggeredDecryption(true);
-    }
-  }, [decryptionToolConfig, hasTriggeredDecryption]);
 
   const closeWindow = (id) => {
     setWindows(windows.filter(w => w.id !== id));
@@ -165,14 +145,6 @@ const MonitorScreen = ({
                     onClick={() => openWindow('Packet Analyzer', 'packet-analyzer')} 
                   />
                 )}
-
-                {decryptionToolConfig && (
-                   <DesktopIcon 
-                    icon="🔐" 
-                    label="Decryptor" 
-                    onClick={() => openWindow('Decryption Tool', 'decryption-tool')} 
-                  />
-                )}
               </div>
 
 
@@ -194,13 +166,14 @@ const MonitorScreen = ({
                     codeEditorConfig={codeEditorConfig}
                     packetAnalyzerConfig={packetAnalyzerConfig}
                     ransomwareOverlayConfig={ransomwareOverlayConfig}
-                    decryptionToolConfig={decryptionToolConfig}
                   />
                 )
               ))}
 
-              {ransomwareOverlayConfig && ransomwareOverlayConfig.isActive && (
-                 <RansomwareOverlay {...ransomwareOverlayConfig} />
+              {ransomwareOverlayConfig && ransomwareOverlayConfig.isActive && ransomwareOverlayConfig.isVisible && (
+                 <div className="absolute inset-0 z-[100] pointer-events-auto">
+                    <RansomwareOverlay {...ransomwareOverlayConfig} />
+                 </div>
               )}
             </div>
 
@@ -221,6 +194,20 @@ const MonitorScreen = ({
                   </span>
                 ))}
               </div>
+
+              {ransomwareOverlayConfig && ransomwareOverlayConfig.killSwitchActivated && ransomwareOverlayConfig.onToggleVisibility && (
+                <span
+                  onClick={ransomwareOverlayConfig.onToggleVisibility}
+                  className={`px-2 py-1 text-xs rounded transition-all ml-2 ${
+                    ransomwareOverlayConfig.isVisible 
+                      ? 'bg-red-600 hover:bg-red-500 text-white' 
+                      : 'bg-slate-600 hover:bg-slate-500 text-slate-300'
+                  }`}
+                  title={ransomwareOverlayConfig.isVisible ? 'Hide Ransomware Alert' : 'Show Ransomware Alert'}
+                >
+                  See the Ransomware Alert
+                </span>
+              )}
 
               <div className="flex items-center px-2 border-l border-slate-600 ml-2">
                 <div className="text-[10px] text-cyan-400 font-mono">{time}</div>
@@ -260,8 +247,7 @@ const Window = ({
   revEngConfig,
   codeEditorConfig,
   packetAnalyzerConfig,
-  ransomwareOverlayConfig,
-  decryptionToolConfig
+  ransomwareOverlayConfig
 }) => {
   const [position, setPosition] = useState(windowData.position);
   const [isDragging, setIsDragging] = useState(false);
@@ -374,8 +360,6 @@ const Window = ({
         {windowData.contentType === 'reveng' && <ReverseEngineeringViewer {...revEngConfig} />}
         {windowData.contentType === 'code-editor' && <CodeEditor {...codeEditorConfig} />}
         {windowData.contentType === 'packet-analyzer' && <PacketAnalyzer {...packetAnalyzerConfig} />}
-        {windowData.contentType === 'ransomware' && <RansomwareOverlay {...ransomwareOverlayConfig} />}
-        {windowData.contentType === 'decryption-tool' && <DecryptionTool {...decryptionToolConfig} />}
       </div>
     </div>
   );

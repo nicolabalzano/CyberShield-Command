@@ -5,6 +5,7 @@ import Timer from '../components/Timer';
 import PacketAnalyzer from '../components/PacketAnalyzer';
 import RansomwareOverlay from '../components/RansomwareOverlay';
 import InfoPanel from '../components/InfoPanel';
+import MissionDebrief from '../components/MissionDebrief';
 
 const Level8 = () => {
     // -------------------------------------------------------------------------
@@ -15,6 +16,8 @@ const Level8 = () => {
     // Level State: 'briefing', 'infected', 'emergency_mode', 'decrypted', 'victory'
     const [levelState, setLevelState] = useState('briefing');
     const [ransomwareActive, setRansomwareActive] = useState(false);
+    const [ransomwareVisible, setRansomwareVisible] = useState(true); // Toggle visibility
+    const [killSwitchActivated, setKillSwitchActivated] = useState(false); // Show button only after Ctrl+Alt+K
     const [passwordFound, setPasswordFound] = useState(false);
     const [attempts, setAttempts] = useState(0); // for precision star
     const [startTime] = useState(Date.now());
@@ -27,6 +30,9 @@ const Level8 = () => {
 
     // Initial Hint
     const [currentHint, setCurrentHint] = useState("Incoming Mail: Suspicious activity report. Check your email for Emergency Protocols.");
+
+    // Ref per accedere a setHealth da fuori Level8Content
+    const healthSetterRef = React.useRef(null);
 
     // -------------------------------------------------------------------------
     // DATA MOCKS
@@ -127,35 +133,17 @@ bool check_unlock_code(char* input) {
     // EVENT HANDLERS
     // -------------------------------------------------------------------------
 
-    const handleLevelCompleted = (isWin) => {
-        if (!isWin) return;
-        
-        const finalTime = Date.now();
-        setEndTime(finalTime);
-        const duration = (finalTime - startTime) / 1000;
-        
-        // Star Calculation
-        let stars = 1; // Base star for completing
-        if (duration < 150) stars++; // Speed run ( < 2.5 mins aka 50% of 5 mins)
-        if (attempts === 0) stars++; // Precision (0 failed attempts)
-
-        // Navigate to success (simulate for now or update context)
-        setTimeout(() => {
-             alert(`MISSION COMPLETED! Stars: ${stars}/3\nDuration: ${duration.toFixed(0)}s\nAttempts: ${attempts}`);
-             navigate('/'); // Go back to Home or LevelMap
-        }, 500);
-    };
-
     const handlePasswordSubmit = (inputPassword) => {
         if (inputPassword === "N0Ransom4U!") {
             setLevelState('victory');
             setRansomwareActive(false);
-            alert("RANSOMWARE DECRYPTED! SYSTEM RESTORED.");
-            handleLevelCompleted(true);
         } else {
             setAttempts(prev => prev + 1);
-            alert("INCORRECT KEY. TIME PENALTY APPLIED.");
-            // Optional: Reduce health/time on wrong guess
+            // Penalità: -30 secondi e danno proporzionale alla salute (10% = 30s/300s)
+            setSecondsRemaining(t => Math.max(0, t - 30));
+            if (healthSetterRef.current) {
+                healthSetterRef.current(h => Math.max(0, h - 10));
+            }
         }
     };
 
@@ -165,7 +153,9 @@ bool check_unlock_code(char* input) {
             if (e.ctrlKey && e.altKey && (e.key === 'k' || e.key === 'K')) {
                 if (levelState === 'infected') {
                     setLevelState('emergency_mode');
-                    setRansomwareActive(false); // Hide full overlay
+                    setRansomwareActive(true); // Keep overlay active but allow hiding
+                    setRansomwareVisible(false); // Hide it initially after kill switch
+                    setKillSwitchActivated(true); // Enable taskbar button
                     setCurrentHint("Great! Process Killed. Now investigate the logs (SIEM) to find the source IP.");
                 }
             }
@@ -192,7 +182,15 @@ bool check_unlock_code(char* input) {
     // -------------------------------------------------------------------------
 
     const Level8Content = () => {
-        const { setHealth } = useLevel();
+        const { health, setHealth } = useLevel();
+        const [showDebrief, setShowDebrief] = useState(false);
+        const [isWin, setIsWin] = useState(false);
+        const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
+        
+        // Assegno setHealth al ref per renderlo accessibile fuori
+        React.useEffect(() => {
+            healthSetterRef.current = setHealth;
+        }, [setHealth]);
         
         // This useEffect handles the shared timer logic
         useEffect(() => {
@@ -203,10 +201,10 @@ bool check_unlock_code(char* input) {
                     const newVal = prev - 1;
                     const elapsed = MAX_TIME - newVal;
                     
-                    // Decrease health every 30 seconds
+                    // Decrease health every 30 seconds (10% per tick)
                     if (Math.floor(elapsed / 30) > lastDecreaseTime) {
                         setLastDecreaseTime(Math.floor(elapsed / 30));
-                        setHealth(h => Math.max(0, h - 10)); // Health penalty
+                        setHealth(h => Math.max(0, h - 10));
                     }
 
                     if (newVal <= 0) {
@@ -221,8 +219,42 @@ bool check_unlock_code(char* input) {
             return () => clearInterval(interval);
         }, [lastDecreaseTime, setHealth]);
 
+        // HANDLE WIN/LOSS
+        useEffect(() => {
+            // LOSS Condition
+            if (health <= 0 && !showDebrief && levelState !== 'victory') {
+                setIsWin(false);
+                setFinalStats({ stars: 0, health: 0 });
+                setShowDebrief(true);
+            }
+            
+            // WIN Condition
+            if (levelState === 'victory' && !showDebrief) {
+                 const duration = (Date.now() - startTime) / 1000;
+                 let stars = 1; 
+                 if (duration < 150) stars++; // Speed run
+                 if (attempts === 0) stars++; // Precision
+                 
+                 setIsWin(true);
+                 setFinalStats({ stars, health });
+                 setShowDebrief(true);
+            }
+        }, [health, levelState, showDebrief]);
+
         return (
             <>
+                {showDebrief && (
+                    <MissionDebrief 
+                        success={isWin}
+                        stats={finalStats}
+                        recapText={isWin 
+                            ? "Excellent work. You successfully intercepted the ransomware attack, identified the source via packet analysis, and retrieved the decryption key."
+                            : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
+                        }
+                        onRetry={() => window.location.reload()}
+                        onExit={() => navigate('/')}
+                    />
+                )}
                 {/* TIMER & HUD */}
                 <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
                      <Timer secondsRemaining={secondsRemaining} />
@@ -264,14 +296,12 @@ bool check_unlock_code(char* input) {
 
     const ransomwareOverlayConfig = {
         isActive: ransomwareActive,
+        isVisible: ransomwareVisible,
+        killSwitchActivated: killSwitchActivated,
         onPasswordSubmit: handlePasswordSubmit,
-        secondsRemaining: secondsRemaining
+        secondsRemaining: secondsRemaining,
+        onToggleVisibility: () => setRansomwareVisible(!ransomwareVisible)
     };
-    
-    // Decryption tool only functional in emergency mode or greater
-    const decryptionToolConfig = (levelState === 'emergency_mode' || levelState === 'decrypted') ? {
-        onPasswordSubmit: handlePasswordSubmit
-    } : null;
 
     return (
         <LevelTemplate 
@@ -284,7 +314,6 @@ bool check_unlock_code(char* input) {
             // Packet Analyzer available only in emergency mode (after kill switch) or simply always available but user needs to open it
             packetAnalyzerConfig={levelState === 'emergency_mode' || levelState === 'decrypted' ? packetAnalyzerConfig : null}
             ransomwareOverlayConfig={ransomwareOverlayConfig}
-            decryptionToolConfig={decryptionToolConfig}
         >
             <Level8Content />
         </LevelTemplate>
