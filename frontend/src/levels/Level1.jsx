@@ -119,6 +119,12 @@ const DamageHandler = ({ errorTrigger, damageAmount, onGameOver }) => {
     return null;
 };
 
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
+
 // Componente wrapper con logica interna che usa useLevel
 const Level1Content = ({ 
     stars,
@@ -139,7 +145,6 @@ const Level1Content = ({
     emailConfig,
     onEmailAction
 }) => {
-    const { health } = useLevel();
     return (
         <>
             {/* Status Bar - mostrato sopra tutto */}
@@ -168,9 +173,9 @@ const Level1Content = ({
                 />
                 
                 {(completed || failed) && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={completed && !failed}
-                        stats={{ stars, health: completed ? health : 0 }}
+                        stats={{ stars }}
                         recapText={completed && !failed
                             ? `PHISHING DETECTION ANALYSIS\n\n` +
                                 `Email classificate: ${finalStats.total}/6\n` +
