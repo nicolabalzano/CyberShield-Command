@@ -7,26 +7,141 @@ import RansomwareOverlay from '../components/RansomwareOverlay';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 
+// -------------------------------------------------------------------------
+// LEVEL CONTENT COMPONENT (Spostato fuori per evitare re-mount loop)
+// -------------------------------------------------------------------------
+const Level8Content = ({ 
+    levelState, 
+    secondsRemaining, 
+    setSecondsRemaining, 
+    startTime, 
+    attempts, 
+    navigate, 
+    healthSetterRef 
+}) => {
+    const { health, setHealth } = useLevel();
+    const [showDebrief, setShowDebrief] = useState(false);
+    const [isWin, setIsWin] = useState(false);
+    const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
+    const previousHealthRef = React.useRef(health);
+    
+    // Assegno setHealth al ref del genitore
+    React.useEffect(() => {
+        if (healthSetterRef) {
+            healthSetterRef.current = setHealth;
+        }
+    }, [setHealth, healthSetterRef]);
+    
+    // Timer Logic (Conteggio alla rovescia)
+    useEffect(() => {
+        if (levelState === 'victory' || levelState === 'briefing') return;
+
+        const interval = setInterval(() => {
+            setSecondsRemaining(prev => {
+                const newVal = prev - 1;
+                
+                if (newVal <= 0) {
+                    setHealth(0); // Game Over
+                    clearInterval(interval);
+                    return 0;
+                }
+                return newVal;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [levelState, setHealth, setSecondsRemaining]);
+
+    // DAMAGE LOGIC (Ogni 30 secondi)
+    useEffect(() => {
+        console.log('[Health Effect] Level state:', levelState);
+        if (levelState === 'victory' || levelState === 'briefing') {
+            return;
+        }
+        
+        console.log('[Health Effect] Starting health interval');
+        
+        const healthInterval = setInterval(() => {
+            console.log('[Health Interval] Fired! Decreasing health...');
+            setHealth(h => Math.max(0, h - 10)); // Toglie il 10%
+        }, 30000); // 30 Secondi
+
+        return () => {
+            console.log('[Health Effect] Clearing interval');
+            clearInterval(healthInterval);
+        };
+    }, [levelState, setHealth]); 
+
+    // Sound Effect Logic
+    useEffect(() => {
+        if (health < previousHealthRef.current && health > 0) {
+            const audio = new Audio('/sfx/damage.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {});
+        }
+        previousHealthRef.current = health;
+    }, [health]);
+
+    // WIN/LOSS Condition Logic
+    useEffect(() => {
+        // LOSS Condition
+        if (health <= 0 && !showDebrief && levelState !== 'victory') {
+            setIsWin(false);
+            setFinalStats({ stars: 0, health: 0 });
+            setShowDebrief(true);
+        }
+        
+        // WIN Condition
+        if (levelState === 'victory' && !showDebrief) {
+                const duration = (Date.now() - startTime) / 1000;
+                let stars = 1; 
+                if (duration < 150) stars++; 
+                if (attempts === 0) stars++; 
+                
+                setIsWin(true);
+                setFinalStats({ stars, health });
+                setShowDebrief(true);
+        }
+    }, [health, levelState, showDebrief, startTime, attempts]);
+
+    return (
+        <>
+            {showDebrief && (
+                <MissionDebrief 
+                    success={isWin}
+                    stats={finalStats}
+                    recapText={isWin 
+                        ? "Ottimo lavoro. Hai intercettato con successo l'attacco ransomware."
+                        : "Missione Fallita. Il ransomware ha crittografato i sistemi."
+                    }
+                    onRetry={() => window.location.reload()}
+                    onExit={() => navigate('/')}
+                />
+            )}
+            {/* TIMER & HUD */}
+            <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                    <Timer secondsRemaining={secondsRemaining} />
+            </div>
+        </>
+    );
+};
+
 const Level8 = () => {
     // -------------------------------------------------------------------------
     // LEVEL CONFIGURATION & STATE
     // -------------------------------------------------------------------------
     const navigate = useNavigate();
     
-    // Level State: 'briefing', 'infected', 'emergency_mode', 'decrypted', 'victory'
     const [levelState, setLevelState] = useState('briefing');
     const [ransomwareActive, setRansomwareActive] = useState(false);
-    const [ransomwareVisible, setRansomwareVisible] = useState(true); // Toggle visibility
-    const [killSwitchActivated, setKillSwitchActivated] = useState(false); // Show button only after Ctrl+Alt+K
-    const [passwordFound, setPasswordFound] = useState(false);
-    const [attempts, setAttempts] = useState(0); // for precision star
+    const [ransomwareVisible, setRansomwareVisible] = useState(true); 
+    const [killSwitchActivated, setKillSwitchActivated] = useState(false); 
+    const [attempts, setAttempts] = useState(0); 
     const [startTime] = useState(Date.now());
-    const [endTime, setEndTime] = useState(null);
 
     // Consolidated Timer State (5 minutes)
     const MAX_TIME = 300;
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
-    const [lastDecreaseTime, setLastDecreaseTime] = useState(0);
 
     // Initial Hint
     const [currentHint, setCurrentHint] = useState("Posta in arrivo: Rapporto attività sospette. Controlla la tua email per i Protocolli di Emergenza.");
@@ -35,10 +150,9 @@ const Level8 = () => {
     const healthSetterRef = React.useRef(null);
 
     // -------------------------------------------------------------------------
-    // DATA MOCKS
+    // DATA MOCKS (Invariati)
     // -------------------------------------------------------------------------
     
-    // Mock Packets
     const mockPackets = [
         { id: 1, time: '10:00:01', source: '192.168.1.50', destination: '8.8.8.8', protocol: 'UDP', info: 'Query standard 0x1234 A www.google.com', payload: '', payloadHex: '' },
         { id: 2, time: '10:00:02', source: '192.168.1.50', destination: '172.217.16.196', protocol: 'TCP', info: '443 -> 49152 [ACK] Seq=1 Ack=1 Win=65535 Len=0', payload: '', payloadHex: '' },
@@ -47,14 +161,12 @@ const Level8 = () => {
         { id: 5, time: '10:02:00', source: '192.168.1.105', destination: '192.168.1.255', protocol: 'UDP', info: 'Porta sorgente: 137  Porta destinazione: 137', payload: '', payloadHex: '' },
     ];
 
-    // Mock SIEM Logs
     const mockLogs = [
         { id: 1, timestamp: '10:00:01', severity: 'low', source: 'Firewall', message: 'Connessione in uscita consentita TCP 443' },
         { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: 'Rilevato download di file sospetto da 145.2.33.11' },
         { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: 'Scansione firma saltata per cryptolocker_v2.exe (Override Policy)' },
     ];
     
-    // Mock Emails
     const mockEmails = [
         {
             id: 101,
@@ -83,8 +195,6 @@ const Level8 = () => {
             flagged: null
         }
     ];
-
-    // Mock Files for Terminal & RE
 
     const mockFiles = {
         'cryptolocker_v2.exe': {
@@ -139,7 +249,6 @@ bool check_unlock_code(char* input) {
             setRansomwareActive(false);
         } else {
             setAttempts(prev => prev + 1);
-            // Penalità: -30 secondi e danno proporzionale alla salute (10% = 30s/300s)
             setSecondsRemaining(t => Math.max(0, t - 30));
             if (healthSetterRef.current) {
                 healthSetterRef.current(h => Math.max(0, h - 10));
@@ -153,9 +262,9 @@ bool check_unlock_code(char* input) {
             if (e.ctrlKey && e.altKey && (e.key === 'k' || e.key === 'K')) {
                 if (levelState === 'infected') {
                     setLevelState('emergency_mode');
-                    setRansomwareActive(true); // Keep overlay active but allow hiding
-                    setRansomwareVisible(false); // Hide it initially after kill switch
-                    setKillSwitchActivated(true); // Enable taskbar button
+                    setRansomwareActive(true); 
+                    setRansomwareVisible(false); 
+                    setKillSwitchActivated(true); 
                     setCurrentHint("Ottimo! Processo Terminato. Ora indaga sui log (SIEM) per trovare l'IP sorgente.");
                 }
             }
@@ -165,120 +274,25 @@ bool check_unlock_code(char* input) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [levelState]);
 
-    // RANSOMWARE TRIGGER (30s Timer)
+    // RANSOMWARE TRIGGER
     useEffect(() => {
         if (levelState === 'briefing') {
             const timer = setTimeout(() => {
                 setLevelState('infected');
                 setRansomwareActive(true);
                 setCurrentHint("SISTEMA COMPROMESSO! Trova l'override manuale! (Suggerimento: Il Manuale di Emergenza dice Ctrl+Alt+K per disabilitare l'interfaccia di rete e avviare l'indagine.)");
-            }, 30000); // 30 seconds
+            }, 30000); 
             return () => clearTimeout(timer);
         }
     }, [levelState]);
 
     // -------------------------------------------------------------------------
-    // RENDER CONTENT
-    // -------------------------------------------------------------------------
-
-    const Level8Content = () => {
-        const { health, setHealth } = useLevel();
-        const [showDebrief, setShowDebrief] = useState(false);
-        const [isWin, setIsWin] = useState(false);
-        const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
-        
-        // Assegno setHealth al ref per renderlo accessibile fuori
-        React.useEffect(() => {
-            healthSetterRef.current = setHealth;
-        }, [setHealth]);
-        
-        // This useEffect handles the shared timer logic
-        useEffect(() => {
-            if (levelState === 'victory' || levelState === 'briefing') return; // Don't count down during briefing or after win
-
-            const interval = setInterval(() => {
-                setSecondsRemaining(prev => {
-                    const newVal = prev - 1;
-                    
-                    if (newVal <= 0) {
-                        setHealth(0); // Game Over
-                        clearInterval(interval);
-                        return 0;
-                    }
-                    return newVal;
-                });
-            }, 1000);
-
-            return () => clearInterval(interval);
-        }, [levelState, setHealth]);
-
-        // Separate effect to update health based on time remaining
-        useEffect(() => {
-            if (levelState === 'victory' || levelState === 'briefing') return;
-            
-            // Calculate health based on remaining time (linear decrease)
-            // 300s = 100%, 0s = 0%
-            const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
-            setHealth(Math.max(0, healthPercentage));
-        }, [secondsRemaining, levelState, setHealth]);
-
-        // HANDLE WIN/LOSS
-        useEffect(() => {
-            // LOSS Condition
-            if (health <= 0 && !showDebrief && levelState !== 'victory') {
-                setIsWin(false);
-                setFinalStats({ stars: 0, health: 0 });
-                setShowDebrief(true);
-            }
-            
-            // WIN Condition
-            if (levelState === 'victory' && !showDebrief) {
-                 const duration = (Date.now() - startTime) / 1000;
-                 let stars = 1; 
-                 if (duration < 150) stars++; // Speed run
-                 if (attempts === 0) stars++; // Precision
-                 
-                 setIsWin(true);
-                 setFinalStats({ stars, health });
-                 setShowDebrief(true);
-            }
-        }, [health, levelState, showDebrief]);
-
-        return (
-            <>
-                {showDebrief && (
-                    <MissionDebrief 
-                        success={isWin}
-                        stats={finalStats}
-                        recapText={isWin 
-                            ? "Ottimo lavoro. Hai intercettato con successo l'attacco ransomware, identificato la sorgente tramite l'analisi dei pacchetti e recuperato la chiave di decrittazione."
-                            : "Missione Fallita. Il ransomware ha crittografato i sistemi critici prima che tu potessi implementare la contromisura."
-                        }
-                        onRetry={() => window.location.reload()}
-                        onExit={() => navigate('/')}
-                    />
-                )}
-                {/* TIMER & HUD */}
-                <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
-                     <Timer secondsRemaining={secondsRemaining} />
-                </div>
-            </>
-        );
-    };
-
-    // -------------------------------------------------------------------------
     // APP CONFIGURATIONS
     // -------------------------------------------------------------------------
 
-    const siemConfig = {
-        logs: mockLogs
-    };
+    const siemConfig = { logs: mockLogs };
+    const emailConfig = { emails: mockEmails };
 
-    const emailConfig = {
-        emails: mockEmails
-    };
-
-    // File system structure
     const fileSystem = {
         'home': {
             'user': {
@@ -307,16 +321,13 @@ bool check_unlock_code(char* input) {
                     context.currentDir = '/';
                     return null;
                 }
-                
                 const target = args[0];
                 const fs = fileSystem;
                 
-                // Handle absolute paths
                 if (target.startsWith('/')) {
                     const parts = target.split('/').filter(p => p);
                     let current = fs;
                     let validPath = true;
-                    
                     for (const part of parts) {
                         if (current[part] && current[part].type !== 'file') {
                             current = current[part];
@@ -327,7 +338,6 @@ bool check_unlock_code(char* input) {
                             break;
                         }
                     }
-                    
                     if (validPath) {
                         context.currentDir = target;
                         return null;
@@ -335,10 +345,7 @@ bool check_unlock_code(char* input) {
                         return `cd: ${target}: No such file or directory`;
                     }
                 }
-                
-                // Handle relative paths
                 const currentParts = context.currentDir.split('/').filter(p => p);
-                
                 if (target === '..') {
                     if (currentParts.length > 0) {
                         currentParts.pop();
@@ -349,19 +356,13 @@ bool check_unlock_code(char* input) {
                 } else if (target === '.') {
                     return null;
                 }
-                
-                // Handle multi-level relative paths (e.g., home/user)
                 const targetParts = target.split('/').filter(p => p);
-                
-                // Navigate from current directory
                 let current = fs;
                 if (context.currentDir !== '/') {
                     for (const part of currentParts) {
                         if (current[part]) current = current[part];
                     }
                 }
-                
-                // Try to navigate through target parts
                 const newPath = [...currentParts];
                 for (const part of targetParts) {
                     if (current[part] && current[part].type !== 'file') {
@@ -373,7 +374,6 @@ bool check_unlock_code(char* input) {
                         return `cd: ${target}: No such file or directory`;
                     }
                 }
-                
                 context.currentDir = '/' + newPath.join('/');
                 return null;
             },
@@ -381,12 +381,8 @@ bool check_unlock_code(char* input) {
                 const path = args[0] || '.';
                 const fs = fileSystem;
                 const currentDir = context.currentDir || '/';
-                
-                // Helper function to get current location
                 const getCurrentLocation = () => {
-                    if (currentDir === '/') {
-                        return fs;
-                    }
+                    if (currentDir === '/') return fs;
                     const parts = currentDir.split('/').filter(p => p);
                     let current = fs;
                     for (const part of parts) {
@@ -394,13 +390,10 @@ bool check_unlock_code(char* input) {
                     }
                     return current;
                 };
-                
                 let targetPath;
-                
                 if (path === '.' || path === './') {
                     targetPath = getCurrentLocation();
                 } else if (path.startsWith('/')) {
-                    // Absolute path
                     if (path === '/') {
                         targetPath = fs;
                     } else {
@@ -415,7 +408,6 @@ bool check_unlock_code(char* input) {
                         }
                     }
                 } else {
-                    // Relative path
                     const current = getCurrentLocation();
                     if (current[path]) {
                         targetPath = current[path];
@@ -423,33 +415,19 @@ bool check_unlock_code(char* input) {
                         return `ls: cannot access '${path}': No such file or directory`;
                     }
                 }
-                
-                if (!targetPath) {
-                    return `ls: cannot access '${path}': No such file or directory`;
-                }
-                
-                // List contents
+                if (!targetPath) return `ls: cannot access '${path}': No such file or directory`;
                 const items = Object.keys(targetPath).map(key => {
                     const item = targetPath[key];
-                    if (item.type === 'file') {
-                        return key;
-                    } else {
-                        return key + '/';
-                    }
+                    if (item.type === 'file') return key;
+                    else return key + '/';
                 });
-                
                 return items.length > 0 ? items.join('  ') : '';
             },
             cat: (args, fullCommand, context) => {
-                if (!args[0]) {
-                    return 'cat: missing file operand';
-                }
-                
+                if (!args[0]) return 'cat: missing file operand';
                 const fileName = args[0];
                 const fs = fileSystem;
                 const currentDir = context.currentDir || '/';
-                
-                // Get current location
                 let current = fs;
                 if (currentDir !== '/') {
                     const parts = currentDir.split('/').filter(p => p);
@@ -457,18 +435,10 @@ bool check_unlock_code(char* input) {
                         if (current[part]) current = current[part];
                     }
                 }
-                
-                // Check in current directory first
-                if (current[fileName] && current[fileName].type === 'file') {
-                    return current[fileName].content;
-                }
-                
-                // Search in subdirectories if not found
+                if (current[fileName] && current[fileName].type === 'file') return current[fileName].content;
                 const searchInDir = (dir) => {
                     for (const key in dir) {
-                        if (key === fileName && dir[key].type === 'file') {
-                            return dir[key].content;
-                        }
+                        if (key === fileName && dir[key].type === 'file') return dir[key].content;
                         if (dir[key].type !== 'file') {
                             const result = searchInDir(dir[key]);
                             if (result) return result;
@@ -476,21 +446,15 @@ bool check_unlock_code(char* input) {
                     }
                     return null;
                 };
-                
                 const result = searchInDir(current);
                 if (result) return result;
-                
                 return `cat: ${fileName}: No such file or directory`;
             },
-            pwd: (args, fullCommand, context) => {
-                return context.currentDir || '/';
-            }
+            pwd: (args, fullCommand, context) => context.currentDir || '/'
         }
     };
 
-    const packetAnalyzerConfig = {
-        packets: mockPackets
-    };
+    const packetAnalyzerConfig = { packets: mockPackets };
 
     const ransomwareOverlayConfig = {
         isActive: ransomwareActive,
@@ -509,11 +473,18 @@ bool check_unlock_code(char* input) {
             emailConfig={emailConfig}
             terminalConfig={terminalConfig}
             revEngConfig={{ files: mockFiles }}
-            // Packet Analyzer available only in emergency mode (after kill switch) or simply always available but user needs to open it
             packetAnalyzerConfig={levelState === 'emergency_mode' || levelState === 'decrypted' ? packetAnalyzerConfig : null}
             ransomwareOverlayConfig={ransomwareOverlayConfig}
         >
-            <Level8Content />
+            <Level8Content 
+                levelState={levelState}
+                secondsRemaining={secondsRemaining}
+                setSecondsRemaining={setSecondsRemaining}
+                startTime={startTime}
+                attempts={attempts}
+                navigate={navigate}
+                healthSetterRef={healthSetterRef}
+            />
         </LevelTemplate>
     );
 };
