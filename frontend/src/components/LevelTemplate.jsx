@@ -22,6 +22,9 @@ function LevelTemplateContent({
     emailConfig = {},
     revEngConfig = null,
     codeEditorConfig = null,
+    packetAnalyzerConfig = null,
+    ransomwareOverlayConfig = null,
+    decryptionToolConfig = null,
     onEmailAction
 }) {
   const navigate = useNavigate();
@@ -59,13 +62,17 @@ function LevelTemplateContent({
 
         {/* 3. MONITOR: Usiamo larghezza percentuale invece dello scale fisso.
             Lo scale può causare sfocatura e problemi di overflow su schermi piccoli. */}
-        <div className="absolute top-[47%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] z-50 flex items-center justify-center pointer-events-auto z-30 transform scale-[1.5]">            <MonitorScreen
-                browserConfig={browserConfig}
+        <div className="absolute top-[47%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] z-50 flex items-center justify-center pointer-events-auto z-30 transform scale-[1.5]">
+            <MonitorScreen 
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
                 emailConfig={emailConfig}
+                browserConfig={browserConfig}
                 revEngConfig={revEngConfig}
                 codeEditorConfig={codeEditorConfig}
+                packetAnalyzerConfig={packetAnalyzerConfig}
+                ransomwareOverlayConfig={ransomwareOverlayConfig}
+                decryptionToolConfig={decryptionToolConfig}
                 onEmailAction={onEmailAction}
             >
                 {children}

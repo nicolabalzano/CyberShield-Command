@@ -6,6 +6,9 @@ import Browser from './Browser';
 import SIEMSystem from './SIEMSystem';
 import ReverseEngineeringViewer from './ReverseEngineeringViewer';
 import CodeEditor from './CodeEditor';
+import PacketAnalyzer from './PacketAnalyzer';
+import RansomwareOverlay from './RansomwareOverlay';
+import DecryptionTool from './DecryptionTool';
 import { BrowserProvider } from '../contexts/BrowserContext';
 
 /**
@@ -22,13 +25,19 @@ const MonitorScreen = ({
   browserConfig = {},
   revEngConfig = null,
   codeEditorConfig = null,
+  packetAnalyzerConfig = null,
+  ransomwareOverlayConfig = null,
+  decryptionToolConfig = null,
   statusText = null,
   className = "",
   children
 }) => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+
   const [windows, setWindows] = useState([]);
   const [nextWindowId, setNextWindowId] = useState(1);
+  const [hasTriggeredRansomware, setHasTriggeredRansomware] = useState(false);
+  const [hasTriggeredDecryption, setHasTriggeredDecryption] = useState(false);
 
   // Aggiorna l'ora ogni secondo
   React.useEffect(() => {
@@ -51,9 +60,25 @@ const MonitorScreen = ({
       zIndex: nextWindowId,
       extraData 
     };
-    setWindows([...windows, newWindow]);
-    setNextWindowId(nextWindowId + 1);
+    setWindows(prevWindows => [...prevWindows, newWindow]);
+    setNextWindowId(prevId => prevId + 1);
   };
+
+  // Effect to automatically open Ransomware window when active
+  React.useEffect(() => {
+    if (ransomwareOverlayConfig?.isActive && !hasTriggeredRansomware) {
+      openWindow('⚠️ CRITICAL SYSTEM ALERT ⚠️', 'ransomware', { width: 800, height: 600 });
+      setHasTriggeredRansomware(true);
+    }
+  }, [ransomwareOverlayConfig?.isActive, hasTriggeredRansomware]);
+
+  // Effect to automatically open Decryption Tool when available
+  React.useEffect(() => {
+    if (decryptionToolConfig && !hasTriggeredDecryption) {
+      openWindow('Decryption Tool', 'decryption-tool', { width: 500, height: 400 });
+      setHasTriggeredDecryption(true);
+    }
+  }, [decryptionToolConfig, hasTriggeredDecryption]);
 
   const closeWindow = (id) => {
     setWindows(windows.filter(w => w.id !== id));
@@ -132,7 +157,24 @@ const MonitorScreen = ({
                     onClick={() => openWindow('Code Editor', 'code-editor')} 
                   />
                 )}
+
+                {packetAnalyzerConfig && (
+                  <DesktopIcon 
+                    icon="📡" 
+                    label="Packet Sniffer" 
+                    onClick={() => openWindow('Packet Analyzer', 'packet-analyzer')} 
+                  />
+                )}
+
+                {decryptionToolConfig && (
+                   <DesktopIcon 
+                    icon="🔐" 
+                    label="Decryptor" 
+                    onClick={() => openWindow('Decryption Tool', 'decryption-tool')} 
+                  />
+                )}
               </div>
+
 
               {windows.map(window => (
                 !window.isMinimized && (
@@ -150,9 +192,16 @@ const MonitorScreen = ({
                     browserConfig={browserConfig}
                     revEngConfig={revEngConfig}
                     codeEditorConfig={codeEditorConfig}
+                    packetAnalyzerConfig={packetAnalyzerConfig}
+                    ransomwareOverlayConfig={ransomwareOverlayConfig}
+                    decryptionToolConfig={decryptionToolConfig}
                   />
                 )
               ))}
+
+              {ransomwareOverlayConfig && ransomwareOverlayConfig.isActive && (
+                 <RansomwareOverlay {...ransomwareOverlayConfig} />
+              )}
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-r from-slate-800 to-slate-700 border-t border-slate-600 flex items-center px-3 gap-2 z-50">
@@ -209,7 +258,10 @@ const Window = ({
   emailConfig,
   browserConfig,
   revEngConfig,
-  codeEditorConfig
+  codeEditorConfig,
+  packetAnalyzerConfig,
+  ransomwareOverlayConfig,
+  decryptionToolConfig
 }) => {
   const [position, setPosition] = useState(windowData.position);
   const [isDragging, setIsDragging] = useState(false);
@@ -321,6 +373,9 @@ const Window = ({
         )}
         {windowData.contentType === 'reveng' && <ReverseEngineeringViewer {...revEngConfig} />}
         {windowData.contentType === 'code-editor' && <CodeEditor {...codeEditorConfig} />}
+        {windowData.contentType === 'packet-analyzer' && <PacketAnalyzer {...packetAnalyzerConfig} />}
+        {windowData.contentType === 'ransomware' && <RansomwareOverlay {...ransomwareOverlayConfig} />}
+        {windowData.contentType === 'decryption-tool' && <DecryptionTool {...decryptionToolConfig} />}
       </div>
     </div>
   );
