@@ -25,7 +25,8 @@ function LevelTemplateContent({
     packetAnalyzerConfig = null,
     ransomwareOverlayConfig = null,
     decryptionToolConfig = null,
-    onEmailAction
+    onEmailAction,
+    onEmailRead = () => {}
 }) {
   const navigate = useNavigate();
   const { changeTrack } = useAudio();
@@ -74,6 +75,7 @@ function LevelTemplateContent({
                 ransomwareOverlayConfig={ransomwareOverlayConfig}
                 decryptionToolConfig={decryptionToolConfig}
                 onEmailAction={onEmailAction}
+                onEmailRead={onEmailRead}
             >
                 {children}
             </MonitorScreen>

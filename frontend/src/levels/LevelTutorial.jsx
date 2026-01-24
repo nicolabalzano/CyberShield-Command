@@ -389,7 +389,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
                 emailConfig={emailConfig}
-                onEmailAction={(email) => {
+                onEmailRead={(email) => {
                     if (!emailRead && email.id === 2 && currentStep === 0) {
                         setEmailRead(true);
                         setCurrentStep(1);
