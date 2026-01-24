@@ -8,10 +8,12 @@ const Terminal = ({
     commands = {},
     onCommandExecute = null,
     prompt = '$',
-    helpCommand = true
+    helpCommand = true,
+    currentDir = '/home/user'
 }) => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState(initialHistory);
+    const [workingDir, setWorkingDir] = useState(currentDir);
     const inputRef = React.useRef(null);
 
     const defaultCommands = {
@@ -30,9 +32,19 @@ const Terminal = ({
             
             let output;
             
+            // Create context object to pass current directory
+            const context = { 
+                currentDir: workingDir,
+                setCurrentDir: (newDir) => setWorkingDir(newDir)
+            };
+            
             if (allCommands[command]) {
                 try {
-                    output = allCommands[command](args, trimmedInput);
+                    output = allCommands[command](args, trimmedInput, context);
+                    // Update working directory if cd command changed it
+                    if (command === 'cd' && context.currentDir !== workingDir) {
+                        setWorkingDir(context.currentDir);
+                    }
                 } catch (error) {
                     output = `Error executing command: ${error.message}`;
                 }
@@ -44,7 +56,7 @@ const Terminal = ({
                 onCommandExecute(command, args, output);
             }
             
-            const newHistory = [...history, `${prompt} ${trimmedInput}`];
+            const newHistory = [...history, `${workingDir} ${prompt} ${trimmedInput}`];
             if (output !== null && output !== undefined) {
                 if (Array.isArray(output)) {
                     newHistory.push(...output);
@@ -76,7 +88,7 @@ const Terminal = ({
             </div>
             
             <div className="flex items-center w-full">
-                <span className="mr-2 flex-shrink-0">{prompt}</span>
+                <span className="mr-2 flex-shrink-0">{workingDir} {prompt}</span>
                 <div className="flex items-center">
                     <input
                         ref={inputRef}

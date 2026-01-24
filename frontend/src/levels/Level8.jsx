@@ -29,7 +29,7 @@ const Level8 = () => {
     const [lastDecreaseTime, setLastDecreaseTime] = useState(0);
 
     // Initial Hint
-    const [currentHint, setCurrentHint] = useState("Incoming Mail: Suspicious activity report. Check your email for Emergency Protocols.");
+    const [currentHint, setCurrentHint] = useState("Posta in arrivo: Rapporto attività sospette. Controlla la tua email per i Protocolli di Emergenza.");
 
     // Ref per accedere a setHealth da fuori Level8Content
     const healthSetterRef = React.useRef(null);
@@ -40,18 +40,18 @@ const Level8 = () => {
     
     // Mock Packets
     const mockPackets = [
-        { id: 1, time: '10:00:01', source: '192.168.1.50', destination: '8.8.8.8', protocol: 'UDP', info: 'Standard query 0x1234 A www.google.com', payload: '', payloadHex: '' },
+        { id: 1, time: '10:00:01', source: '192.168.1.50', destination: '8.8.8.8', protocol: 'UDP', info: 'Query standard 0x1234 A www.google.com', payload: '', payloadHex: '' },
         { id: 2, time: '10:00:02', source: '192.168.1.50', destination: '172.217.16.196', protocol: 'TCP', info: '443 -> 49152 [ACK] Seq=1 Ack=1 Win=65535 Len=0', payload: '', payloadHex: '' },
         { id: 3, time: '10:01:15', source: '145.2.33.11', destination: '192.168.1.105', protocol: 'HTTP', info: 'GET /downloads/cryptolocker_v2.exe HTTP/1.1', payload: 'GET /downloads/cryptolocker_v2.exe HTTP/1.1\r\nHost: malicious-server.com\r\nUser-Agent: Mozilla/5.0\r\n\r\n', payloadHex: '47 45 54 20 2F 64 6F 77 ...' },
         { id: 4, time: '10:01:16', source: '192.168.1.105', destination: '145.2.33.11', protocol: 'HTTP', info: '200 OK (application/x-msdownload)', payload: 'MZ......................@.............................................!..L.!This program cannot be run in DOS mode....', payloadHex: '4D 5A 90 00 03 00 00 00 ...' },
-        { id: 5, time: '10:02:00', source: '192.168.1.105', destination: '192.168.1.255', protocol: 'UDP', info: 'Source port: 137  Destination port: 137', payload: '', payloadHex: '' },
+        { id: 5, time: '10:02:00', source: '192.168.1.105', destination: '192.168.1.255', protocol: 'UDP', info: 'Porta sorgente: 137  Porta destinazione: 137', payload: '', payloadHex: '' },
     ];
 
     // Mock SIEM Logs
     const mockLogs = [
-        { id: 1, timestamp: '10:00:01', severity: 'low', source: 'Firewall', message: 'Allowed outbound connection TCP 443' },
-        { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: 'Suspicious file download detected from 145.2.33.11' },
-        { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: 'Signature scan skipped for cryptolocker_v2.exe (Policy Override)' },
+        { id: 1, timestamp: '10:00:01', severity: 'low', source: 'Firewall', message: 'Connessione in uscita consentita TCP 443' },
+        { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: 'Rilevato download di file sospetto da 145.2.33.11' },
+        { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: 'Scansione firma saltata per cryptolocker_v2.exe (Override Policy)' },
     ];
     
     // Mock Emails
@@ -60,12 +60,12 @@ const Level8 = () => {
             id: 101,
             from: "ciso@cybershield.com",
             timestamp: "09:45 AM",
-            subject: "URGENT: Emergency Response Protocols Updated",
-            preview: "We are seeing an uptick in ransomware activity...",
+            subject: "URGENTE: Aggiornamento Protocolli Risposta Incidenti",
+            preview: "Stiamo notando un aumento dell'attività ransomware...",
             isPhishing: false,
-            body: `Dear Team,\n\nWe are seeing an uptick in ransomware activity targeting our sector.\nPlease review the updated Incident Response Manual immediately.\n\nEMERGENCY PROCEDURE FOR RANSOMWARE:\n1. Do NOT power off the machine (encryption may corrupt files).\n2. If your screen is locked, use the hardware interrupt sequence: Ctrl + Alt + K.\n3. Isolate the network segment.\n4. Identify the vector and the decryption key.\n\nStay vigilant.`,
+            body: `Gentile Team,\n\nStiamo notando un aumento dell'attività ransomware verso il nostro settore.\nSiete pregati di rivedere immediatamente il Manuale di Risposta agli Incidenti.\n\nPROCEDURA DI EMERGENZA PER RANSOMWARE:\n1. NON spegnere la macchina (la crittografia potrebbe corrompere i file).\n2. Se lo schermo è bloccato, utilizzare la sequenza di interruzione hardware: Ctrl + Alt + K.\n3. Isolare il segmento di rete.\n4. Identificare il vettore e la chiave di decrittazione.\n\nRestate vigili.`,
             hasAttachment: false,
-            explanation: "Legitimate security alert from CISO.",
+            explanation: "Avviso di sicurezza legittimo dal CISO.",
             read: false,
             flagged: null
         },
@@ -73,12 +73,12 @@ const Level8 = () => {
             id: 102,
             from: "hr@cybershield.com",
             timestamp: "09:30 AM",
-            subject: "Quarterly Performance Reviews",
-            preview: "Just a reminder that reviews are starting...",
+            subject: "Revisioni Trimestrali delle Performance",
+            preview: "Solo un promemoria che le revisioni inizieranno...",
             isPhishing: false,
-            body: "Just a reminder that reviews are starting next week. Please prepare your self-assessment.",
+            body: "Solo un promemoria che le revisioni inizieranno la prossima settimana. Per favore preparate la vostra autovalutazione.",
             hasAttachment: false,
-            explanation: "Routine HR email.",
+            explanation: "Email HR di routine.",
             read: false,
             flagged: null
         }
@@ -90,8 +90,8 @@ const Level8 = () => {
         'cryptolocker_v2.exe': {
             name: 'cryptolocker_v2.exe',
             c: `
-// Decompiled code for cryptolocker_v2.exe
-// ...headers omitted...
+// Codice decompilato per cryptolocker_v2.exe
+// ...headers omessi...
 
 void main() {
     char* target_dir = "C:\\Documents";
@@ -99,14 +99,14 @@ void main() {
 }
 
 void encrypt_files(char* dir) {
-    // Encryption Logic
-    // Using AES-256
+    // Logica di Crittografia
+    // Utilizzo AES-256
     char* key = generate_key();
     // ...
 }
 
 bool check_unlock_code(char* input) {
-    // Hidden Backdoor for dev testing
+    // Backdoor nascosta per test dev
     char* master_key = "N0Ransom4U!"; 
     if (strcmp(input, master_key) == 0) {
         decrypt_all();
@@ -156,7 +156,7 @@ bool check_unlock_code(char* input) {
                     setRansomwareActive(true); // Keep overlay active but allow hiding
                     setRansomwareVisible(false); // Hide it initially after kill switch
                     setKillSwitchActivated(true); // Enable taskbar button
-                    setCurrentHint("Great! Process Killed. Now investigate the logs (SIEM) to find the source IP.");
+                    setCurrentHint("Ottimo! Processo Terminato. Ora indaga sui log (SIEM) per trovare l'IP sorgente.");
                 }
             }
         };
@@ -171,7 +171,7 @@ bool check_unlock_code(char* input) {
             const timer = setTimeout(() => {
                 setLevelState('infected');
                 setRansomwareActive(true);
-                setCurrentHint("SYSTEM COMPROMISED! Find manual override! (Hint: Emergency Manual says Ctrl+Alt+K to disable network interface and start investigation.)");
+                setCurrentHint("SISTEMA COMPROMESSO! Trova l'override manuale! (Suggerimento: Il Manuale di Emergenza dice Ctrl+Alt+K per disabilitare l'interfaccia di rete e avviare l'indagine.)");
             }, 30000); // 30 seconds
             return () => clearTimeout(timer);
         }
@@ -251,8 +251,8 @@ bool check_unlock_code(char* input) {
                         success={isWin}
                         stats={finalStats}
                         recapText={isWin 
-                            ? "Excellent work. You successfully intercepted the ransomware attack, identified the source via packet analysis, and retrieved the decryption key."
-                            : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
+                            ? "Ottimo lavoro. Hai intercettato con successo l'attacco ransomware, identificato la sorgente tramite l'analisi dei pacchetti e recuperato la chiave di decrittazione."
+                            : "Missione Fallita. Il ransomware ha crittografato i sistemi critici prima che tu potessi implementare la contromisura."
                         }
                         onRetry={() => window.location.reload()}
                         onExit={() => navigate('/')}
@@ -278,17 +278,212 @@ bool check_unlock_code(char* input) {
         emails: mockEmails
     };
 
+    // File system structure
+    const fileSystem = {
+        'home': {
+            'user': {
+                'downloads': {
+                    'cryptolocker_v2.exe': { type: 'file', content: '(Binary content - executable file)' }
+                },
+                'documents': {
+                    'secret_plans.txt': { type: 'file', content: 'Nothing here.' },
+                    'README_DECRYPT.txt': { type: 'file', content: 'YOUR FILES HAVE BEEN ENCRYPTED!\nTo recover your data, you must enter the decryption key.\nContact: darkweb@anonymous.onion' }
+                },
+                'desktop': {
+                    'URGENT_READ_ME.txt': { type: 'file', content: '⚠️ RANSOMWARE ALERT ⚠️\nAll your files are encrypted.\nFollow instructions in documents/README_DECRYPT.txt' }
+                },
+                '.malware': {
+                    'persistence.sh': { type: 'file', content: '#!/bin/bash\n# Auto-start script\n/home/user/downloads/cryptolocker_v2.exe &' }
+                }
+            }
+        }
+    };
+
     const terminalConfig = {
-        fileSystem: {
-            'home': {
-                'user': {
-                    'downloads': {
-                        'cryptolocker_v2.exe': { type: 'file', content: '(Binary content)' }
-                    },
-                    'documents': {
-                        'secret_plans.txt': { type: 'file', content: 'Nothing here.' }
+        currentDir: '/',
+        commands: {
+            cd: (args, fullCommand, context) => {
+                if (!args[0]) {
+                    context.currentDir = '/';
+                    return null;
+                }
+                
+                const target = args[0];
+                const fs = fileSystem;
+                
+                // Handle absolute paths
+                if (target.startsWith('/')) {
+                    const parts = target.split('/').filter(p => p);
+                    let current = fs;
+                    let validPath = true;
+                    
+                    for (const part of parts) {
+                        if (current[part] && current[part].type !== 'file') {
+                            current = current[part];
+                        } else if (current[part] && current[part].type === 'file') {
+                            return `cd: ${target}: Not a directory`;
+                        } else {
+                            validPath = false;
+                            break;
+                        }
+                    }
+                    
+                    if (validPath) {
+                        context.currentDir = target;
+                        return null;
+                    } else {
+                        return `cd: ${target}: No such file or directory`;
                     }
                 }
+                
+                // Handle relative paths
+                const currentParts = context.currentDir.split('/').filter(p => p);
+                
+                if (target === '..') {
+                    if (currentParts.length > 0) {
+                        currentParts.pop();
+                        context.currentDir = '/' + currentParts.join('/');
+                        if (context.currentDir === '/') context.currentDir = '/';
+                    }
+                    return null;
+                } else if (target === '.') {
+                    return null;
+                }
+                
+                // Handle multi-level relative paths (e.g., home/user)
+                const targetParts = target.split('/').filter(p => p);
+                
+                // Navigate from current directory
+                let current = fs;
+                if (context.currentDir !== '/') {
+                    for (const part of currentParts) {
+                        if (current[part]) current = current[part];
+                    }
+                }
+                
+                // Try to navigate through target parts
+                const newPath = [...currentParts];
+                for (const part of targetParts) {
+                    if (current[part] && current[part].type !== 'file') {
+                        current = current[part];
+                        newPath.push(part);
+                    } else if (current[part] && current[part].type === 'file') {
+                        return `cd: ${target}: Not a directory`;
+                    } else {
+                        return `cd: ${target}: No such file or directory`;
+                    }
+                }
+                
+                context.currentDir = '/' + newPath.join('/');
+                return null;
+            },
+            ls: (args, fullCommand, context) => {
+                const path = args[0] || '.';
+                const fs = fileSystem;
+                const currentDir = context.currentDir || '/';
+                
+                // Helper function to get current location
+                const getCurrentLocation = () => {
+                    if (currentDir === '/') {
+                        return fs;
+                    }
+                    const parts = currentDir.split('/').filter(p => p);
+                    let current = fs;
+                    for (const part of parts) {
+                        if (current[part]) current = current[part];
+                    }
+                    return current;
+                };
+                
+                let targetPath;
+                
+                if (path === '.' || path === './') {
+                    targetPath = getCurrentLocation();
+                } else if (path.startsWith('/')) {
+                    // Absolute path
+                    if (path === '/') {
+                        targetPath = fs;
+                    } else {
+                        const parts = path.split('/').filter(p => p);
+                        targetPath = fs;
+                        for (const part of parts) {
+                            if (targetPath[part]) {
+                                targetPath = targetPath[part];
+                            } else {
+                                return `ls: cannot access '${path}': No such file or directory`;
+                            }
+                        }
+                    }
+                } else {
+                    // Relative path
+                    const current = getCurrentLocation();
+                    if (current[path]) {
+                        targetPath = current[path];
+                    } else {
+                        return `ls: cannot access '${path}': No such file or directory`;
+                    }
+                }
+                
+                if (!targetPath) {
+                    return `ls: cannot access '${path}': No such file or directory`;
+                }
+                
+                // List contents
+                const items = Object.keys(targetPath).map(key => {
+                    const item = targetPath[key];
+                    if (item.type === 'file') {
+                        return key;
+                    } else {
+                        return key + '/';
+                    }
+                });
+                
+                return items.length > 0 ? items.join('  ') : '';
+            },
+            cat: (args, fullCommand, context) => {
+                if (!args[0]) {
+                    return 'cat: missing file operand';
+                }
+                
+                const fileName = args[0];
+                const fs = fileSystem;
+                const currentDir = context.currentDir || '/';
+                
+                // Get current location
+                let current = fs;
+                if (currentDir !== '/') {
+                    const parts = currentDir.split('/').filter(p => p);
+                    for (const part of parts) {
+                        if (current[part]) current = current[part];
+                    }
+                }
+                
+                // Check in current directory first
+                if (current[fileName] && current[fileName].type === 'file') {
+                    return current[fileName].content;
+                }
+                
+                // Search in subdirectories if not found
+                const searchInDir = (dir) => {
+                    for (const key in dir) {
+                        if (key === fileName && dir[key].type === 'file') {
+                            return dir[key].content;
+                        }
+                        if (dir[key].type !== 'file') {
+                            const result = searchInDir(dir[key]);
+                            if (result) return result;
+                        }
+                    }
+                    return null;
+                };
+                
+                const result = searchInDir(current);
+                if (result) return result;
+                
+                return `cat: ${fileName}: No such file or directory`;
+            },
+            pwd: (args, fullCommand, context) => {
+                return context.currentDir || '/';
             }
         }
     };
