@@ -247,9 +247,11 @@ const Level2 = () => {
             setMissionEnd(true);
             setMissionSuccess(true);
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-            // Stelle assegnate per azioni bonus (già assegnate durante il gioco)
+
+            // Assegna stella per il completamento
+            earnStar();
         }
-    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, startTime]);
+    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, startTime, earnStar]);
 
     const browserConfig = {
         availableSites: [
@@ -402,7 +404,7 @@ ${t.terminal.status.falsePos}: ${falsePositives}`;
             'analyze': () => {
                 if (!analyzeUsed) {
                     setAnalyzeUsed(true);
-                    earnStar();
+                    // earnStar(); // Rimosso: la stella viene assegnata al completamento
                 }
                 return `${t.terminal.analyze.header}
 ${t.terminal.analyze.requests}

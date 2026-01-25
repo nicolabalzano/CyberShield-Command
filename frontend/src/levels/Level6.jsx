@@ -776,9 +776,9 @@ const Level6 = () => {
     // === CONFIGURAZIONE TERMINAL ===
     const terminalConfig = {
         initialHistory: [
-            t.terminal.initialHistory[0],
-            t.terminal.initialHistory[1],
-            t.terminal.initialHistory[2],
+            t.terminal.initial[0],
+            t.terminal.initial[1],
+            t.terminal.initial[2],
         ],
         commands: {
             'analyze-requests': () => {
@@ -989,18 +989,18 @@ ${t.browser.dashboard.protections.title}
     // === STATISTICHE FINALI ===
     const additionalStats = [
         {
-            label: t.stats.protections,
+            label: t.debrief.protections,
             value: Object.values(protectionsEnabled).filter(Boolean).length,
             color: Object.values(protectionsEnabled).filter(Boolean).length >= 2 ? 'text-cyber-green' : 'text-yellow-400'
         },
         {
-            label: t.stats.funds,
+            label: t.debrief.balance,
             value: `$${accountBalance.toLocaleString()}`,
             color: accountBalance === USER_ACCOUNT.balance ? 'text-cyber-green' : 'text-red-500'
         },
         {
-            label: t.stats.csrfType,
-            value: csrfType || t.stats.notIdentified,
+            label: t.terminal.status.type,
+            value: csrfType || t.terminal.status.notYet,
             color: csrfType ? 'text-cyber-green' : 'text-yellow-400'
         }
     ];
