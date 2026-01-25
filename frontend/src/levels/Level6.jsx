@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel as useLevelFromTemplate } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import { useLevel } from '../contexts/LevelContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 import Timer from '../components/Timer';
@@ -117,97 +119,101 @@ const USER_ACCOUNT = {
 };
 
 // Log SIEM che mostrano l'attacco CSRF
-const generateCSRFLogs = (attackActive, tokensEnabled) => [
-    {
-        id: 1,
-        time: '14:20:18',
-        severity: 'low',
-        source: '192.168.1.100',
-        type: 'INFO',
-        message: 'User john.doe logged in - Session created',
-        threat: false
-    },
-    {
-        id: 2,
-        time: '14:22:32',
-        severity: attackActive ? 'critical' : 'medium',
-        source: '203.0.113.88',
-        type: attackActive ? 'ALERT' : 'WARNING',
-        message: attackActive
-            ? 'CSRF Attack: Unauthorized transfer request from external origin http://evil-site.com'
-            : 'CSRF attempt blocked: Missing or invalid CSRF token',
-        threat: attackActive
-    },
-    {
-        id: 3,
-        time: '14:22:35',
-        severity: attackActive ? 'critical' : 'low',
-        source: '203.0.113.88',
-        type: attackActive ? 'SECURITY' : 'INFO',
-        message: attackActive
-            ? 'CRITICAL: Money transfer executed without user consent - $5000 to attacker@evil.com'
-            : 'Request rejected: Origin validation failed - Expected: bank.com, Got: evil-site.com',
-        threat: attackActive
-    },
-    {
-        id: 4,
-        time: '14:25:12',
-        severity: attackActive ? 'high' : 'medium',
-        source: '198.51.100.44',
-        type: attackActive ? 'ALERT' : 'WARNING',
-        message: attackActive
-            ? 'CSRF: Email change request from suspicious origin - User session hijacked'
-            : 'SameSite cookie policy active - Cross-site request blocked',
-        threat: attackActive
-    },
-    {
-        id: 5,
-        time: '14:28:47',
-        severity: 'low',
-        source: '192.168.1.105',
-        type: 'INFO',
-        message: 'Normal user activity - GET request with valid session',
-        threat: false
-    },
-    {
-        id: 6,
-        time: '14:30:22',
-        severity: attackActive ? 'critical' : 'low',
-        source: '203.0.113.77',
-        type: attackActive ? 'ALERT' : 'INFO',
-        message: attackActive
-            ? 'Password change executed via CSRF - User credentials compromised'
-            : 'CSRF token validation: PASSED - Request authenticated',
-        threat: attackActive
-    },
-    {
-        id: 7,
-        time: '14:32:15',
-        severity: attackActive ? 'high' : 'low',
-        source: '203.0.113.88',
-        type: attackActive ? 'SECURITY' : 'INFO',
-        message: attackActive
-            ? 'Multiple CSRF attempts detected - Attack pattern: Forged state-changing requests'
-            : 'All state-changing requests validated - CSRF protection active',
-        threat: attackActive
-    },
-    {
-        id: 8,
-        time: '14:35:00',
-        severity: attackActive ? 'critical' : 'low',
-        source: '203.0.113.88',
-        type: attackActive ? 'ALERT' : 'INFO',
-        message: attackActive
-            ? 'CSRF attack vector confirmed - Embedded malicious forms on external sites'
-            : 'Double-submit cookie pattern enforced - All requests secure',
-        threat: attackActive
-    }
-];
+
 
 const Level6 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars, earnStar } = useReputation('level6', 0);
+    const { language } = useLanguage();
+    const t = translations[language]?.level6 || translations['italiano'].level6;
+
+    const generateCSRFLogs = (attackActive, tokensEnabled) => [
+        {
+            id: 1,
+            time: '14:20:18',
+            severity: 'low',
+            source: '192.168.1.100',
+            type: 'INFO',
+            message: t.logMessages.sessionCreated,
+            threat: false
+        },
+        {
+            id: 2,
+            time: '14:22:32',
+            severity: attackActive ? 'critical' : 'medium',
+            source: '203.0.113.88',
+            type: attackActive ? 'ALERT' : 'WARNING',
+            message: attackActive
+                ? `${t.logMessages.attackDetected} http://evil-site.com`
+                : t.logMessages.blocked,
+            threat: attackActive
+        },
+        {
+            id: 3,
+            time: '14:22:35',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.88',
+            type: attackActive ? 'SECURITY' : 'INFO',
+            message: attackActive
+                ? `${t.logMessages.execution} - $5000 to attacker@evil.com`
+                : `${t.logMessages.rejected} - Expected: bank.com, Got: evil-site.com`,
+            threat: attackActive
+        },
+        {
+            id: 4,
+            time: '14:25:12',
+            severity: attackActive ? 'high' : 'medium',
+            source: '198.51.100.44',
+            type: attackActive ? 'ALERT' : 'WARNING',
+            message: attackActive
+                ? t.logMessages.sessionHijacked
+                : t.logMessages.sameSiteBlocked,
+            threat: attackActive
+        },
+        {
+            id: 5,
+            time: '14:28:47',
+            severity: 'low',
+            source: '192.168.1.105',
+            type: 'INFO',
+            message: t.logMessages.normal,
+            threat: false
+        },
+        {
+            id: 6,
+            time: '14:30:22',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.77',
+            type: attackActive ? 'ALERT' : 'INFO',
+            message: attackActive
+                ? t.logMessages.passwordChange
+                : t.logMessages.tokenPassed,
+            threat: attackActive
+        },
+        {
+            id: 7,
+            time: '14:32:15',
+            severity: attackActive ? 'high' : 'low',
+            source: '203.0.113.88',
+            type: attackActive ? 'SECURITY' : 'INFO',
+            message: attackActive
+                ? t.logMessages.multipleAttempts
+                : t.logMessages.validated,
+            threat: attackActive
+        },
+        {
+            id: 8,
+            time: '14:35:00',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.88',
+            type: attackActive ? 'ALERT' : 'INFO',
+            message: attackActive
+                ? t.logMessages.vectorConfirmed
+                : t.logMessages.doubleEnforced,
+            threat: attackActive
+        }
+    ];
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // CSRF attivo
@@ -399,16 +405,16 @@ const Level6 = () => {
         availableSites: [
             {
                 url: 'http://company-finance.internal/dashboard',
-                title: 'Finance Portal',
+                title: t.browser.portal.title,
                 icon: '🏦',
                 content: (
                     <div className={`p-6 h-full overflow-y-auto ${attackActive ? 'bg-red-50' : 'bg-green-50'}`}>
                         <div className="max-w-4xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
-                                <h1 className="text-2xl font-bold text-gray-800">🏦 Company Finance Portal</h1>
+                                <h1 className="text-2xl font-bold text-gray-800">🏦 {t.browser.portal.header}</h1>
                                 <div className={`px-3 py-1 rounded-full text-sm font-bold ${attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
                                     }`}>
-                                    {attackActive ? '⚠️ VULNERABLE' : '✅ SECURE'}
+                                    {attackActive ? t.browser.portal.vulnerable : t.browser.portal.secure}
                                 </div>
                             </div>
 
@@ -419,45 +425,45 @@ const Level6 = () => {
                                 }`}>
                                 {attackActive ? (
                                     <div className="text-red-800">
-                                        <p className="font-bold mb-1">⚠️ SECURITY ALERT</p>
-                                        <p className="text-sm">CSRF vulnerabilities detected! Requests not validated.</p>
-                                        <p className="text-xs mt-1">Risk: Unauthorized transfers, account takeover, data modification</p>
+                                        <p className="font-bold mb-1">{t.browser.portal.warningTitle}</p>
+                                        <p className="text-sm">{t.browser.portal.warningText}</p>
+                                        <p className="text-xs mt-1">{t.browser.portal.warningRisk}</p>
                                     </div>
                                 ) : (
                                     <div className="text-green-800">
-                                        <p className="font-bold mb-1">✅ SECURE MODE</p>
-                                        <p className="text-sm">CSRF protection active. All requests validated.</p>
-                                        <p className="text-xs mt-1">Protection: CSRF tokens, SameSite cookies, Origin validation</p>
+                                        <p className="font-bold mb-1">{t.browser.portal.secureTitle}</p>
+                                        <p className="text-sm">{t.browser.portal.secureText}</p>
+                                        <p className="text-xs mt-1">{t.browser.portal.secureProt}</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Account Summary */}
                             <div className="bg-white rounded-lg shadow p-6 mb-6">
-                                <h2 className="text-xl font-semibold mb-4 text-gray-800">Account Summary</h2>
+                                <h2 className="text-xl font-semibold mb-4 text-gray-800">{t.browser.portal.account.title}</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-600">Account Holder</p>
+                                        <p className="text-sm text-gray-600">{t.browser.portal.account.holder}</p>
                                         <p className="text-lg font-semibold">{USER_ACCOUNT.name}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Account Number</p>
+                                        <p className="text-sm text-gray-600">{t.browser.portal.account.number}</p>
                                         <p className="text-lg font-semibold">{USER_ACCOUNT.accountNumber}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Current Balance</p>
+                                        <p className="text-sm text-gray-600">{t.browser.portal.account.balance}</p>
                                         <p className={`text-2xl font-bold ${accountBalance < USER_ACCOUNT.balance ? 'text-red-600 animate-pulse' : 'text-green-600'
                                             }`}>
                                             ${accountBalance.toLocaleString()}
                                         </p>
                                         {accountBalance < USER_ACCOUNT.balance && (
                                             <p className="text-xs text-red-600 mt-1">
-                                                ⚠️ Unauthorized transfer detected!
+                                                {t.browser.portal.account.unauthorized}
                                             </p>
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Email</p>
+                                        <p className="text-sm text-gray-600">{t.browser.portal.account.email}</p>
                                         <p className="text-lg font-semibold">{USER_ACCOUNT.email}</p>
                                     </div>
                                 </div>
@@ -465,7 +471,7 @@ const Level6 = () => {
 
                             {/* Recent Transactions */}
                             <div className="bg-white rounded-lg shadow p-6">
-                                <h2 className="text-xl font-semibold mb-4 text-gray-800">Recent Activity</h2>
+                                <h2 className="text-xl font-semibold mb-4 text-gray-800">{t.browser.portal.activity.title}</h2>
                                 <div className="space-y-3">
                                     {transactions.map(transaction => (
                                         <div
@@ -488,7 +494,7 @@ const Level6 = () => {
                                                                 ? 'bg-yellow-500 text-white'
                                                                 : 'bg-red-500 text-white animate-pulse'
                                                                 }`}>
-                                                                {transaction.status === 'blocked' ? '🛡️ BLOCKED' : '🚨 CSRF'}
+                                                                {transaction.status === 'blocked' ? t.browser.portal.activity.blockedLabel : t.browser.portal.activity.csrfLabel}
                                                             </span>
                                                         )}
                                                     </div>
@@ -497,17 +503,17 @@ const Level6 = () => {
                                                     </p>
                                                     {transaction.amount && (
                                                         <p className="text-sm font-semibold text-red-600 mt-1">
-                                                            Amount: ${transaction.amount.toLocaleString()} → {transaction.destination}
+                                                            {t.browser.portal.activity.amount} ${transaction.amount.toLocaleString()} → {transaction.destination}
                                                         </p>
                                                     )}
                                                     {transaction.newEmail && (
                                                         <p className="text-sm text-gray-700 mt-1">
-                                                            New email: {transaction.newEmail}
+                                                            {t.browser.portal.activity.newEmail} {transaction.newEmail}
                                                         </p>
                                                     )}
                                                     {transaction.origin && (
                                                         <p className="text-xs font-mono text-red-600 mt-1">
-                                                            Origin: {transaction.origin}
+                                                            {t.browser.portal.activity.origin} {transaction.origin}
                                                         </p>
                                                     )}
                                                 </div>
@@ -520,13 +526,13 @@ const Level6 = () => {
                                                                 ? 'bg-red-100 text-red-800'
                                                                 : 'bg-gray-100 text-gray-800'
                                                         }`}>
-                                                        {transaction.status.toUpperCase()}
+                                                        {transaction.status === 'completed' ? t.browser.portal.activity.completed : t.browser.portal.activity.blocked}
                                                     </span>
                                                 </div>
                                             </div>
                                             {transaction.csrf && transaction.status !== 'blocked' && attackActive && (
                                                 <div className="mt-2 text-xs text-red-600 font-mono bg-red-50 p-2 rounded">
-                                                    ⚠️ This request was forged by an external site!
+                                                    {t.browser.portal.activity.forged}
                                                 </div>
                                             )}
                                         </div>
@@ -539,45 +545,45 @@ const Level6 = () => {
             },
             {
                 url: 'http://company-finance.internal/security',
-                title: 'Security Settings',
+                title: t.browser.dashboard.title,
                 icon: '🔒',
                 content: (
                     <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-6">🔒 CSRF Protection Dashboard</h1>
+                            <h1 className="text-2xl font-bold mb-6">🔒 {t.browser.dashboard.title}</h1>
 
                             {/* Protection Status */}
                             <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span>🛡️</span> Active Protections
+                                    <span>🛡️</span> {t.browser.dashboard.protections.title}
                                 </h2>
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">CSRF Tokens (Synchronizer Pattern)</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.tokens}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.csrfTokens ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.csrfTokens ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.csrfTokens ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">SameSite Cookies</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.sameSite}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.sameSiteCookies ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.sameSiteCookies ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.sameSiteCookies ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">Origin/Referer Validation</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.origin}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.originValidation ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.originValidation ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.originValidation ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="text-sm">Double Submit Cookie</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.double}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.doubleSubmitCookie ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.doubleSubmitCookie ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.doubleSubmitCookie ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                 </div>
@@ -586,15 +592,15 @@ const Level6 = () => {
                             {/* CSRF Risk Analysis */}
                             <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span>📊</span> CSRF Risk Analysis
+                                    <span>📊</span> {t.browser.dashboard.risk.title}
                                 </h2>
                                 <div className="space-y-3">
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
-                                            <span>Overall Risk Level</span>
+                                            <span>{t.browser.dashboard.risk.level}</span>
                                             <span className={`font-bold ${attackActive ? 'text-red-400' : 'text-green-400'
                                                 }`}>
-                                                {attackActive ? 'CRITICAL' : 'LOW'}
+                                                {attackActive ? t.browser.dashboard.risk.critical : t.browser.dashboard.risk.low}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
@@ -606,17 +612,17 @@ const Level6 = () => {
                                     </div>
                                     <div className="text-xs text-gray-400">
                                         <p className="mb-1">
-                                            <strong>CSRF Requests Detected:</strong> {
+                                            <strong>{t.browser.dashboard.risk.detected}</strong> {
                                                 attackActive
                                                     ? INITIAL_TRANSACTIONS.filter(t => t.csrf).length
                                                     : 0
                                             }
                                         </p>
                                         <p className="mb-1">
-                                            <strong>Unauthorized Actions:</strong> {unauthorizedActions ? 'EXECUTED ⚠️' : 'BLOCKED ✅'}
+                                            <strong>{t.browser.dashboard.risk.unauthorized}</strong> {unauthorizedActions ? t.browser.dashboard.risk.executed : t.browser.dashboard.risk.blocked}
                                         </p>
                                         <p>
-                                            <strong>Financial Loss:</strong> {
+                                            <strong>{t.browser.dashboard.risk.loss}</strong> {
                                                 attackActive
                                                     ? `$${(USER_ACCOUNT.balance - accountBalance).toLocaleString()}`
                                                     : '$0'
@@ -629,20 +635,20 @@ const Level6 = () => {
                             {/* Attack Vectors */}
                             <div className="bg-gray-800 rounded-lg p-4">
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span>🎯</span> Known CSRF Attack Vectors
+                                    <span>🎯</span> {t.browser.dashboard.vectors.title}
                                 </h2>
                                 <div className="space-y-2 text-xs">
                                     <div className="p-2 bg-gray-900 rounded">
-                                        <p className="font-semibold text-yellow-400">1. Malicious Form Submission</p>
-                                        <p className="text-gray-400 mt-1">Attacker hosts hidden form that auto-submits to victim site</p>
+                                        <p className="font-semibold text-yellow-400">{t.browser.dashboard.vectors.form.title}</p>
+                                        <p className="text-gray-400 mt-1">{t.browser.dashboard.vectors.form.desc}</p>
                                     </div>
                                     <div className="p-2 bg-gray-900 rounded">
-                                        <p className="font-semibold text-yellow-400">2. Image Tag Exploit</p>
-                                        <p className="text-gray-400 mt-1">&lt;img src=&quot;bank.com/transfer?amount=5000&quot;&gt;</p>
+                                        <p className="font-semibold text-yellow-400">{t.browser.dashboard.vectors.img.title}</p>
+                                        <p className="text-gray-400 mt-1">{t.browser.dashboard.vectors.img.desc}</p>
                                     </div>
                                     <div className="p-2 bg-gray-900 rounded">
-                                        <p className="font-semibold text-yellow-400">3. XMLHttpRequest/Fetch</p>
-                                        <p className="text-gray-400 mt-1">JavaScript making authenticated requests to victim site</p>
+                                        <p className="font-semibold text-yellow-400">{t.browser.dashboard.vectors.xhr.title}</p>
+                                        <p className="text-gray-400 mt-1">{t.browser.dashboard.vectors.xhr.desc}</p>
                                     </div>
                                 </div>
                             </div>
@@ -652,15 +658,15 @@ const Level6 = () => {
             },
             {
                 url: 'http://evil-site.com',
-                title: 'Malicious Site',
+                title: t.browser.malicious.title,
                 icon: '☠️',
                 content: (
                     <div className="p-6 bg-black text-red-500 h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-6 animate-pulse">☠️ Attacker&apos;s Site</h1>
+                            <h1 className="text-2xl font-bold mb-6 animate-pulse">{t.browser.malicious.header}</h1>
 
                             <div className="bg-gray-900 border border-red-500 rounded-lg p-4 mb-4">
-                                <p className="text-sm text-gray-400 mb-3">This malicious page contains hidden CSRF attacks:</p>
+                                <p className="text-sm text-gray-400 mb-3">{t.browser.malicious.desc}</p>
 
                                 <div className="font-mono text-xs bg-black p-3 rounded border border-red-700">
                                     <p className="text-green-400">&lt;!-- Hidden malicious form --&gt;</p>
@@ -675,14 +681,11 @@ const Level6 = () => {
                             </div>
 
                             <div className="bg-red-900 bg-opacity-30 border border-red-600 rounded-lg p-4">
-                                <p className="font-bold mb-2">🎯 How CSRF Works:</p>
+                                <p className="font-bold mb-2">{t.browser.malicious.how.title}</p>
                                 <ol className="text-sm space-y-1 list-decimal list-inside text-gray-300">
-                                    <li>Employee logs into company-finance.internal (session cookie set)</li>
-                                    <li>Employee visits attacker&apos;s site (this page)</li>
-                                    <li>Hidden form auto-submits to company-finance.internal</li>
-                                    <li>Browser includes session cookie automatically</li>
-                                    <li>Finance portal executes request as if employee made it</li>
-                                    <li>Company funds transferred without authorization!</li>
+                                    {t.browser.malicious.how.list.map((item, i) => (
+                                        <li key={i}>{item}</li>
+                                    ))}
                                 </ol>
                             </div>
                         </div>
@@ -695,22 +698,22 @@ const Level6 = () => {
     // === CONFIGURAZIONE TERMINAL ===
     const terminalConfig = {
         initialHistory: [
-            '$ CSRF Defense Terminal v6.0',
-            '$ Type "help" for available commands',
-            '$ ⚠️  WARNING: CSRF attacks detected on company finance portal!',
+            t.terminal.initialHistory[0],
+            t.terminal.initialHistory[1],
+            t.terminal.initialHistory[2],
         ],
         commands: {
             'analyze-requests': () => {
                 const csrfRequests = transactions.filter(t => t.csrf);
-                return `=== REQUEST ANALYSIS ===
-Total requests: ${transactions.length}
-Legitimate requests: ${transactions.filter(t => !t.csrf).length}
-CSRF requests: ${csrfRequests.length}
+                return `${t.terminal.analyze.title}
+${t.terminal.analyze.total} ${transactions.length}
+${t.terminal.analyze.legitimate} ${transactions.filter(t => !t.csrf).length}
+${t.terminal.analyze.csrf} ${csrfRequests.length}
 
-Suspicious patterns detected:
-${csrfRequests.map((t, i) => `${i + 1}. ${t.action} from ${t.origin || 'unknown origin'} - Status: ${t.status}`).join('\n')}
+${t.terminal.analyze.suspicious}
+${csrfRequests.map((tr, i) => `${i + 1}. ${tr.action} ${t.browser.portal.activity.origin} ${tr.origin || 'unknown origin'} - ${t.browser.portal.activity.status}: ${tr.status}`).join('\n')}
 
-⚠️ Action required: Enable CSRF protection!`;
+${t.terminal.analyze.action}`;
             },
 
             'show-transaction': (args) => {
@@ -718,140 +721,140 @@ ${csrfRequests.map((t, i) => `${i + 1}. ${t.action} from ${t.origin || 'unknown 
                 const transaction = transactions.find(t => t.id === id);
 
                 if (!transaction) {
-                    return 'Usage: show-transaction <id>\nExample: show-transaction 2';
+                    return t.terminal.transaction.usage;
                 }
 
-                return `=== TRANSACTION DETAILS ===
-ID: ${transaction.id}
-Time: ${transaction.time}
-User: ${transaction.user}
-Action: ${transaction.action}
-${transaction.amount ? `Amount: $${transaction.amount}` : ''}
-${transaction.destination ? `Destination: ${transaction.destination}` : ''}
-${transaction.origin ? `Origin: ${transaction.origin}` : 'Origin: bank.com'}
-Status: ${transaction.status}
-CSRF: ${transaction.csrf ? 'YES ⚠️' : 'NO ✓'}
+                return `${t.terminal.transaction.title}
+${t.terminal.transaction.id}: ${transaction.id}
+${t.terminal.transaction.time}: ${transaction.time}
+${t.terminal.transaction.user}: ${transaction.user}
+${t.terminal.transaction.action}: ${transaction.action}
+${transaction.amount ? `${t.terminal.transaction.amount}: $${transaction.amount}` : ''}
+${transaction.destination ? `${t.terminal.transaction.destination}: ${transaction.destination}` : ''}
+${transaction.origin ? `${t.terminal.transaction.origin}: ${transaction.origin}` : `${t.terminal.transaction.origin}: ${t.terminal.transaction.fields.originDefault}`}
+${t.terminal.transaction.status}: ${transaction.status}
+${t.terminal.transaction.csrfField}: ${transaction.csrf ? t.terminal.transaction.yes : t.terminal.transaction.no}
 
-${transaction.csrf && attackActive ? 'Risk: CRITICAL - Forged request executed!' : 'Status: Safe'}`;
+${transaction.csrf && attackActive ? t.terminal.transaction.risk : t.terminal.transaction.safe}`;
             },
 
             'identify-csrf': () => {
                 setCsrfType('CLASSIC_CSRF');
                 setCurrentStep(1);
-                return `=== CSRF ATTACK IDENTIFICATION ===
-Type: CLASSIC CSRF (Cross-Site Request Forgery)
-Description: Unauthorized state-changing requests
-Attack Vector: External sites submitting authenticated requests
-Impact: Unauthorized transfers, account changes, data theft
+                return `${t.terminal.identify.title}
+${t.terminal.identify.type}: CLASSIC CSRF (Cross-Site Request Forgery)
+${t.terminal.identify.desc}
+${t.terminal.identify.vector}
+${t.terminal.identify.impact}
 
-Attack Characteristics:
-- Requests from unexpected origins
-- Missing CSRF tokens
-- Auto-submitted forms from malicious sites
-- Session cookies sent automatically
+${t.terminal.identify.chars.title}
+${t.terminal.identify.chars.list[0]}
+${t.terminal.identify.chars.list[1]}
+${t.terminal.identify.chars.list[2]}
+${t.terminal.identify.chars.list[3]}
 
-✓ CSRF attack type identified successfully!`;
+${t.terminal.identify.success}`;
             },
 
             'enable-csrf-tokens': () => {
                 if (protectionsEnabled.csrfTokens) {
-                    return '[!] CSRF tokens are already enabled';
+                    return t.terminal.enableTokens.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, csrfTokens: true }));
                 setCurrentStep(2);
-                return `[✓] CSRF tokens enabled (Synchronizer Token Pattern)
-[+] Unique token generated per session
-[+] Token required in all state-changing requests
-[+] Server validates token before processing
-[+] CSRF risk: SIGNIFICANTLY REDUCED`;
+                return `${t.terminal.enableTokens.success}
+${t.terminal.enableTokens.details[0]}
+${t.terminal.enableTokens.details[1]}
+${t.terminal.enableTokens.details[2]}
+${t.terminal.enableTokens.details[3]}`;
             },
 
             'enable-samesite': () => {
                 if (protectionsEnabled.sameSiteCookies) {
-                    return '[!] SameSite cookies are already enabled';
+                    return t.terminal.enableSameSite.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, sameSiteCookies: true }));
-                return `[✓] SameSite cookie attribute enabled
-[+] Cookies not sent with cross-site requests
-[+] Policy: SameSite=Strict
-[+] Prevents automatic cookie inclusion
-[+] CSRF risk: REDUCED`;
+                return `${t.terminal.enableSameSite.success}
+${t.terminal.enableSameSite.details[0]}
+${t.terminal.enableSameSite.details[1]}
+${t.terminal.enableSameSite.details[2]}
+${t.terminal.enableSameSite.details[3]}`;
             },
 
             'enable-origin-check': () => {
                 if (protectionsEnabled.originValidation) {
-                    return '[!] Origin validation is already enabled';
+                    return t.terminal.enableOrigin.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, originValidation: true }));
-                return `[✓] Origin/Referer validation enabled
-[+] Checking Origin header on requests
-[+] Blocking requests from external domains
-[+] Expected origin: company-finance.internal
-[+] CSRF risk: REDUCED`;
+                return `${t.terminal.enableOrigin.success}
+${t.terminal.enableOrigin.details[0]}
+${t.terminal.enableOrigin.details[1]}
+${t.terminal.enableOrigin.details[2]}
+${t.terminal.enableOrigin.details[3]}`;
             },
 
             'enable-double-submit': () => {
                 if (protectionsEnabled.doubleSubmitCookie) {
-                    return '[!] Double Submit Cookie is already enabled';
+                    return t.terminal.enableDouble.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, doubleSubmitCookie: true }));
-                return `[✓] Double Submit Cookie pattern enabled
-[+] CSRF token stored in cookie AND request parameter
-[+] Server compares both values
-[+] Attacker cannot read cookie due to SOP
-[+] CSRF risk: REDUCED`;
+                return `${t.terminal.enableDouble.success}
+${t.terminal.enableDouble.details[0]}
+${t.terminal.enableDouble.details[1]}
+${t.terminal.enableDouble.details[2]}
+${t.terminal.enableDouble.details[3]}`;
             },
 
             'restart-app': () => {
                 if (!protectionsEnabled.csrfTokens && !protectionsEnabled.sameSiteCookies) {
-                    return '[!] No security changes detected. Apply protections first.';
+                    return t.terminal.restart.noChanges;
                 }
                 setAppRestarted(true);
-                return `[✓] Company finance portal restarted
-[✓] New security configurations applied
-[✓] CSRF protection status: ${!attackActive ? 'ACTIVE' : 'PARTIAL'}
-${!attackActive ? '[✓] CSRF attack mitigated successfully!' : '[!] Additional protections recommended'}`;
+                return `${t.terminal.restart.success[0]}
+${t.terminal.restart.success[1]}
+${t.terminal.restart.protectionStatus}: ${!attackActive ? 'ACTIVE' : 'PARTIAL'}
+${!attackActive ? t.terminal.restart.mitigated : t.terminal.restart.recommended}`;
             },
 
             'check-balance': () => {
-                return `=== ACCOUNT STATUS ===
-Current Balance: $${accountBalance.toLocaleString()}
-Original Balance: $${USER_ACCOUNT.balance.toLocaleString()}
-${accountBalance < USER_ACCOUNT.balance ? `Loss: $${(USER_ACCOUNT.balance - accountBalance).toLocaleString()} ⚠️` : 'Status: Secure ✓'}
+                return `${t.terminal.checkBalance.title}
+${t.terminal.checkBalance.current}: $${accountBalance.toLocaleString()}
+${t.terminal.checkBalance.original}: $${USER_ACCOUNT.balance.toLocaleString()}
+${accountBalance < USER_ACCOUNT.balance ? `${t.terminal.checkBalance.loss}: $${(USER_ACCOUNT.balance - accountBalance).toLocaleString()} ⚠️` : `${t.terminal.checkBalance.secure} ✓`}
 
-${accountBalance < USER_ACCOUNT.balance ? 'WARNING: Unauthorized transfer detected!' : 'No unauthorized transactions'}`;
+${accountBalance < USER_ACCOUNT.balance ? t.terminal.checkBalance.warning : t.terminal.checkBalance.noUnauthorized}`;
             },
 
             'scan-vulnerabilities': () => {
                 const vulns = [];
-                if (!protectionsEnabled.csrfTokens) vulns.push('- Missing CSRF tokens');
-                if (!protectionsEnabled.sameSiteCookies) vulns.push('- SameSite cookies not configured');
-                if (!protectionsEnabled.originValidation) vulns.push('- No Origin/Referer validation');
-                if (!protectionsEnabled.doubleSubmitCookie) vulns.push('- Double Submit Cookie not implemented');
+                if (!protectionsEnabled.csrfTokens) vulns.push(t.terminal.scan.missingTokens);
+                if (!protectionsEnabled.sameSiteCookies) vulns.push(t.terminal.scan.sameSite);
+                if (!protectionsEnabled.originValidation) vulns.push(t.terminal.scan.origin);
+                if (!protectionsEnabled.doubleSubmitCookie) vulns.push(t.terminal.scan.double);
 
-                return `=== CSRF VULNERABILITY SCAN ===
-${vulns.length > 0 ? 'VULNERABILITIES FOUND:\n' + vulns.join('\n') : '✓ No critical vulnerabilities detected'}
+                return `${t.terminal.scan.title}
+${vulns.length > 0 ? `${t.terminal.scan.found}\n` + vulns.join('\n') : t.terminal.scan.noVulns}
 
-Recommendations:
-1. Implement CSRF tokens (CRITICAL)
-2. Enable SameSite cookies (HIGH)
-3. Validate Origin/Referer headers (HIGH)
-4. Consider Double Submit Cookie pattern (MEDIUM)`;
+${t.terminal.scan.recommendationsTitle}
+${t.terminal.scan.recsList[0]}
+${t.terminal.scan.recsList[1]}
+${t.terminal.scan.recsList[2]}
+${t.terminal.scan.recsList[3]}`;
             },
 
             'status': () => {
-                return `=== SECURITY STATUS ===
-CSRF Attack Active: ${attackActive ? '🔴 YES' : '🟢 NO'}
-Unauthorized Actions: ${unauthorizedActions ? '🔴 YES' : '🟢 NO'}
-App Status: ${appRestarted ? 'RESTARTED' : 'RUNNING'}
-CSRF Type Identified: ${csrfType || 'NOT YET'}
-Account Balance: $${accountBalance.toLocaleString()}
+                return `${t.terminal.status.title}
+${t.terminal.status.attackActive}: ${attackActive ? '🔴 YES' : '🟢 NO'}
+${t.terminal.status.unauthorized}: ${unauthorizedActions ? '🔴 YES' : '🟢 NO'}
+${t.terminal.status.appStatus}: ${appRestarted ? 'RESTARTED' : 'RUNNING'}
+${t.terminal.status.typeIdentified}: ${csrfType || 'NOT YET'}
+${t.browser.portal.account.balance}: $${accountBalance.toLocaleString()}
 
-Active Protections:
-- CSRF Tokens: ${protectionsEnabled.csrfTokens ? '✓' : '✗'}
-- SameSite Cookies: ${protectionsEnabled.sameSiteCookies ? '✓' : '✗'}
-- Origin Validation: ${protectionsEnabled.originValidation ? '✓' : '✗'}
-- Double Submit: ${protectionsEnabled.doubleSubmitCookie ? '✓' : '✗'}`;
+${t.browser.dashboard.protections.title}
+- ${t.browser.dashboard.protections.tokens}: ${protectionsEnabled.csrfTokens ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.sameSite}: ${protectionsEnabled.sameSiteCookies ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.origin}: ${protectionsEnabled.originValidation ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.double}: ${protectionsEnabled.doubleSubmitCookie ? '✓' : '✗'}`;
             }
         },
         prompt: 'csrf-defense@bank:~$',
@@ -891,39 +894,35 @@ Active Protections:
 
         switch (currentStep) {
             case 0:
-                return 'Nel SIEM analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Nel TERMINALE usa "analyze-requests" per analizzare i dettagli della richiesta CSRF.';
+                return t.hints.step0;
             case 1:
-                return 'Hai identificato CSRF! Nel TERMINALE usa "enable-csrf-tokens" per aggiungere token di verifica alle richieste state-changing (transfer, delete, etc).';
+                return t.hints.step1;
             case 2:
-                return 'Nel TERMINALE aggiungi "enable-samesite" per protezione extra sui cookie, poi usa "restart-app" per riavviare l\'applicazione con le nuove protezioni.';
+                return t.hints.step2;
             case 3: {
-                const hints = [
-                    '✅ Bene! Le protezioni CSRF sono attive. Nel TERMINALE usa "status" per verificare i token, poi controlla il balance nel BROWSER.',
-                    'Ricorda: CSRF tokens e SameSite cookies proteggono dalle richieste non autorizzate provenienti da siti malvagi. Nel TERMINALE verifica con "status".',
-                    'Stai per completare il livello! Nel TERMINALE assicurati che "enable-csrf-tokens" e "enable-samesite" siano entrambi attivi, poi verifica i fondi nel BROWSER.'
-                ];
+                const hints = t.hints.step3;
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return '✅ Nel TERMINALE controlla lo stato con "status" e verifica il balance nel BROWSER!';
+                return t.hints.default;
         }
     };
 
     // === STATISTICHE FINALI ===
     const additionalStats = [
         {
-            label: 'Protezioni attivate',
+            label: t.stats.protections,
             value: Object.values(protectionsEnabled).filter(Boolean).length,
             color: Object.values(protectionsEnabled).filter(Boolean).length >= 2 ? 'text-cyber-green' : 'text-yellow-400'
         },
         {
-            label: 'Fondi protetti',
+            label: t.stats.funds,
             value: `$${accountBalance.toLocaleString()}`,
             color: accountBalance === USER_ACCOUNT.balance ? 'text-cyber-green' : 'text-red-500'
         },
         {
-            label: 'Tipo CSRF identificato',
-            value: csrfType || 'Non identificato',
+            label: t.stats.csrfType,
+            value: csrfType || t.stats.notIdentified,
             color: csrfType ? 'text-cyber-green' : 'text-yellow-400'
         }
     ];
@@ -958,12 +957,12 @@ Active Protections:
                         stats={{ stars }}
                         recapText={missionSuccess ?
                             `CSRF DEFENSE ANALYSIS\n\n` +
-                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
-                            `Unauthorized actions: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
-                            `Account balance: $${accountBalance.toLocaleString()}\n` +
-                            `Tempo completamento: ${completionTime}s\n\n` +
-                            `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`
-                            : 'Account funds were stolen through successful CSRF attacks.\n\nActivate CSRF tokens and SameSite cookie protection before restarting.'}
+                            `${t.browser.dashboard.protections.title}: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
+                            `${t.browser.dashboard.risk.unauthorized}: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
+                            `${t.browser.portal.account.balance}: $${accountBalance.toLocaleString()}\n` +
+                            `${t.debrief.time}: ${completionTime}s\n\n` +
+                            `${!attackActive && !unauthorizedActions ? t.debrief.success : t.debrief.completed}`
+                            : t.debrief.fail}
                         onRetry={() => window.location.reload()}
                         onExit={() => navigate('/map')}
                     />

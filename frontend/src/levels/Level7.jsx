@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import LevelTemplate, { useLevel, LevelTemplateContent } from '../components/LevelTemplate';
 import { LevelProvider } from '../contexts/LevelContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 import SIEMSystem from '../components/SIEMSystem';
 import Terminal from '../components/Terminal';
 import ReverseEngineeringViewer from '../components/ReverseEngineeringViewer';
@@ -15,6 +17,9 @@ const MissionDebriefWrapper = ({ stats, ...props }) => {
 };
 
 const Level7Content = () => {
+    const { language } = useLanguage();
+    const t = translations[language]?.level7 || translations['italiano'].level7;
+
     const {
         health,
         damage: takeDamage,
@@ -133,13 +138,13 @@ int main() {
     }, []);
 
     const [logs, setLogs] = useState([
-        { id: 1, timestamp: '10:00:01', source: '192.168.1.10', severity: 'low', message: 'System startup', threat: false },
-        { id: 2, timestamp: '10:05:22', source: '192.168.1.15', severity: 'low', message: 'User login', threat: false },
+        { id: 1, timestamp: '10:00:01', source: '192.168.1.10', severity: 'low', message: 'startup', threat: false },
+        { id: 2, timestamp: '10:05:22', source: '192.168.1.15', severity: 'low', message: 'login', threat: false },
     ]);
 
     const [terminalHistory, setTerminalHistory] = useState([
         '$ CyberShield OS v4.5.2',
-        '$ Waiting for tasks...'
+        t.terminal.waiting
     ]);
 
     const [currentFileKey, setCurrentFileKey] = useState(null);
@@ -161,18 +166,13 @@ int main() {
 
     const getHintText = () => {
         switch (phase) {
-            case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
+            case 0: return t.hints.phase0;
             case 1:
-                const hints = [
-                    "Abbiamo rilevato che 'auth.exe' garantisce l'accesso a chiunque. Sembra esserci un grave errore di programmazione (Debug Mode lasciato attivo).",
-                    "Analizza il codice C decompilato tramite 'RE Tool'. Cerca la funzione 'check_credentials'. Noti qualcosa di strano nell'istruzione IF?",
-                    "L'istruzione 'if(1)' (o if(true)) rende la condizione sempre vera, bypassando ogni controllo. Dobbiamo ripristinare la sicurezza.",
-                    "Modifica il codice: sostituisci 'if(1)' con un controllo sul codice di sicurezza. Il codice corretto dovrebbe essere 195932126 (0xBADC0DE). Es: 'if (input_code == 195932126)'"
-                ];
+                const hints = t.hints.phase1;
                 return hints[Math.min(hintIndex, hints.length - 1)];
-            case 2: return "Ora che hai ripristinato la sicurezza, tramite terminale compila con 'build' ed esegui './auth.exe' per verificare che l'accesso sia protetto.";
-            case 3: return "Perfetto, ora fallo di nuovo. 'updater.exe' ha un problema opposto. Blocca anche gli aggiornamenti validi. Analizzalo e correggi la logica.";
-            case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come hai imparato.";
+            case 2: return t.hints.phase2;
+            case 3: return t.hints.phase3;
+            case 4: return t.hints.phase4;
             default: return null;
         }
     };
@@ -197,7 +197,7 @@ int main() {
                     timestamp: '10:11:45',
                     source: 'INTERNAL',
                     severity: 'critical',
-                    message: 'Auth Bypass Detected: Admin access granted to anonymous user.',
+                    message: 'bypass',
                     threat: true
                 };
                 setLogs(prev => [...prev, newLog]);
@@ -208,7 +208,7 @@ int main() {
 
     const handleLogClick = (log) => {
         if (log.threat && phase === 0) {
-            setTerminalHistory(prev => [...prev, '$ ALERT: Vulnerability detected in "auth.exe".', '$ ACTION REQUIRED: Fix the security check logic.']);
+            setTerminalHistory(prev => [...prev, t.terminal.alert, t.terminal.action]);
             setPhase(1);
         }
     };
@@ -223,10 +223,10 @@ int main() {
         }));
 
         if (phase === 1 && fileKey === 'auth.exe') {
-            setTerminalHistory(prev => [...prev, '$ auth.exe patched. Ready to compile & test.']);
+            setTerminalHistory(prev => [...prev, t.terminal.authPatched]);
             setPhase(2);
         } else if (phase === 3 && fileKey === 'updater.exe') {
-            setTerminalHistory(prev => [...prev, '$ updater.exe patched. Ready to compile & test.']);
+            setTerminalHistory(prev => [...prev, t.terminal.updaterPatched]);
             setPhase(4);
         }
     };
@@ -235,9 +235,9 @@ int main() {
         const cmd = args.length > 0 ? fullCommand.split(' ')[0] : fullCommand;
 
         if (cmd === 'gcc' || cmd === 'make' || cmd === 'build') {
-            if (phase === 2) return "$ Compiling auth.exe... OK. (Binary patched)";
-            if (phase === 4) return "$ Compiling updater.exe... OK. (Binary patched)";
-            return "$ Nothing to compile.";
+            if (phase === 2) return t.terminal.compilingAuth;
+            if (phase === 4) return t.terminal.compilingUpdater;
+            return t.terminal.nothing;
         }
 
         if (cmd === './auth.exe' && phase === 2) {
@@ -248,11 +248,11 @@ int main() {
                 heal(10);
                 addStar(); // Prima stella (uguale a prima)
                 setTerminalHistory(prev => [...prev,
-                    '> Executing auth.exe...',
-                    '> Enter Access Code: 195932126',
-                    '[SUCCESS] Access Granted! System Unlocked.',
-                    '$ STATUS: Vulnerability fixed. Code is now required.',
-                    '$ INSTRUCTION: Now analyze "updater.exe". It has a similar flaw.'
+                t.terminal.execAuth,
+                t.terminal.enterCode,
+                t.terminal.accessGranted,
+                t.terminal.vulnFixed,
+                t.terminal.nextInstruction
                 ]);
                 setTimeout(() => {
                     setPhase(3);
@@ -265,10 +265,10 @@ int main() {
             } else {
                 takeDamage(10);
                 return [
-                    '> Executing auth.exe...',
+                    t.terminal.execAuth,
                     '> Enter Access Code: 0000',
-                    '[SUCCESS] Access Granted! System Unlocked.',
-                    '$ FAIL: The system still accepts ANY code! You must restrict it.'
+                    t.terminal.accessGranted,
+                    t.terminal.failAuth
                 ];
             }
         }
@@ -300,9 +300,9 @@ int main() {
                 }
 
                 setTerminalHistory(prev => [...prev,
-                    '> Executing updater.exe...',
-                    '[SUCCESS] Signature Verified (Bypassed). Running update...',
-                    '$ MISSION ACCOMPLISHED.'
+                t.terminal.execUpdater,
+                t.terminal.sigVerified,
+                t.terminal.missionAccomplished
                 ]);
                 setTimeout(() => {
                     setPhase(5);
@@ -312,9 +312,9 @@ int main() {
             } else {
                 takeDamage(15);
                 return [
-                    '> Executing updater.exe...',
-                    '[ERROR] Signature Verification Failed!',
-                    '$ FAIL: The update service blocked the execution.'
+                    t.terminal.execUpdater,
+                    t.terminal.sigFailed,
+                    t.terminal.failUpdater
                 ];
             }
         }
@@ -344,7 +344,7 @@ int main() {
                     success={gameState === 'won'}
                     levelId="level7"
                     stats={{ stars }}
-                    recapText={gameState === 'won' ? winRecap : lossRecap}
+                    recapText={gameState === 'won' ? t.debrief.win : t.debrief.loss}
                     onRetry={() => window.location.reload()}
                     onExit={() => navigate('/map')}
                 />
@@ -354,13 +354,13 @@ int main() {
 
     return (
         <LevelTemplateContent
-            title="Level 7: Reverse Engineering & Patching"
-            subtitle="Analyze binary logic and bypass security controls"
+            title={t.title}
+            subtitle={t.subtitle}
             health={health}
             stars={stars}
             hint={visibleHint ? <InfoPanel text={visibleHint} /> : null}
             siemConfig={{
-                logs: logs,
+                logs: logs.map(log => ({ ...log, message: t.siem[log.message] || log.message })),
                 blockedIPs: 1,
                 currentStep: phase,
                 onLogClick: handleLogClick
@@ -373,7 +373,7 @@ int main() {
                     './auth.exe': (args) => runTerminalCommand(args, './auth.exe'),
                     './updater.exe': (args) => runTerminalCommand(args, './updater.exe'),
                     'ls': (args) => runTerminalCommand(args, 'ls'),
-                    'help': () => "Available: ls, build, ./auth.exe, ./updater.exe"
+                    'help': () => t.terminal.help
                 }
             }}
             revEngConfig={{

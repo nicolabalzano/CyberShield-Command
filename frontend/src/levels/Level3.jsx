@@ -4,6 +4,8 @@ import { LevelProvider, useLevel } from '../contexts/LevelContext';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 
 /**
  * LEVEL 3: SQL INJECTION DEFENSE
@@ -25,6 +27,8 @@ const Level3Content = () => {
     const [stars, setStars] = useState(0);
     const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
     const navigate = useNavigate();
+    const { language } = useLanguage();
+    const t = translations[language]?.level3 || translations['italiano'].level3;
 
     const addStar = () => setStars(prev => Math.min(prev + 1, 3));
 
@@ -80,14 +84,22 @@ if ($_POST['action'] == 'login') {
 
     // Log SIEM
     const [logs, setLogs] = useState([
-        { id: 1, timestamp: '15:42:15', source: '192.168.1.100', severity: 'low', message: 'User login attempt - username: john.doe', threat: false },
-        { id: 2, timestamp: '15:43:18', source: '192.168.1.105', severity: 'low', message: 'Normal search query - keyword: laptop', threat: false },
+        { id: 1, timestamp: '15:42:15', source: '192.168.1.100', severity: 'low', message: t.logMessages.loginAttempt, threat: false },
+        { id: 2, timestamp: '15:43:18', source: '192.168.1.105', severity: 'low', message: t.logMessages.searchQuery, threat: false },
     ]);
 
-    const [terminalHistory, setTerminalHistory] = useState([
-        '$ Application Security Terminal v3.0',
-        '$ Monitoring web application...'
-    ]);
+    // Update logs when language changes
+    useEffect(() => {
+        setLogs(prevLogs => prevLogs.map(log => {
+            if (log.id === 1) return { ...log, message: t.logMessages.loginAttempt };
+            if (log.id === 2) return { ...log, message: t.logMessages.searchQuery };
+            if (log.id === 3) return { ...log, message: t.logMessages.sqliDetected };
+            return log;
+        }));
+    }, [language, t]);
+
+    const [terminalHistory, setTerminalHistory] = useState(t.terminal.initial);
+
     // Gestione hint progressivi
     useEffect(() => {
         setHintIndex(0);
@@ -105,17 +117,17 @@ if ($_POST['action'] == 'login') {
     const getHintText = () => {
         switch (phase) {
             case 0:
-                return "Monitora il SIEM e attendi un alert SQL Injection.";
+                return t.hints.step0;
             case 1:
                 const hints = [
-                    "Apri CODE EDITOR e analizza 'login.php' - è vulnerabile a SQL Injection.",
-                    "La query concatena direttamente input utente. Attaccante usa: admin' OR '1'='1",
-                    "Usa i PREPARED STATEMENT, compilano la query PRIMA dei dati. Ciò rende SQL injection impossibile.",
-                    "Ecco un esempio di come implementare i PREPARED STATEMENT:\n\$query = \$db->prepare(\"SELECT * FROM users WHERE username=? AND password=?\");\n\$query->bind_param(\"ss\", \$username, \$password);",
+                    t.hints.step1,
+                    t.hints.step2,
+                    t.hints.step3,
+                    t.hints.stepCode,
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             case 2:
-                return "Modifica completata! Usa 'test-login' nel TERMINALE.";
+                return t.hints.step4;
             default:
                 return null;
         }
@@ -130,7 +142,7 @@ if ($_POST['action'] == 'login') {
             }, 400);
             return () => clearTimeout(timeout);
         }
-    }, [phase, hintIndex]);
+    }, [phase, hintIndex, language]);
 
     // Alert SQL injection dopo 5 secondi
     useEffect(() => {
@@ -141,14 +153,17 @@ if ($_POST['action'] == 'login') {
                     timestamp: '15:43:22',
                     source: '203.0.113.55',
                     severity: 'critical',
-                    message: "SQL Injection detected! Payload: admin' OR '1'='1 -- Access granted to unauthorized user.",
+                    message: t.logMessages.sqliDetected,
                     threat: true
                 };
-                setLogs(prev => [...prev, newLog]);
+                setLogs(prev => {
+                    if (prev.find(l => l.id === 3)) return prev;
+                    return [...prev, newLog];
+                });
             }, 5000);
             return () => clearTimeout(timer);
         }
-    }, [phase]);
+    }, [phase, t.logMessages.sqliDetected]);
 
     const handleLogClick = (log) => {
         if (log.threat && phase === 0) {
@@ -157,10 +172,7 @@ if ($_POST['action'] == 'login') {
                 setAnalyzedLog(true);
                 addStar();
             }
-            setTerminalHistory(prev => [...prev,
-                '$ ALERT: SQL Injection vulnerability detected in login.php',
-                '$ ACTION REQUIRED: Fix the query to use prepared statements.'
-            ]);
+            setTerminalHistory(prev => [...prev, ...t.terminal.alert]);
             setPhase(1);
         }
     };
@@ -176,7 +188,7 @@ if ($_POST['action'] == 'login') {
         }));
 
         if (phase === 1 && fileKey === 'login.php') {
-            setTerminalHistory(prev => [...prev, '$ login.php modified. Ready to test.']);
+            setTerminalHistory(prev => [...prev, t.terminal.modified]);
             setPhase(2);
         }
     };
@@ -194,13 +206,14 @@ if ($_POST['action'] == 'login') {
             if (usesPreparedStatements && !stillVulnerable) {
                 heal(20);
                 addStar();
-                setTerminalHistory(prev => [...prev,
-                    '> Testing login with SQLi payload...',
-                    "> Input: username=admin' OR '1'='1",
-                    '[SUCCESS] Input rejected - Prepared statement protected the query.',
-                    '[SUCCESS] Authentication bypass PREVENTED.',
-                    '$ MISSION ACCOMPLISHED! SQL Injection vulnerability patched.'
-                ]);
+                // Success messages
+                const successMsgs = [
+                    t.terminal.testLogin.testing,
+                    t.terminal.testLogin.input,
+                    ...t.terminal.testLogin.success
+                ];
+                setTerminalHistory(prev => [...prev, ...successMsgs]);
+
                 setTimeout(() => {
                     setPhase(3);
                     setGameState('won');
@@ -209,10 +222,9 @@ if ($_POST['action'] == 'login') {
             } else {
                 takeDamage(15);
                 return [
-                    '> Testing login with SQLi payload...',
-                    "> Input: username=admin' OR '1'='1",
-                    '[FAIL] Unauthorized access granted! Query still vulnerable.',
-                    '$ ERROR: You must use prepared statements with parameter binding.'
+                    t.terminal.testLogin.testing,
+                    t.terminal.testLogin.input,
+                    ...t.terminal.testLogin.fail
                 ];
             }
         }
@@ -223,13 +235,13 @@ if ($_POST['action'] == 'login') {
                 setUsedAnalyzeCode(true);
                 addStar();
             }
-            return `=== CODE ANALYSIS: login.php ===
-Vulnerability: SQL INJECTION (High Severity)
-Location: authenticate_user() function
-Issue: Direct string concatenation in SQL query
-Attack Vector: ' OR '1'='1 --
+            return `${t.terminal.analyzeCode.header}
+${t.terminal.analyzeCode.vuln}
+${t.terminal.analyzeCode.loc}
+${t.terminal.analyzeCode.issue}
+${t.terminal.analyzeCode.vector}
 
-Recommendation: Use prepared statements with mysqli_prepare()`;
+${t.terminal.analyzeCode.rec}`;
         }
 
         if (cmd === 'show-logs') {
@@ -238,7 +250,7 @@ Recommendation: Use prepared statements with mysqli_prepare()`;
             ).join('\n\n');
         }
 
-        return `Command not found: ${cmd}`;
+        return `${t.terminal.notFound} ${cmd}`;
     };
 
     // Win/Loss logic
@@ -249,20 +261,14 @@ Recommendation: Use prepared statements with mysqli_prepare()`;
     }, [health, gameState]);
 
     if (gameState !== 'playing') {
-        const winRecap = `VULNERABILITÀ IDENTIFICATA: SQL Injection via String Concatenation.
-
-Hai dimostrato come query SQL costruite tramite concatenazione di stringhe sono vulnerabili all'injection.
-
-LEZIONE APPRESA: Usa sempre prepared statements e parametri vincolati per proteggere il database da input malevoli.`;
-
-        const lossRecap = `MISSIONE FALLITA. Il database è stato compromesso o troppi errori commessi.`;
-
         return (
             <MissionDebrief
                 success={gameState === 'won'}
                 levelId="level3"
                 stats={{ stars, health }}
-                recapText={gameState === 'won' ? winRecap : lossRecap}
+                recapText={gameState === 'won'
+                    ? `${t.debrief.winTitle}\n\n${t.debrief.winBody}\n\n${t.debrief.lesson}`
+                    : t.debrief.loss}
                 onRetry={() => window.location.reload()}
                 onExit={() => navigate('/map')}
             />
@@ -285,7 +291,7 @@ LEZIONE APPRESA: Usa sempre prepared statements e parametri vincolati per proteg
                     'test-login': (args) => runTerminalCommand(args, 'test-login'),
                     'analyze-code': (args) => runTerminalCommand(args, 'analyze-code'),
                     'show-logs': (args) => runTerminalCommand(args, 'show-logs'),
-                    'help': () => "Available: analyze-code, test-login, show-logs"
+                    'help': () => t.terminal.help
                 }
             }}
             codeEditorConfig={{

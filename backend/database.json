@@ -14,15 +14,15 @@
             "level4": 0,
             "level5": 0,
             "level6": 0,
-            "level7": 0,
+            "level7": 2,
             "level8": 0,
-            "level9": 0
+            "level9": 2
         },
         "settings": {
             "language": "italiano",
             "musicVolume": 10,
             "sfxVolume": 50
         },
-        "lastSaved": "2026-01-25T12:27:51.403294"
+        "lastSaved": "2026-01-25T13:46:53.170953"
     }
 }

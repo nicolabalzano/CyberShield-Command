@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -192,6 +194,8 @@ const Level4 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars, earnStar } = useReputation('level4', 0);
+    const { language } = useLanguage();
+    const t = translations[language]?.level4 || translations['italiano'].level4;
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // XSS attivo
@@ -202,7 +206,34 @@ const Level4 = () => {
         outputEscaping: false,
         httpOnlyCookies: false
     });
-    const [comments, setComments] = useState(INITIAL_COMMENTS); // Commenti
+
+    // Initial comments moved here to use translations if needed, but for now we keep them static or mapped?
+    // Actually, comments text is in t.browser.portal.comments
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        // Initialize comments from translations
+        const initialComments = t.browser.portal.comments.map((c, index) => {
+            // Map original properties to translated ones
+            // We need to preserve the logic (safe/unsafe) which was in the original constant
+            // Original indices: 0 (safe), 1 (safe), 2 (unsafe), 3 (safe), 4 (unsafe), 5 (unsafe)
+            const isSafe = [0, 1, 3].includes(index);
+            const xssType = index === 2 || index === 4 || index === 5 ? 'STORED_XSS' : undefined;
+            const users = ['john.doe', 'alice.smith', 'attacker', 'bob.johnson', 'malicious_user', 'eve.hacker'];
+            const times = ['16:30:12', '16:32:45', '16:35:18', '16:38:50', '16:40:22', '16:42:15'];
+
+            return {
+                id: c.id,
+                user: users[index],
+                time: times[index],
+                text: c.text,
+                safe: isSafe,
+                xssType: xssType
+            };
+        });
+        setComments(initialComments);
+    }, [language, t]); // Re-initialize when language changes (resetting state potentially, which might be acceptable or we just update text)
+
     const [appRestarted, setAppRestarted] = useState(false);
     const [xssType, setXssType] = useState(''); // Tipo identificato
 
@@ -254,7 +285,7 @@ const Level4 = () => {
             }, 400);
             return () => clearTimeout(timeout);
         }
-    }, [currentStep, hintIndex]);
+    }, [currentStep, hintIndex, language]);
 
     // Timer logic - countdown every second
     useEffect(() => {
@@ -332,10 +363,8 @@ const Level4 = () => {
                     return comment;
                 })
             );
-        } else {
-            // Ripristina commenti originali
-            setComments(INITIAL_COMMENTS);
         }
+        // Note: Re-initialization handled by the other useEffect when language changes
     }, [protectionsEnabled.htmlSanitization, protectionsEnabled.outputEscaping]);
 
     // === CONDIZIONE DI COMPLETAMENTO ===
@@ -360,16 +389,16 @@ const Level4 = () => {
         availableSites: [
             {
                 url: 'http://company-portal.internal/announcements',
-                title: 'Employee Portal',
+                title: t.browser.portal.title,
                 icon: '💬',
                 content: (
                     <div className={`p-6 h-full overflow-y-auto ${attackActive ? 'bg-red-50' : 'bg-green-50'}`}>
                         <div className="max-w-3xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
-                                <h1 className="text-2xl font-bold text-gray-800">💬 Company Employee Portal</h1>
+                                <h1 className="text-2xl font-bold text-gray-800">💬 {t.browser.portal.header}</h1>
                                 <div className={`px-3 py-1 rounded-full text-sm font-bold ${attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
                                     }`}>
-                                    {attackActive ? '⚠️ VULNERABLE' : '✅ SECURE'}
+                                    {attackActive ? t.browser.portal.vulnerable : t.browser.portal.secure}
                                 </div>
                             </div>
 
@@ -380,15 +409,15 @@ const Level4 = () => {
                                 }`}>
                                 {attackActive ? (
                                     <div className="text-red-800">
-                                        <p className="font-bold mb-1">⚠️ SECURITY WARNING</p>
-                                        <p className="text-sm">XSS vulnerabilities detected! User input is not sanitized.</p>
-                                        <p className="text-xs mt-1">Risk: Cookie theft, session hijacking, malicious redirects</p>
+                                        <p className="font-bold mb-1">{t.browser.portal.warningTitle}</p>
+                                        <p className="text-sm">{t.browser.portal.warningText}</p>
+                                        <p className="text-xs mt-1">{t.browser.portal.warningRisk}</p>
                                     </div>
                                 ) : (
                                     <div className="text-green-800">
-                                        <p className="font-bold mb-1">✅ SECURE MODE</p>
-                                        <p className="text-sm">Input sanitization active. Content Security Policy enforced.</p>
-                                        <p className="text-xs mt-1">Protection: HTML escaping, CSP headers, HttpOnly cookies</p>
+                                        <p className="font-bold mb-1">{t.browser.portal.secureTitle}</p>
+                                        <p className="text-sm">{t.browser.portal.secureText}</p>
+                                        <p className="text-xs mt-1">{t.browser.portal.secureProt}</p>
                                     </div>
                                 )}
                             </div>
@@ -414,7 +443,7 @@ const Level4 = () => {
                                             {!comment.safe && (
                                                 <span className={`text-xs px-2 py-1 rounded ${attackActive ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
                                                     }`}>
-                                                    {attackActive ? '🚨 XSS' : '🛡️ BLOCKED'}
+                                                    {attackActive ? t.browser.portal.xssLabel : t.browser.portal.blockedLabel}
                                                 </span>
                                             )}
                                         </div>
@@ -434,7 +463,7 @@ const Level4 = () => {
                                         </div>
                                         {!comment.safe && attackActive && (
                                             <div className="mt-2 text-xs text-red-600 font-mono bg-red-50 p-2 rounded">
-                                                ⚠️ This script would execute in a real browser!
+                                                {t.browser.portal.scriptWarning}
                                             </div>
                                         )}
                                     </div>
@@ -443,18 +472,18 @@ const Level4 = () => {
 
                             {/* Comment Form */}
                             <div className="mt-6 bg-white rounded-lg shadow p-4">
-                                <h3 className="font-semibold mb-2 text-gray-800">Add Comment</h3>
+                                <h3 className="font-semibold mb-2 text-gray-800">{t.browser.portal.addComment}</h3>
                                 <textarea
                                     className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
                                     rows={3}
-                                    placeholder="Share your thoughts..."
+                                    placeholder={t.browser.portal.placeholder}
                                     disabled
                                 />
                                 <button
                                     className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                                     disabled
                                 >
-                                    Post Comment
+                                    {t.browser.portal.postBtn}
                                 </button>
                             </div>
                         </div>
@@ -463,45 +492,45 @@ const Level4 = () => {
             },
             {
                 url: 'http://company-portal.internal/security',
-                title: 'Security Dashboard',
+                title: t.browser.dashboard.title,
                 icon: '🔒',
                 content: (
                     <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-6">🔒 Web Security Dashboard</h1>
+                            <h1 className="text-2xl font-bold mb-6">🔒 {t.browser.dashboard.title}</h1>
 
                             {/* Protection Status */}
                             <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span>🛡️</span> Active Protections
+                                    <span>🛡️</span> {t.browser.dashboard.protections.title}
                                 </h2>
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">HTML Sanitization</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.html}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.htmlSanitization ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.htmlSanitization ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.htmlSanitization ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">Content Security Policy (CSP)</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.csp}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.cspEnabled ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.cspEnabled ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.cspEnabled ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">Output Escaping</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.escaping}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.outputEscaping ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.outputEscaping ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.outputEscaping ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
-                                        <span className="text-sm">HttpOnly Cookies</span>
+                                        <span className="text-sm">{t.browser.dashboard.protections.httpOnly}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.httpOnlyCookies ? 'text-green-400' : 'text-red-400'
                                             }`}>
-                                            {protectionsEnabled.httpOnlyCookies ? '✅ ENABLED' : '❌ DISABLED'}
+                                            {protectionsEnabled.httpOnlyCookies ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
                                 </div>
@@ -510,15 +539,15 @@ const Level4 = () => {
                             {/* XSS Risk Analysis */}
                             <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span>📊</span> XSS Risk Analysis
+                                    <span>📊</span> {t.browser.dashboard.risk.title}
                                 </h2>
                                 <div className="space-y-3">
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
-                                            <span>Overall Risk Level</span>
+                                            <span>{t.browser.dashboard.risk.level}</span>
                                             <span className={`font-bold ${attackActive ? 'text-red-400' : 'text-green-400'
                                                 }`}>
-                                                {attackActive ? 'CRITICAL' : 'LOW'}
+                                                {attackActive ? t.browser.dashboard.risk.critical : t.browser.dashboard.risk.low}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
@@ -530,17 +559,17 @@ const Level4 = () => {
                                     </div>
                                     <div className="text-xs text-gray-400">
                                         <p className="mb-1">
-                                            <strong>Detected XSS Payloads:</strong> {
+                                            <strong>{t.browser.dashboard.risk.payloads}</strong> {
                                                 attackActive
-                                                    ? INITIAL_COMMENTS.filter(c => !c.safe).length
+                                                    ? comments.filter(c => !c.safe).length
                                                     : 0
                                             }
                                         </p>
                                         <p className="mb-1">
-                                            <strong>Script Execution:</strong> {scriptExecuted ? 'ACTIVE ⚠️' : 'BLOCKED ✅'}
+                                            <strong>{t.browser.dashboard.risk.execution}</strong> {scriptExecuted ? t.browser.dashboard.risk.active : t.browser.dashboard.risk.blocked}
                                         </p>
                                         <p>
-                                            <strong>User Data at Risk:</strong> {attackActive ? 'YES (Cookies, Sessions)' : 'NO'}
+                                            <strong>{t.browser.dashboard.risk.userData}</strong> {attackActive ? t.browser.dashboard.risk.yes : t.browser.dashboard.risk.no}
                                         </p>
                                     </div>
                                 </div>
@@ -571,23 +600,19 @@ const Level4 = () => {
 
     // === CONFIGURAZIONE TERMINAL ===
     const terminalConfig = {
-        initialHistory: [
-            '$ Web Security Terminal v4.0',
-            '$ Type "help" for available commands',
-            '$ ⚠️  WARNING: XSS vulnerabilities detected in company employee portal!',
-        ],
+        initialHistory: t.terminal.initial,
         commands: {
             'analyze-comments': () => {
                 const unsafeComments = comments.filter(c => !c.safe);
-                return `=== COMMENT ANALYSIS ===
-Total comments: ${comments.length}
-Safe comments: ${comments.filter(c => c.safe).length}
-Suspicious comments: ${unsafeComments.length}
+                return `${t.terminal.analyze.header}
+${t.terminal.analyze.total} ${comments.length}
+${t.terminal.analyze.safe} ${comments.filter(c => c.safe).length}
+${t.terminal.analyze.suspicious} ${unsafeComments.length}
 
-Detected XSS patterns:
+${t.terminal.analyze.patterns}
 ${unsafeComments.map((c, i) => `${i + 1}. User: ${c.user} - Type: ${c.xssType || 'UNKNOWN'}`).join('\n')}
 
-⚠️ Action required: Enable input sanitization!`;
+${t.terminal.analyze.action}`;
             },
 
             'show-payload': (args) => {
@@ -595,11 +620,11 @@ ${unsafeComments.map((c, i) => `${i + 1}. User: ${c.user} - Type: ${c.xssType ||
                 const comment = comments.find(c => c.id === id);
 
                 if (!comment) {
-                    return 'Usage: show-payload <comment_id>\nExample: show-payload 3';
+                    return t.terminal.payload.usage;
                 }
 
                 if (comment.safe) {
-                    return `Comment ${id} is safe - no XSS detected`;
+                    return `${t.terminal.payload.safe.replace('X', id)}`;
                 }
 
                 // Stella 1: analisi payload
@@ -608,17 +633,17 @@ ${unsafeComments.map((c, i) => `${i + 1}. User: ${c.user} - Type: ${c.xssType ||
                     earnStar();
                 }
 
-                return `=== XSS PAYLOAD ANALYSIS ===
+                return `${t.terminal.payload.header}
 Comment ID: ${id}
 User: ${comment.user}
 Payload: ${comment.text}
 
-Attack Vector:
+${t.terminal.payload.vector}
 ${comment.text.includes('<script>') ? '→ <script> tag injection (Classic XSS)' : ''}
 ${comment.text.includes('onerror') ? '→ Event handler injection (onerror attribute)' : ''}
 ${comment.text.includes('<iframe>') ? '→ Iframe injection (DOM manipulation)' : ''}
 
-Risk: ${attackActive ? 'CRITICAL - Script can execute!' : 'MITIGATED - Payload blocked'}`;
+${t.terminal.payload.risk} ${attackActive ? t.terminal.payload.critical : t.terminal.payload.mitigated}`;
             },
 
             'identify-xss': () => {
@@ -628,47 +653,37 @@ Risk: ${attackActive ? 'CRITICAL - Script can execute!' : 'MITIGATED - Payload b
                     earnStar();
                 }
                 setXssType('STORED_XSS');
-                return `=== XSS TYPE IDENTIFICATION ===
-Type: STORED XSS (Persistent XSS)
-Description: Malicious scripts stored in database
-Location: User comments in forum
-Impact: Affects all users viewing the page
+                return `${t.terminal.identify.header}
+${t.terminal.identify.type}
+${t.terminal.identify.desc}
+${t.terminal.identify.loc}
+${t.terminal.identify.impact}
 
-Attack Flow:
-1. Attacker posts comment with <script> tag
-2. Script stored in database
-3. Script executes for every user viewing comments
+${t.terminal.identify.flow}
 
-✓ XSS type identified successfully!`;
+${t.terminal.identify.success}`;
             },
 
             'enable-sanitization': () => {
                 if (protectionsEnabled.htmlSanitization) {
-                    return '[!] HTML sanitization is already enabled';
+                    return t.terminal.enableSanitization.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, htmlSanitization: true }));
                 setCurrentStep(2);
-                return `[✓] HTML sanitization enabled
-[+] Dangerous tags removed: <script>, <iframe>, <object>
-[+] Event handlers stripped: onclick, onerror, onload
-[+] XSS risk: SIGNIFICANTLY REDUCED`;
+                return t.terminal.enableSanitization.success;
             },
 
             'enable-csp': () => {
                 if (protectionsEnabled.cspEnabled) {
-                    return '[!] CSP is already enabled';
+                    return t.terminal.enableCsp.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, cspEnabled: true }));
-                return `[✓] Content Security Policy (CSP) enabled
-[+] Inline scripts blocked
-[+] Unsafe-eval disabled
-[+] Frame-ancestors restricted
-[+] XSS risk: REDUCED`;
+                return t.terminal.enableCsp.success;
             },
 
             'enable-escaping': () => {
                 if (protectionsEnabled.outputEscaping) {
-                    return '[!] Output escaping is already enabled';
+                    return t.terminal.enableEscaping.already;
                 }
                 // Stella 2: output escaping
                 if (!escapingUsed) {
@@ -676,77 +691,151 @@ Attack Flow:
                     earnStar();
                 }
                 setProtectionsEnabled(prev => ({ ...prev, outputEscaping: true }));
-                return `[✓] Output escaping enabled
-[+] HTML entities escaped: < becomes &lt;, > becomes &gt;
-[+] Prevents script execution in rendered content
-[+] XSS risk: ELIMINATED for escaped content`;
+                return t.terminal.enableEscaping.success;
             },
 
             'enable-httponly': () => {
                 if (protectionsEnabled.httpOnlyCookies) {
-                    return '[!] HttpOnly cookies are already enabled';
+                    return t.terminal.enableHttpOnly.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, httpOnlyCookies: true }));
-                return `[✓] HttpOnly cookies enabled
-[+] Cookies inaccessible to JavaScript
-[+] Prevents cookie theft via XSS
-[+] Session hijacking risk: REDUCED`;
+                return t.terminal.enableHttpOnly.success;
             },
 
             'restart-app': () => {
                 if (!protectionsEnabled.htmlSanitization && !protectionsEnabled.httpOnlyCookies) {
-                    return '[!] Abilita almeno sanitization e httponly cookies prima di riavviare.';
+                    return t.terminal.restart.reqBoth;
                 }
                 if (!protectionsEnabled.htmlSanitization) {
-                    return '[!] Manca la sanitization. Usa enable-sanitization prima.';
+                    return t.terminal.restart.reqSanitization;
                 }
                 if (!protectionsEnabled.httpOnlyCookies) {
-                    return '[!] Manca httponly cookies. Usa enable-httponly prima.';
+                    return t.terminal.restart.reqHttpOnly;
                 }
                 setAppRestarted(true);
-                return `[✓] Application restarted
-[✓] Security configurations applied
-[✓] HTML Sanitization: ACTIVE
-[✓] HttpOnly Cookies: ACTIVE
-[✓] XSS attack mitigated successfully!`;
+                return t.terminal.restart.success;
             },
 
             'scan-vulnerabilities': () => {
                 const vulns = [];
-                if (!protectionsEnabled.htmlSanitization) vulns.push('- No input sanitization');
-                if (!protectionsEnabled.cspEnabled) vulns.push('- Missing Content Security Policy');
-                if (!protectionsEnabled.outputEscaping) vulns.push('- No output escaping');
-                if (!protectionsEnabled.httpOnlyCookies) vulns.push('- Cookies accessible to scripts');
+                if (!protectionsEnabled.htmlSanitization) vulns.push(t.terminal.scan.missingSanitization);
+                if (!protectionsEnabled.cspEnabled) vulns.push(t.terminal.scan.missingCsp);
+                if (!protectionsEnabled.outputEscaping) vulns.push(t.terminal.scan.missingEscaping);
+                if (!protectionsEnabled.httpOnlyCookies) vulns.push(t.terminal.scan.missingHttpOnly);
 
-                return `=== VULNERABILITY SCAN ===
-${vulns.length > 0 ? 'VULNERABILITIES FOUND:\n' + vulns.join('\n') : '✓ No critical vulnerabilities detected'}
+                return `${t.terminal.scan.header}
+${vulns.length > 0 ? `${t.terminal.scan.found}\n` + vulns.join('\n') : t.terminal.scan.none}
 
-Recommendations:
-1. Enable HTML sanitization (CRITICAL)
-2. Implement Content Security Policy (HIGH)
-3. Enable output escaping (HIGH)
-4. Set HttpOnly flag on cookies (MEDIUM)`;
+${t.terminal.scan.recs}`;
             },
 
             'status': () => {
-                return `=== SECURITY STATUS ===
-XSS Attack Active: ${attackActive ? '🔴 YES' : '🟢 NO'}
-Script Execution: ${scriptExecuted ? '🔴 ACTIVE' : '🟢 BLOCKED'}
-App Status: ${appRestarted ? 'RESTARTED' : 'RUNNING'}
-XSS Type Identified: ${xssType || 'NOT YET'}
+                return `${t.terminal.status.header}
+${t.terminal.status.active} ${attackActive ? t.terminal.status.yes : t.terminal.status.no}
+${t.terminal.status.execution} ${scriptExecuted ? t.terminal.status.activeState : t.terminal.status.blockedState}
+${t.terminal.status.app} ${appRestarted ? t.terminal.status.restarted : t.terminal.status.running}
+${t.terminal.status.identified} ${xssType || t.terminal.status.notYet}
 
-Active Protections:
-- HTML Sanitization: ${protectionsEnabled.htmlSanitization ? '✓' : '✗'}
-- CSP: ${protectionsEnabled.cspEnabled ? '✓' : '✗'}
-- Output Escaping: ${protectionsEnabled.outputEscaping ? '✓' : '✗'}
-- HttpOnly Cookies: ${protectionsEnabled.httpOnlyCookies ? '✓' : '✗'}`;
+${t.terminal.status.protections}
+- ${t.browser.dashboard.protections.html}: ${protectionsEnabled.htmlSanitization ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.csp}: ${protectionsEnabled.cspEnabled ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.escaping}: ${protectionsEnabled.outputEscaping ? '✓' : '✗'}
+- ${t.browser.dashboard.protections.httpOnly}: ${protectionsEnabled.httpOnlyCookies ? '✓' : '✗'}`;
             }
         },
         prompt: 'websec@xss-defense:~$',
-        helpCommand: true
+        helpCommand: true,
+        helpDescription: t.terminal.help
     };
 
+
     // === CONFIGURAZIONE SIEM ===
+    // Moved generateXSSLogs inside to access translations
+    const generateXSSLogs = (attackActive, sanitizationEnabled) => [
+        {
+            id: 1,
+            time: '16:30:15',
+            severity: 'low',
+            source: '192.168.1.100',
+            type: 'INFO',
+            message: t.logMessages.sanitizedFalse,
+            threat: false
+        },
+        {
+            id: 2,
+            time: '16:35:20',
+            severity: attackActive ? 'critical' : 'medium',
+            source: '203.0.113.66',
+            type: attackActive ? 'ALERT' : 'WARNING',
+            message: attackActive
+                ? t.logMessages.payloadDetected
+                : t.logMessages.blockedScript,
+            threat: attackActive
+        },
+        {
+            id: 3,
+            time: '16:35:22',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.66',
+            type: attackActive ? 'SECURITY' : 'INFO',
+            message: attackActive
+                ? t.logMessages.criticalExec
+                : t.logMessages.cspActive,
+            threat: attackActive
+        },
+        {
+            id: 4,
+            time: '16:38:52',
+            severity: 'low',
+            source: '192.168.1.105',
+            type: 'INFO',
+            message: t.logMessages.normalActivity,
+            threat: false
+        },
+        {
+            id: 5,
+            time: '16:40:25',
+            severity: attackActive ? 'high' : 'medium',
+            source: '198.51.100.88',
+            type: attackActive ? 'ALERT' : 'WARNING',
+            message: attackActive
+                ? t.logMessages.onerrorActive
+                : t.logMessages.sanitizationActive,
+            threat: attackActive
+        },
+        {
+            id: 6,
+            time: '16:42:18',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.77',
+            type: attackActive ? 'ALERT' : 'INFO',
+            message: attackActive
+                ? t.logMessages.iframeInjection
+                : t.logMessages.cspBlocked,
+            threat: attackActive
+        },
+        {
+            id: 7,
+            time: '16:43:05',
+            severity: 'low',
+            source: '192.168.1.100',
+            type: 'INFO',
+            message: t.logMessages.sessionNormal,
+            threat: false
+        },
+        {
+            id: 8,
+            time: '16:45:30',
+            severity: attackActive ? 'critical' : 'low',
+            source: '203.0.113.66',
+            type: attackActive ? 'ALERT' : 'INFO',
+            message: attackActive
+                ? t.logMessages.multipleAttempts
+                : t.logMessages.allSanitized,
+            threat: attackActive
+        }
+    ];
+
     const siemConfig = {
         logs: generateXSSLogs(attackActive, protectionsEnabled.htmlSanitization),
         blockedIPs: 0,
@@ -778,11 +867,11 @@ Active Protections:
         if (completed) return '';
 
         const hints = [
-            'Il portale aziendale mostra comportamenti anomali. Controlla i commenti nel BROWSER per capire cosa sta succedendo.',
-            'Alcuni commenti sembrano contenere codice. Nel TERMINALE usa "help" per vedere i comandi disponibili.',
-            'Gli attacchi XSS sfruttano input non sanitizzati. Analizza i log SIEM per vedere i pattern di attacco.',
-            'Per proteggere i cookie da JavaScript, considera le impostazioni HttpOnly. Per bloccare tag pericolosi, usa la sanitization.',
-            'Dopo aver attivato le protezioni necessarie, ricorda di riavviare l\'applicazione per applicarle.'
+            t.hints.step0,
+            t.hints.step1,
+            t.hints.step2,
+            t.hints.step3,
+            t.hints.step4
         ];
         return hints[Math.min(currentStep, hints.length - 1)];
     };
@@ -801,69 +890,50 @@ Active Protections:
         return () => clearInterval(stepTimer);
     }, [completed, failed]);
 
-    // === STATISTICHE FINALI ===
-    const additionalStats = [
-        {
-            label: 'Protezioni attivate',
-            value: Object.values(protectionsEnabled).filter(Boolean).length,
-            color: Object.values(protectionsEnabled).filter(Boolean).length >= 2 ? 'text-cyber-green' : 'text-yellow-400'
-        },
-        {
-            label: 'Script execution',
-            value: scriptExecuted ? 'ACTIVE' : 'BLOCKED',
-            color: !scriptExecuted ? 'text-cyber-green' : 'text-red-500'
-        },
-        {
-            label: 'Tipo XSS identificato',
-            value: xssType || 'Non identificato',
-            color: xssType ? 'text-cyber-green' : 'text-yellow-400'
-        }
-    ];
+    // Cleanup effect
+    useEffect(() => {
+        return () => {
+            // Cleanup any intervals/timeouts if needed
+        };
+    }, []);
+
+    const handleGameOver = () => {
+        setFailed(true);
+        setMissionSuccess(false);
+    };
+
+    if (completed || failed) {
+        return (
+            <MissionDebriefWrapper
+                success={missionSuccess}
+                levelId="level4"
+                stats={{ stars: stars, health: 100 }} // Health is handled by wrapper
+                recapText={missionSuccess
+                    ? `${t.debrief.winTitle}\n\n${t.debrief.winBody}\n\n${t.debrief.techniquesTitle}\n${t.debrief.techniques.join('\n')}`
+                    : t.debrief.loss}
+                onRetry={() => window.location.reload()}
+                onExit={() => navigate('/map')}
+            />
+        );
+    }
 
     return (
-        <div>
-            <LevelTemplate
-                stars={stars}
-                hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
-                browserConfig={browserConfig}
-                terminalConfig={terminalConfig}
-                siemConfig={siemConfig}
-            >
-                <HealthMonitor
-                    completed={completed}
-                    healthSetterRef={healthSetterRef}
-                    onGameOver={() => {
-                        setMissionSuccess(false);
-                        setFailed(true);
-                        setCompleted(true);
-                    }}
-                />
-                {/* TIMER */}
-                <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
-                    <Timer secondsRemaining={secondsRemaining} />
-                </div>
-
-                {completed && (
-                    <MissionDebriefWrapper
-                        success={missionSuccess}
-                        levelId="level4"
-                        stats={{ stars }}
-                        recapText={missionSuccess ?
-                            `ATTACCO XSS MITIGATO!\n\n` +
-                            `Hai protetto il portale aziendale da script malevoli.\n\n` +
-                            `TECNICHE DI DIFESA XSS:\n` +
-                            `• HTML Sanitization: rimuove tag pericolosi (<script>, <iframe>)\n` +
-                            `• Output Escaping: converte caratteri speciali in entità HTML\n` +
-                            `• Content Security Policy: blocca script inline non autorizzati\n` +
-                            `• HttpOnly Cookies: impedisce accesso JavaScript ai cookie\n\n` +
-                            `IMPORTANTE: In produzione, abilita TUTTE le difese per una protezione completa!`
-                            : `Attacco XSS non mitigato.\n\nIl sistema è ancora vulnerabile.\n\nRicorda: devi abilitare sia sanitization che httponly cookies, poi riavviare l'app.`}
-                        onRetry={() => window.location.reload()}
-                        onExit={() => navigate('/map')}
-                    />
-                )}
-            </LevelTemplate>
-        </div>
+        <LevelTemplate
+            title={t.browser.dashboard.title}
+            subtitle="Cross-Site Scripting (XSS) Defense"
+            browserConfig={browserConfig}
+            terminalConfig={terminalConfig}
+            siemConfig={siemConfig}
+            onValidation={() => { }} // No external validation needed
+            hint={visibleHint ? <InfoPanel text={visibleHint} /> : null}
+            timer={<Timer seconds={secondsRemaining} total={MAX_TIME} />}
+        >
+            <HealthMonitor
+                completed={completed}
+                onGameOver={handleGameOver}
+                healthSetterRef={healthSetterRef}
+            />
+        </LevelTemplate>
     );
 };
 

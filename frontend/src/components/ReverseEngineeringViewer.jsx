@@ -72,7 +72,7 @@ const ReverseEngineeringViewer = ({
                 User said "aggiungi un campo...", not "replace sidebar". Keeping sidebar is safer. 
             */}
             {Object.keys(files).length > 1 && (
-                <div className="bg-[#252526] border-r border-gray-700 flex flex-col w-48">
+                <div className="bg-[#252526] border-r border-gray-700 flex flex-col">
                     <div className="p-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Project Files</div>
                     {Object.keys(files).map(key => (
                          (!files[key].hidden) && (

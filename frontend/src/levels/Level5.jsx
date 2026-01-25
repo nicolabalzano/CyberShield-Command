@@ -5,6 +5,8 @@ import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 import Timer from '../components/Timer';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 
 // Componente interno per impostare il ref di setHealth e monitorare game over
 const HealthSetter = ({ healthSetterRef, onGameOver }) => {
@@ -86,14 +88,14 @@ const INITIAL_CACHE = {
 };
 
 // Log SIEM che mostrano il cache poisoning
-const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
+const generateCachePoisoningLogs = (cachePoisoned, headerIdentified, t) => [
     {
         id: 1,
         time: '16:18:30',
         severity: 'low',
         source: '192.168.1.100',
         type: 'INFO',
-        message: 'Cache MISS - Fresh content served from origin',
+        message: t.logMessages.cacheMiss,
         threat: false
     },
     {
@@ -103,8 +105,8 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: '203.0.113.66',
         type: cachePoisoned ? 'WARNING' : 'INFO',
         message: cachePoisoned
-            ? 'Suspicious request detected - X-Forwarded-Host: evil.com'
-            : 'Request validated - No suspicious headers detected',
+            ? t.logMessages.suspiciousReq
+            : t.logMessages.reqValidated,
         threat: cachePoisoned
     },
     {
@@ -114,8 +116,8 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: '203.0.113.66',
         type: cachePoisoned ? 'SECURITY' : 'INFO',
         message: cachePoisoned
-            ? 'Cache HIT - Response cached with malicious X-Forwarded-Host header'
-            : 'Cache configured correctly - Dynamic content not cached',
+            ? t.logMessages.cacheHitPoisoned
+            : t.logMessages.cacheConfigured,
         threat: cachePoisoned
     },
     {
@@ -125,8 +127,8 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: '192.168.1.105',
         type: cachePoisoned ? 'ALERT' : 'INFO',
         message: cachePoisoned
-            ? 'CRITICAL: Legitimate user received poisoned content from cache (Cache HIT)'
-            : 'User received fresh, safe content from origin server',
+            ? t.logMessages.criticalHit
+            : t.logMessages.safeContent,
         threat: cachePoisoned
     },
     {
@@ -135,7 +137,7 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         severity: 'low',
         source: '192.168.1.100',
         type: 'INFO',
-        message: 'Normal page request - User browsing website',
+        message: t.logMessages.normalBrowsing,
         threat: false
     },
     {
@@ -145,10 +147,10 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: '192.168.1.110',
         type: cachePoisoned ? 'SECURITY' : 'INFO',
         message: cachePoisoned
-            ? 'Cache pollution detected - Same cache key serving different content'
+            ? t.logMessages.cachePollution
             : headerIdentified
-                ? 'Vary header configured - Proper cache key includes all sensitive headers'
-                : 'Cache serving consistent content',
+                ? t.logMessages.varyConfigured
+                : t.logMessages.consistentContent,
         threat: cachePoisoned
     },
     {
@@ -158,8 +160,8 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: 'cache-server-01',
         type: cachePoisoned ? 'ERROR' : 'INFO',
         message: cachePoisoned
-            ? 'Cache key collision - Multiple requests mapped to same cache entry'
-            : 'Cache key properly includes Host and X-Forwarded-Host headers',
+            ? t.logMessages.keyCollision
+            : t.logMessages.keyCorrect,
         threat: cachePoisoned
     },
     {
@@ -169,8 +171,8 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         source: 'cache-server-01',
         type: cachePoisoned ? 'ALERT' : 'INFO',
         message: cachePoisoned
-            ? 'Multiple users affected - Poisoned cache entry served 234 times'
-            : 'Cache operating normally - No poisoning detected',
+            ? t.logMessages.multipleAffected
+            : t.logMessages.normalOps,
         threat: cachePoisoned
     }
 ];
@@ -179,6 +181,8 @@ const Level5 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars, earnStar } = useReputation('level5', 0);
+    const { language } = useLanguage();
+    const t = translations[language]?.level5 || translations['italiano'].level5;
 
     // === STATO DEL LIVELLO ===
     const [cachePoisoned, setCachePoisoned] = useState(true); // Cache contiene contenuto avvelenato
@@ -312,26 +316,26 @@ const Level5 = () => {
         availableSites: [
             {
                 url: 'http://localhost:3000/',
-                title: 'Company Website',
+                title: t.browser.site.title,
                 icon: '🏢',
                 content: cachePoisoned ? (
                     // Contenuto avvelenato dalla cache
                     <div className="p-6 bg-red-50 h-full">
                         <div className="max-w-4xl mx-auto">
                             <div className="bg-red-600 text-white px-4 py-2 mb-4 animate-pulse">
-                                ⚠️ ALERT: Injected malicious content from cache!
+                                {t.browser.site.alert}
                             </div>
-                            <h1 className="text-3xl font-bold mb-4">Company Website</h1>
+                            <h1 className="text-3xl font-bold mb-4">{t.browser.site.title}</h1>
                             <div className="bg-red-100 border-l-4 border-red-500 p-4 mb-4">
                                 <p className="font-mono text-sm text-red-800">
                                     &lt;script&gt;alert('Cache Poisoned!')&lt;/script&gt;
                                 </p>
                                 <p className="text-sm text-red-700 mt-2">
-                                    This content was served from cache with malicious modifications
+                                    {t.browser.site.malicious}
                                 </p>
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow mt-4">
-                                <h3 className="font-semibold mb-2">HTTP Response Headers:</h3>
+                                <h3 className="font-semibold mb-2">{t.browser.site.headers}</h3>
                                 <div className="font-mono text-xs space-y-1 text-gray-700">
                                     {Object.entries(cacheEntries['/']?.headers || POISONED_HEADERS).map(([key, value]) => (
                                         <div key={key}>
@@ -340,7 +344,7 @@ const Level5 = () => {
                                     ))}
                                 </div>
                                 <p className="text-xs text-red-600 mt-2">
-                                    ⚠️ Cache HIT - Served from cache (234 times)
+                                    {t.browser.site.hitWarning}
                                 </p>
                             </div>
                         </div>
@@ -350,19 +354,18 @@ const Level5 = () => {
                     <div className="p-6 bg-white h-full">
                         <div className="max-w-4xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
-                                <h1 className="text-3xl font-bold text-gray-800">Company Website</h1>
+                                <h1 className="text-3xl font-bold text-gray-800">{t.browser.site.title}</h1>
                                 <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
-                                    ✓ SECURE
+                                    {t.browser.site.secure}
                                 </div>
                             </div>
                             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-                                <p className="text-green-800">
-                                    ✅ Cache has been purged and reconfigured<br />
-                                    ✅ Fresh content served from origin server
+                                <p className="text-green-800 whitespace-pre-wrap">
+                                    {t.browser.site.purged}
                                 </p>
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow border">
-                                <h3 className="font-semibold mb-2">HTTP Response Headers:</h3>
+                                <h3 className="font-semibold mb-2">{t.browser.site.headers}</h3>
                                 <div className="font-mono text-xs space-y-1 text-gray-700">
                                     {Object.entries(SAFE_HEADERS).map(([key, value]) => (
                                         <div key={key}>
@@ -371,7 +374,7 @@ const Level5 = () => {
                                     ))}
                                 </div>
                                 <p className="text-xs text-green-600 mt-2">
-                                    ✓ Cache MISS - Fresh content from origin
+                                    {t.browser.site.missSuccess}
                                 </p>
                             </div>
                         </div>
@@ -380,21 +383,21 @@ const Level5 = () => {
             },
             {
                 url: 'http://localhost:3000/profile',
-                title: 'User Profile',
+                title: t.browser.profile.title,
                 icon: '👤',
                 content: cachePoisoned ? (
                     <div className="p-6 bg-red-50 h-full">
                         <div className="max-w-2xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+                            <h1 className="text-2xl font-bold mb-4">{t.browser.profile.title}</h1>
                             <div className="bg-red-600 text-white p-3 rounded mb-4">
-                                ⚠️ Warning: This personalized content is being served from shared cache!
+                                {t.browser.profile.warning}
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow">
                                 <p className="text-sm text-red-700">
-                                    ⚠️ Cache HIT - Private user data served from public cache (89 hits)
+                                    {t.browser.profile.hitWarning}
                                 </p>
                                 <p className="text-xs text-gray-600 mt-2 font-mono">
-                                    Cache-Control: public, max-age=3600 ❌ (Should be private or no-store!)
+                                    {t.browser.profile.headerError}
                                 </p>
                             </div>
                         </div>
@@ -402,16 +405,16 @@ const Level5 = () => {
                 ) : (
                     <div className="p-6 bg-white h-full">
                         <div className="max-w-2xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+                            <h1 className="text-2xl font-bold mb-4">{t.browser.profile.title}</h1>
                             <div className="bg-green-100 p-3 rounded mb-4">
-                                ✅ Personalized content served fresh from origin server
+                                {t.browser.profile.freshSuccess}
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow border">
                                 <p className="text-sm text-green-700">
-                                    ✓ Cache MISS - Dynamic content not cached
+                                    {t.browser.profile.missSuccess}
                                 </p>
                                 <p className="text-xs text-gray-600 mt-2 font-mono">
-                                    Cache-Control: no-store, must-revalidate ✅
+                                    {t.browser.profile.headerSuccess}
                                 </p>
                             </div>
                         </div>
@@ -420,45 +423,39 @@ const Level5 = () => {
             },
             {
                 url: 'https://owasp.org/www-community/attacks/Cache_Poisoning',
-                title: 'OWASP - Cache Poisoning',
+                title: t.browser.owasp.title,
                 icon: '📚',
                 content: (
                     <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-2xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-4">🛡️ Cache Poisoning - OWASP Guide</h1>
+                            <h1 className="text-2xl font-bold mb-4">{t.browser.owasp.title}</h1>
                             <div className="space-y-4 text-sm">
                                 <div className="bg-blue-900/30 border-l-4 border-blue-500 p-3">
-                                    <h3 className="font-semibold mb-2">🎯 Cos'è Cache Poisoning?</h3>
+                                    <h3 className="font-semibold mb-2">{t.browser.owasp.whatTitle}</h3>
                                     <p className="text-gray-300">
-                                        Attacco che inserisce contenuto malevolo nella cache HTTP condivisa.
-                                        Il contenuto avvelenato viene servito a tutti gli utenti che accedono
-                                        alla risorsa cacheata.
+                                        {t.browser.owasp.whatText}
                                     </p>
                                 </div>
                                 <div className="bg-red-900/30 border-l-4 border-red-500 p-3">
-                                    <h3 className="font-semibold mb-2">⚠️ Come funziona:</h3>
+                                    <h3 className="font-semibold mb-2">{t.browser.owasp.howTitle}</h3>
                                     <ul className="list-disc ml-4 space-y-1 text-gray-300">
-                                        <li>Attaccante invia richiesta con header modificati (es: X-Forwarded-Host)</li>
-                                        <li>Server risponde includendo header nella risposta</li>
-                                        <li>Risposta viene cacheata con cache key inadeguata</li>
-                                        <li>Utenti legittimi ricevono la risposta avvelenata dalla cache</li>
+                                        {t.browser.owasp.howList.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                        ))}
                                     </ul>
                                 </div>
                                 <div className="bg-yellow-900/30 border-l-4 border-yellow-500 p-3">
-                                    <h3 className="font-semibold mb-2">🔑 Cache Key:</h3>
+                                    <h3 className="font-semibold mb-2">{t.browser.owasp.keyTitle}</h3>
                                     <p className="text-gray-300">
-                                        La cache key determina quale risposta viene servita.
-                                        Se non include header sensibili (Host, Cookie, ecc.), risposte
-                                        diverse possono essere servite dalla stessa entry in cache.
+                                        {t.browser.owasp.keyText}
                                     </p>
                                 </div>
                                 <div className="bg-green-900/30 border-l-4 border-green-500 p-3">
-                                    <h3 className="font-semibold mb-2">✅ Prevenzione:</h3>
+                                    <h3 className="font-semibold mb-2">{t.browser.owasp.prevTitle}</h3>
                                     <ul className="list-disc ml-4 space-y-1 text-gray-300">
-                                        <li><strong>Vary header:</strong> Include header sensibili nella cache key</li>
-                                        <li><strong>Cache-Control:</strong> no-store per contenuti dinamici</li>
-                                        <li><strong>Validazione input:</strong> Non fidarsi di header client</li>
-                                        <li><strong>Cache key corretta:</strong> Include Host, Cookie, etc.</li>
+                                        {t.browser.owasp.prevList.map((item, i) => (
+                                            <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
@@ -470,148 +467,122 @@ const Level5 = () => {
     };
 
     // === CONFIGURAZIONE TERMINAL ===
+    // === CONFIGURAZIONE TERMINAL ===
     const terminalConfig = {
-        initialHistory: [
-            '$ Reverse Proxy Management Terminal v1.0',
-            '$ Type "help" for available commands',
-            '$ ⚠️  WARNING: Cache poisoning detected - Malicious content in cache!',
-        ],
+        initialHistory: t.terminal.initial,
         commands: {
             'show-cache': () => {
                 const entries = Object.entries(cacheEntries);
                 if (entries.length === 0) {
-                    return '[✓] Cache is empty';
+                    return t.terminal.showCache.empty;
                 }
 
-                let output = '=== CACHE ENTRIES ===\n';
+                let output = `${t.terminal.showCache.header}\n`;
                 entries.forEach(([path, data]) => {
-                    output += `\nPath: ${path}\n`;
-                    output += `  Status: ${data.content}\n`;
-                    output += `  Cache Hits: ${data.hits}\n`;
-                    output += `  Cached at: ${data.timestamp}\n`;
-                    output += `  X-Cache: ${data.headers['X-Cache']}\n`;
+                    output += `\n${t.terminal.showCache.path} ${path}\n`;
+                    output += `  ${t.terminal.showCache.status} ${data.content}\n`;
+                    output += `  ${t.terminal.showCache.hits} ${data.hits}\n`;
+                    output += `  ${t.terminal.showCache.cachedAt} ${data.timestamp}\n`;
+                    output += `  ${t.terminal.showCache.xCache} ${data.headers['X-Cache']}\n`;
                 });
                 return output;
             },
 
             'purge-cache': () => {
                 if (Object.keys(cacheEntries).length === 0) {
-                    return '[!] Cache is already empty';
+                    return t.terminal.purgeCache.alreadyEmpty;
                 }
                 setCacheEntries({});
                 setCacheCleared(true);
                 setCurrentStep(1);
-                return `[✓] Cache purged successfully
-[+] All cached entries removed
-[+] Next requests will fetch fresh content from origin
-[!] Remember to fix cache configuration to prevent re-poisoning!`;
+                return t.terminal.purgeCache.success;
             },
 
             'show-headers': () => {
-                return `=== HTTP RESPONSE HEADERS ===
-Current configuration:
+                return `${t.terminal.showHeaders.header}
+${t.terminal.showHeaders.current}
 
-Cache-Control: ${cachePoisoned ? 'public, max-age=3600 ❌' : 'no-store, must-revalidate ✅'}
-  Problem: ${cachePoisoned ? 'Dynamic content is being cached publicly' : 'Correctly prevents caching of dynamic content'}
+Cache-Control: ${cachePoisoned ? t.terminal.showHeaders.ccPublic : t.terminal.showHeaders.ccPrivate}
+  Problem: ${cachePoisoned ? t.terminal.showHeaders.probPublic : t.terminal.showHeaders.probPrivate}
 
-Vary: ${cachePoisoned ? '<not set> ❌' : 'Host, X-Forwarded-Host, Cookie ✅'}
-  Problem: ${cachePoisoned ? 'Cache key does not include sensitive headers' : 'Cache key properly includes sensitive headers'}
+Vary: ${cachePoisoned ? t.terminal.showHeaders.varyMissing : t.terminal.showHeaders.varySet}
+  Problem: ${cachePoisoned ? t.terminal.showHeaders.probVaryMissing : t.terminal.showHeaders.probVarySet}
 
-X-Forwarded-Host: ${cachePoisoned ? 'evil.com ❌' : '<sanitized> ✅'}
-  Problem: ${cachePoisoned ? 'Untrusted header used in cache key' : 'Header properly validated'}`;
+X-Forwarded-Host: ${cachePoisoned ? t.terminal.showHeaders.xfhEvil : t.terminal.showHeaders.xfhSanitized}
+  Problem: ${cachePoisoned ? t.terminal.showHeaders.probXfhEvil : t.terminal.showHeaders.probXfhSanitized}`;
             },
 
             'identify-header': () => {
                 setHeaderIdentified(true);
                 setCurrentStep(2);
-                return `=== HEADER ANALYSIS ===
-Poisoning vector identified: X-Forwarded-Host
-
-How it works:
-1. Attacker sends: X-Forwarded-Host: evil.com
-2. Server uses this header to generate response
-3. Response gets cached with incorrect cache key
-4. All users receive the poisoned response
-
-Root cause: Cache key does not include X-Forwarded-Host
-Solution: Add "Vary: X-Forwarded-Host" header
-
-✓ Attack vector identified successfully!`;
+                return t.terminal.identifyHeader.success;
             },
 
             'fix-cache-key': () => {
                 if (cacheKeyFixed) {
-                    return '[!] Cache key is already configured correctly';
+                    return t.terminal.fixCacheKey.already;
                 }
                 setCacheKeyFixed(true);
-                return `[✓] Cache key configuration updated
-[+] Cache key now includes: URL + Host + X-Forwarded-Host + Cookie
-[+] Prevents cache collisions from different requests
-[+] Each unique request gets its own cache entry`;
+                return t.terminal.fixCacheKey.success;
             },
 
             'set-cache-control': (args) => {
                 if (args[0] !== 'no-store') {
-                    return 'Usage: set-cache-control no-store';
+                    return t.terminal.setCacheControl.usage;
                 }
                 if (noCacheDynamic) {
-                    return '[!] Cache-Control is already set to no-store';
+                    return t.terminal.setCacheControl.already;
                 }
                 setNoCacheDynamic(true);
-                return `[✓] Cache-Control header updated
-[+] Set to: no-store, must-revalidate
-[+] Dynamic/personalized content will not be cached
-[+] Only static assets will be cached`;
+                return t.terminal.setCacheControl.success;
             },
 
             'enable-vary-header': () => {
                 if (varyHeaderEnabled) {
-                    return '[!] Vary header is already enabled';
+                    return t.terminal.enableVaryHeader.already;
                 }
                 setVaryHeaderEnabled(true);
                 setCurrentStep(3);
-                return `[✓] Vary header enabled
-[+] Set to: Vary: Host, X-Forwarded-Host, Cookie
-[+] Cache key now includes these headers
-[+] Prevents cache poisoning via header manipulation`;
+                return t.terminal.enableVaryHeader.success;
             },
 
             'restart-proxy': () => {
                 if (!cacheCleared) {
-                    return '[!] Please purge cache first before restarting';
+                    return t.terminal.restartProxy.reqPurge;
                 }
                 if (!varyHeaderEnabled && !headersFixed) {
-                    return '[!] Please fix headers configuration before restarting';
+                    return t.terminal.restartProxy.reqFix;
                 }
                 setProxyRestarted(true);
                 setHeadersFixed(true);
-                return `[✓] Reverse proxy restarted
-[✓] New configuration applied
-[✓] Cache: ${Object.keys(cacheEntries).length === 0 ? 'CLEAN' : 'NEEDS PURGE'}
-[✓] Headers: ${varyHeaderEnabled ? 'SECURE' : 'CHECK CONFIG'}
-${!cachePoisoned ? '[✓] Cache poisoning mitigated successfully!' : '[!] System still vulnerable'}`;
+                return `${t.terminal.restartProxy.success}
+[✓] Cache: ${Object.keys(cacheEntries).length === 0 ? t.terminal.restartProxy.cacheClean : t.terminal.restartProxy.cacheDirty}
+[✓] Headers: ${varyHeaderEnabled ? t.terminal.restartProxy.headersSecure : t.terminal.restartProxy.headersCheck}
+${!cachePoisoned ? t.terminal.restartProxy.mitigated : t.terminal.restartProxy.vulnerable}`;
             },
 
             'status': () => {
-                return `=== CACHE SECURITY STATUS ===
-Cache Poisoned: ${cachePoisoned ? '🔴 YES' : '🟢 NO'}
-Cache Entries: ${Object.keys(cacheEntries).length}
-Cache Cleared: ${cacheCleared ? '✓' : '✗'}
-Headers Fixed: ${headersFixed ? '✓' : '✗'}
-Vary Header: ${varyHeaderEnabled ? '✓' : '✗'}
-Cache Key Fixed: ${cacheKeyFixed ? '✓' : '✗'}
-No-Cache Dynamic: ${noCacheDynamic ? '✓' : '✗'}
-Header Identified: ${headerIdentified ? '✓' : '✗'}
-Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
-            }
+                return `${t.terminal.status.header}
+${t.terminal.status.poisoned} ${cachePoisoned ? t.terminal.status.yes : t.terminal.status.no}
+${t.terminal.status.entries} ${Object.keys(cacheEntries).length}
+${t.terminal.status.cleared} ${cacheCleared ? '✓' : '✗'}
+${t.terminal.status.headersFixed} ${headersFixed ? '✓' : '✗'}
+${t.terminal.status.vary} ${varyHeaderEnabled ? '✓' : '✗'}
+${t.terminal.status.keyFixed} ${cacheKeyFixed ? '✓' : '✗'}
+${t.terminal.status.noCache} ${noCacheDynamic ? '✓' : '✗'}
+${t.terminal.status.identified} ${headerIdentified ? '✓' : '✗'}
+${t.terminal.status.restarted} ${proxyRestarted ? '✓' : '✗'}`;
+            },
+
+            'help': () => t.terminal.help
         },
         prompt: 'proxy@cache-defense:~$',
-        helpCommand: true
+        helpCommand: false,
+        notFoundMessage: t.terminal.notFound
     };
-
     // === CONFIGURAZIONE SIEM ===
     const siemConfig = {
-        logs: generateCachePoisoningLogs(cachePoisoned, headerIdentified),
+        logs: generateCachePoisoningLogs(cachePoisoned, headerIdentified, t),
         blockedIPs: 0,
         currentStep: currentStep,
         trafficHistory: [
@@ -642,40 +613,40 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
 
         switch (currentStep) {
             case 0:
-                return 'Nel SIEM analizza i log e cerca "Cache HIT" con contenuti anomali. Nel TERMINALE usa "show-cache" per vedere cosa è stato memorizzato in cache.';
+                return t.hints.step0;
             case 1:
-                return 'La cache è svuotata! Nel TERMINALE identifica l\'header responsabile con "identify-header" e analizza come il proxy sta cachando i contenuti.';
+                return t.hints.step1;
             case 2:
-                return 'Nel TERMINALE abilita "Vary" header con "enable-vary-header" e usa "set-cache-control no-store" per i contenuti dinamici. Poi riavvia il proxy.';
+                return t.hints.step2;
             case 3:
-                return 'Nel TERMINALE usa "restart-proxy" per applicare tutte le modifiche di sicurezza. Verifica con "status" che le protezioni siano attive.';
+                return t.hints.step3;
             case 4: {
                 const hints = [
-                    'Stai quasi terminando! Nel TERMINALE usa "status" per verificare che tutte le protezioni siano attive.',
-                    'Ricorda: il Vary header deve includere Host e X-Forwarded-Host per evitare che diverse versioni vengano cachate insieme.',
-                    'Ultimo passo! Nel TERMINALE assicurati che il proxy sia riavviato con "restart-proxy" e che la cache sia pulita con "show-cache".'
+                    t.hints.step4.a,
+                    t.hints.step4.b,
+                    t.hints.step4.c
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return 'Nel TERMINALE usa "status" per verificare che tutte le protezioni siano attive!';
+                return t.hints.default;
         }
     };
 
     // === STATISTICHE FINALI ===
     const additionalStats = [
         {
-            label: 'Cache entries rimosse',
-            value: cacheCleared ? 'SI' : 'NO',
+            label: t.debrief.cleared,
+            value: cacheCleared ? t.terminal.status.yes : t.terminal.status.no,
             color: cacheCleared ? 'text-cyber-green' : 'text-red-500'
         },
         {
-            label: 'Header identificato',
-            value: headerIdentified ? 'X-Forwarded-Host' : 'Non identificato',
+            label: t.terminal.status.identified.replace(':', ''),
+            value: headerIdentified ? 'X-Forwarded-Host' : t.terminal.status.no,
             color: headerIdentified ? 'text-cyber-green' : 'text-yellow-400'
         },
         {
-            label: 'Protezioni attive',
+            label: t.debrief.vary,
             value: [varyHeaderEnabled, cacheKeyFixed, noCacheDynamic].filter(Boolean).length,
             color: [varyHeaderEnabled, cacheKeyFixed, noCacheDynamic].filter(Boolean).length >= 2 ? 'text-cyber-green' : 'text-yellow-400'
         }
@@ -707,13 +678,13 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                         levelId="level5"
                         stats={{ stars }}
                         recapText={!failed ?
-                            `CACHE POISONING DEFENSE ANALYSIS\n\n` +
-                            `Cache cleared: ${cacheCleared ? 'YES' : 'NO'}\n` +
-                            `Headers fixed: ${headersFixed ? 'YES' : 'NO'}\n` +
-                            `Vary header enabled: ${varyHeaderEnabled ? 'YES' : 'NO'}\n` +
-                            `Tempo completamento: ${completionTime}s\n\n` +
-                            `${!cachePoisoned && proxyRestarted ? 'RISULTATO: Cache poisoning threat neutralized!' : 'RISULTATO: Completato.'}`
-                            : 'Time expired! The cache poisoning attack affected too many users.\n\nClear the cache and configure proper headers more quickly next time.'}
+                            `${t.debrief.title}\n\n` +
+                            `${t.debrief.cleared} ${cacheCleared ? t.terminal.status.yes : t.terminal.status.no}\n` +
+                            `${t.debrief.fixed} ${headersFixed ? t.terminal.status.yes : t.terminal.status.no}\n` +
+                            `${t.debrief.vary} ${varyHeaderEnabled ? t.terminal.status.yes : t.terminal.status.no}\n` +
+                            `${t.debrief.time} ${completionTime}s\n\n` +
+                            `${!cachePoisoned && proxyRestarted ? t.debrief.success : t.debrief.completed}`
+                            : t.debrief.fail}
                         onRetry={() => window.location.reload()}
                         onExit={() => navigate('/map')}
                     />

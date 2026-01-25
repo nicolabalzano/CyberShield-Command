@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 import Timer from '../components/Timer';
 import PacketAnalyzer from '../components/PacketAnalyzer';
 import RansomwareOverlay from '../components/RansomwareOverlay';
@@ -132,6 +134,8 @@ const Level8 = () => {
     // LEVEL CONFIGURATION & STATE
     // -------------------------------------------------------------------------
     const navigate = useNavigate();
+    const { language } = useLanguage();
+    const t = translations[language]?.level8 || translations['italiano'].level8;
 
     const [levelState, setLevelState] = useState('briefing');
     const [ransomwareActive, setRansomwareActive] = useState(false);
@@ -145,7 +149,7 @@ const Level8 = () => {
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
 
     // Initial Hint
-    const [currentHint, setCurrentHint] = useState("Posta in arrivo: Rapporto attività sospette. Controlla la tua email per i Protocolli di Emergenza.");
+    const [currentHint, setCurrentHint] = useState(t.hints.start);
 
     // Ref per accedere a setHealth da fuori Level8Content
     const healthSetterRef = React.useRef(null);
@@ -163,9 +167,9 @@ const Level8 = () => {
     ];
 
     const mockLogs = [
-        { id: 1, timestamp: '10:00:01', severity: 'low', source: 'Firewall', message: 'Connessione in uscita consentita TCP 443' },
-        { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: 'Rilevato download di file sospetto da 145.2.33.11' },
-        { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: 'Scansione firma saltata per cryptolocker_v2.exe (Override Policy)' },
+        { id: 1, timestamp: '10:00:01', severity: 'low', source: 'Firewall', message: t.logs.firewall },
+        { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: t.logs.ids },
+        { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: t.logs.antivirus },
     ];
 
     const mockEmails = [
@@ -173,12 +177,12 @@ const Level8 = () => {
             id: 101,
             from: "ciso@cybershield.com",
             timestamp: "09:45 AM",
-            subject: "URGENTE: Aggiornamento Protocolli Risposta Incidenti",
-            preview: "Stiamo notando un aumento dell'attività ransomware...",
+            subject: t.emails.ciso.subject,
+            preview: t.emails.ciso.preview,
             isPhishing: false,
-            body: `Gentile Team,\n\nStiamo notando un aumento dell'attività ransomware verso il nostro settore.\nSiete pregati di rivedere immediatamente il Manuale di Risposta agli Incidenti.\n\nPROCEDURA DI EMERGENZA PER RANSOMWARE:\n1. NON spegnere la macchina (la crittografia potrebbe corrompere i file).\n2. Se lo schermo è bloccato, utilizzare la sequenza di interruzione hardware: Ctrl + Alt + K.\n3. Isolare il segmento di rete.\n4. Identificare il vettore e la chiave di decrittazione.\n\nRestate vigili.`,
+            body: t.emails.ciso.body,
             hasAttachment: false,
-            explanation: "Avviso di sicurezza legittimo dal CISO.",
+            explanation: t.emails.ciso.explanation,
             read: false,
             flagged: null
         },
@@ -186,12 +190,12 @@ const Level8 = () => {
             id: 102,
             from: "hr@cybershield.com",
             timestamp: "09:30 AM",
-            subject: "Revisioni Trimestrali delle Performance",
-            preview: "Solo un promemoria che le revisioni inizieranno...",
+            subject: t.emails.hr.subject,
+            preview: t.emails.hr.preview,
             isPhishing: false,
-            body: "Solo un promemoria che le revisioni inizieranno la prossima settimana. Per favore preparate la vostra autovalutazione.",
+            body: t.emails.hr.body,
             hasAttachment: false,
-            explanation: "Email HR di routine.",
+            explanation: t.emails.hr.explanation,
             read: false,
             flagged: null
         }
@@ -266,7 +270,7 @@ bool check_unlock_code(char* input) {
                     setRansomwareActive(true);
                     setRansomwareVisible(false);
                     setKillSwitchActivated(true);
-                    setCurrentHint("Ottimo! Processo Terminato. Ora indaga sui log (SIEM) per trovare l'IP sorgente.");
+                    setCurrentHint(t.hints.emergency);
                 }
             }
         };
@@ -281,7 +285,7 @@ bool check_unlock_code(char* input) {
             const timer = setTimeout(() => {
                 setLevelState('infected');
                 setRansomwareActive(true);
-                setCurrentHint("SISTEMA COMPROMESSO! Trova l'override manuale! (Suggerimento: Il Manuale di Emergenza dice Ctrl+Alt+K per disabilitare l'interfaccia di rete e avviare l'indagine.)");
+                setCurrentHint(t.hints.compromised);
             }, 30000);
             return () => clearTimeout(timer);
         }
@@ -361,8 +365,8 @@ bool check_unlock_code(char* input) {
                         success={isWin}
                         stats={finalStats}
                         recapText={isWin
-                            ? "Excellent work. You successfully intercepted the ransomware attack, identified the source via packet analysis, and retrieved the decryption key."
-                            : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
+                            ? t.debrief.win
+                            : t.debrief.loss
                         }
                         onRetry={() => window.location.reload()}
                         onExit={() => navigate('/map')}
@@ -391,10 +395,10 @@ bool check_unlock_code(char* input) {
                 },
                 'documents': {
                     'secret_plans.txt': { type: 'file', content: 'Nothing here.' },
-                    'README_DECRYPT.txt': { type: 'file', content: 'YOUR FILES HAVE BEEN ENCRYPTED!\nTo recover your data, you must enter the decryption key.\nContact: darkweb@anonymous.onion' }
+                    'README_DECRYPT.txt': { type: 'file', content: t.files.readme }
                 },
                 'desktop': {
-                    'URGENT_READ_ME.txt': { type: 'file', content: '⚠️ RANSOMWARE ALERT ⚠️\nAll your files are encrypted.\nFollow instructions in documents/README_DECRYPT.txt' }
+                    'URGENT_READ_ME.txt': { type: 'file', content: t.files.urgent }
                 },
                 '.malware': {
                     'persistence.sh': { type: 'file', content: '#!/bin/bash\n# Auto-start script\n/home/user/downloads/cryptolocker_v2.exe &' }
