@@ -310,6 +310,8 @@ const Level6 = () => {
         }
     }, [secondsRemaining, completed, failed]);
 
+    const [analysisStarAwarded, setAnalysisStarAwarded] = useState(false);
+
     // === LOGICA DI MITIGAZIONE ===
     useEffect(() => {
         // CSRF Tokens + SameSite = protezione forte
@@ -335,6 +337,17 @@ const Level6 = () => {
             setUnauthorizedActions(false);
         }
     }, [protectionsEnabled]);
+
+    // ASSEGNAZIONE STELLE IN TEMPO REALE
+
+    // Stella 3: analisi completa + protezioni multiple
+    useEffect(() => {
+        const multipleProtections = Object.values(protectionsEnabled).filter(Boolean).length >= 2;
+        if (!analysisStarAwarded && multipleProtections && csrfType) {
+            earnStar();
+            setAnalysisStarAwarded(true);
+        }
+    }, [protectionsEnabled, csrfType, analysisStarAwarded, earnStar]);
 
     // Blocca transazioni CSRF quando le protezioni sono attive
     useEffect(() => {
@@ -383,14 +396,79 @@ const Level6 = () => {
             }
 
             // Stella 2: nessun falso positivo
-            if (!legitimateBlocked && stars === 1) {
-                earnStar();
-            }
+            if (!legitimateBlocked && stars <= 1) { // Check <= 1 because they might have gained potential for star 3 but not star 2 yet? No, order matters.
+                // Wait, logic in original was:
+                // if (!legitimateBlocked && stars === 1) earnStar()
+                // The issue is if they earned Star 3 (analysis) BEFORE completion?
+                // Let's rely on earnStar handles max 3.
+                // But we want to ensure they get the points they deserve.
 
-            // Stella 3: analisi completa + protezioni multiple
-            const multipleProtections = Object.values(protectionsEnabled).filter(Boolean).length >= 2;
-            if (multipleProtections && csrfType && stars === 2) {
-                earnStar();
+                // If they have 0 stars -> Earn completion (1).
+                // If no false positives -> Earn another (2).
+                // If they already have analysis star (so stars is already 1 or more before completion).
+
+                // Safe logic using local flags if we had them or just trusting earnStar increment.
+                // But earnStar only increments by 1.
+                // We need to call it multiple times if we need to award multiple stars at once.
+
+                // Let's refine:
+                // We know if we are here, we are completing.
+                // Completion star is ALWAYS awarded if we are here and somehow don't have enough stars?
+                // Actually star 1 is for completion.
+
+                // Scenario A: No analysis star.
+                // Stars = 0.
+                // Completion -> Stars = 1.
+                // No false pos -> Stars = 2.
+
+                // Scenario B: Analysis star awarded during game.
+                // Stars = 1.
+                // Completion -> Stars = 2.
+                // No false pos -> Stars = 3.
+
+                // So we just need to check conditions and call earnStar.
+                // However, we must ensure we don't double award if effect runs twice (it shouldn't due to !completed check).
+
+                earnStar(); // For completion
+
+                if (!legitimateBlocked) {
+                    setTimeout(() => earnStar(), 500); // Small delay to separate sounds/animations if possible, or just call it.
+                    // Actually react state updates might batch.
+                    // But wait, earnStar uses prev state.
+                    // It should be fine to call twice?
+                    // No, state updates in same cycle might conflict if not functional?
+                    // useReputation hooks uses functional update: setStars(prev => ...)
+                    // So calling twice works.
+                    earnStar();
+                }
+            } else {
+                // Logic for when we might already have stars?
+                // Current logic:
+                // if (stars === 0) earnStar();
+                // if (!legitimateBlocked && stars === 1) earnStar();
+
+                // If I have analysis star (1 star).
+                // Completion -> earnStar() -> 2 stars.
+                // No false pos -> earnStar() -> 3 stars.
+
+                // If I don't have analysis star (0 stars).
+                // Completion -> earnStar() -> 1 star.
+                // No false pos -> earnStar() -> 2 stars.
+
+                // This seems correct regardless of starting stars, assuming we want to award +1 for completion and +1 for no false positives.
+
+                // Wait, original code was:
+                // if (stars === 0) earnStar();
+                // if (!legitimateBlocked && stars === 1) earnStar();
+                // if (multipleProtections... && stars === 2) earnStar();
+
+                // It enforced an order. Now we decoupled analysis star.
+                // So we just award for completion and false positives.
+
+                earnStar(); // Award completion star
+                if (!legitimateBlocked) {
+                    earnStar(); // Award no-false-positives star
+                }
             }
 
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));

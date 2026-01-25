@@ -273,6 +273,9 @@ const Level5 = () => {
         }
     }, [secondsRemaining, completed, failed]);
 
+    const [configStarAwarded, setConfigStarAwarded] = useState(false);
+    const [analysisStarAwarded, setAnalysisStarAwarded] = useState(false);
+
     // === LOGICA DI MITIGAZIONE ===
     // Cache è sicura quando è svuotata E configurata correttamente
     useEffect(() => {
@@ -281,27 +284,33 @@ const Level5 = () => {
         }
     }, [cacheCleared, headersFixed, varyHeaderEnabled, noCacheDynamic]);
 
+    // ASSEGNAZIONE STELLE IN TEMPO REALE
+
+    // Stella 2: cache configurata correttamente + no cache per contenuto dinamico
+    useEffect(() => {
+        if (!configStarAwarded && headersFixed && noCacheDynamic) {
+            earnStar();
+            setConfigStarAwarded(true);
+        }
+    }, [headersFixed, noCacheDynamic, configStarAwarded, earnStar]);
+
+    // Stella 3: header identificato + cache key corretta + Vary header
+    useEffect(() => {
+        if (!analysisStarAwarded && headerIdentified && cacheKeyFixed && varyHeaderEnabled) {
+            earnStar();
+            setAnalysisStarAwarded(true);
+        }
+    }, [headerIdentified, cacheKeyFixed, varyHeaderEnabled, analysisStarAwarded, earnStar]);
+
     // === CONDIZIONE DI COMPLETAMENTO ===
     useEffect(() => {
         if (!cachePoisoned && proxyRestarted && !completed) {
-            let targetStars = 1; // Base per completamento
-
-            // Stella 2: cache configurata correttamente + no cache per contenuto dinamico
-            if (headersFixed && noCacheDynamic) {
-                targetStars++;
-            }
-
-            // Stella 3: header identificato + cache key corretta + Vary header
-            if (headerIdentified && cacheKeyFixed && varyHeaderEnabled) {
-                targetStars++;
-            }
-
-            // Calcola quante stelle mancano e assegnale
-            const starsToEarn = targetStars - stars;
-            if (starsToEarn > 0) {
-                for (let i = 0; i < starsToEarn; i++) {
-                    earnStar();
-                }
+            // Stella 1: completamento base (se non ancora presa, la prende ora)
+            if (stars === 0) {
+                earnStar();
+            } else if (stars === 1 && configStarAwarded) {
+                // Caso limite: ha preso la stella config ma non quella base ancora (improbabile ma safe)
+                // earnStar incrementa comunque
             }
 
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
@@ -309,7 +318,7 @@ const Level5 = () => {
                 setCompleted(true);
             }, 2000);
         }
-    }, [cachePoisoned, proxyRestarted, completed, headersFixed, noCacheDynamic, headerIdentified, cacheKeyFixed, varyHeaderEnabled, stars, earnStar, startTime]);
+    }, [cachePoisoned, proxyRestarted, completed, stars, earnStar, startTime, configStarAwarded]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
