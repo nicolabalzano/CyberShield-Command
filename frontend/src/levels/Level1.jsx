@@ -222,7 +222,8 @@ const Level1 = () => {
             ...e,
             isPhishing: [1, 3, 5].includes(e.id), // Hardcoding logic based on ID to keep it consistent across langs
             flagged: null, // Explicitly set flagged to null to enable buttons
-            read: false // Explicitly set read to false
+            read: false, // Explicitly set read to false
+            hasAttachment: !!e.attachmentName
         })),
         showFeedbackPopup: true,
         onHeaderInspect: () => {
