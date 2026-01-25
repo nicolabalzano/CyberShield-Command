@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
@@ -128,6 +128,13 @@ const Level1 = () => {
     const [headerInspected, setHeaderInspected] = useState(false);
     const [instructionsRead, setInstructionsRead] = useState(false);
 
+    // Track awarded stars to prevent duplicates and allow random order
+    const [awarded, setAwarded] = useState({
+        emails: false,
+        header: false,
+        instructions: false
+    });
+
     // Reset hint index quando cambia step
     useEffect(() => {
         setHintIndex(0);
@@ -157,24 +164,27 @@ const Level1 = () => {
 
     // Sistema di assegnazione stelle:
     // Stella 1: Tutte le 6 email controllate
-    // Stella 2: Almeno un header ispezionato
-    // Stella 3: Istruzioni lette (CyberNav)
+    // Stella 2: Almeno un header ispezionato (solo se non già assegnata)
+    // Stella 3: Istruzioni lette (solo se non già assegnata)
     useEffect(() => {
-        if (!completed) return;
+        // Stella: Tutte le email controllate
+        if (emailsChecked === levelEmails.length && !awarded.emails) {
+            earnStar();
+            setAwarded(prev => ({ ...prev, emails: true }));
+        }
 
-        // Stella 1: Tutte le email controllate
-        if (emailsChecked === levelEmails.length && stars === 0) {
+        // Stella: Almeno un header ispezionato
+        if (headerInspected && !awarded.header) {
             earnStar();
+            setAwarded(prev => ({ ...prev, header: true }));
         }
-        // Stella 2: Almeno un header ispezionato
-        else if (headerInspected && stars === 1) {
+
+        // Stella: Istruzioni lette
+        if (instructionsRead && !awarded.instructions) {
             earnStar();
+            setAwarded(prev => ({ ...prev, instructions: true }));
         }
-        // Stella 3: Istruzioni lette
-        else if (instructionsRead && stars === 2) {
-            earnStar();
-        }
-    }, [completed, emailsChecked, headerInspected, instructionsRead, stars, earnStar, levelEmails.length]);
+    }, [emailsChecked, headerInspected, instructionsRead, levelEmails.length, awarded, earnStar]);
 
     // Calcola il danno in base al numero totale di email
     const totalEmails = levelEmails.length;
@@ -206,19 +216,22 @@ const Level1 = () => {
         }
     };
 
-    const emailConfig = {
+    // Memoize CONFIGURATIONS to prevent child re-renders erasing state
+    const emailConfig = useMemo(() => ({
         emails: levelEmails.map(e => ({
             ...e,
-            isPhishing: [1, 3, 5].includes(e.id) // Hardcoding logic based on ID to keep it consistent across langs
+            isPhishing: [1, 3, 5].includes(e.id), // Hardcoding logic based on ID to keep it consistent across langs
+            flagged: null, // Explicitly set flagged to null to enable buttons
+            read: false // Explicitly set read to false
         })),
         showFeedbackPopup: true,
         onHeaderInspect: () => {
             setHeaderInspected(true);
         }
-    };
+    }), [levelEmails]);
 
     // Configurazione browser con callback per tracciare istruzioni lette
-    const dynamicBrowserConfig = {
+    const dynamicBrowserConfig = useMemo(() => ({
         availableSites: [
             {
                 url: 'https://paypal.com',
@@ -274,7 +287,7 @@ const Level1 = () => {
         onNavigate: () => {
             setInstructionsRead(true);
         }
-    };
+    }), [t]);
 
     const getHintText = () => {
         switch (currentStep) {
