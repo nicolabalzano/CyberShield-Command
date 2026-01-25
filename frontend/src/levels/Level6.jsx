@@ -759,12 +759,17 @@ const Level6 = () => {
                             </div>
 
                             <div className="bg-red-900 bg-opacity-30 border border-red-600 rounded-lg p-4">
-                                <p className="font-bold mb-2">{t.browser.malicious.how.title}</p>
-                                <ol className="text-sm space-y-1 list-decimal list-inside text-gray-300">
+                                <p className="font-bold mb-3 text-lg text-red-400">{t.browser.malicious.how.title}</p>
+                                <div className="space-y-2">
                                     {t.browser.malicious.how.list.map((item, i) => (
-                                        <li key={i}>{item}</li>
+                                        <div key={i} className="flex items-start gap-3 bg-black/40 p-2 rounded border border-red-500/20">
+                                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold">
+                                                {i + 1}
+                                            </div>
+                                            <p className="text-gray-300 text-sm mt-0.5">{item}</p>
+                                        </div>
                                     ))}
-                                </ol>
+                                </div>
                             </div>
                         </div>
                     </div>

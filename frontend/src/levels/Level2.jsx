@@ -312,21 +312,30 @@ const Level2 = () => {
                                         {t.browser.owasp.introText}
                                     </p>
                                 </div>
-                                <div className="bg-red-900/30 border-l-4 border-red-500 p-3">
-                                    <h3 className="font-semibold mb-2">{t.browser.owasp.indicatorsTitle}</h3>
-                                    <ul className="list-disc ml-4 space-y-1 text-gray-300">
+                                <div className="bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r-lg">
+                                    <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                                        <span>🚨</span> {t.browser.owasp.indicatorsTitle}
+                                    </h3>
+                                    <div className="grid gap-2">
                                         {t.browser.owasp.indicatorsList.map((item, i) => (
-                                            <li key={i}>{item}</li>
+                                            <div key={i} className="bg-red-950/40 p-2 rounded flex items-center gap-3 border border-red-500/20">
+                                                <span className="text-red-500 text-xs">●</span>
+                                                <span className="text-gray-300 text-sm">{item}</span>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
-                                <div className="bg-green-900/30 border-l-4 border-green-500 p-3">
-                                    <h3 className="font-semibold mb-2">{t.browser.owasp.mitigationTitle}</h3>
-                                    <ul className="list-disc ml-4 space-y-1 text-gray-300">
+                                <div className="bg-green-900/30 border-l-4 border-green-500 p-4 rounded-r-lg">
+                                    <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                                        <span>🛡️</span> {t.browser.owasp.mitigationTitle}
+                                    </h3>
+                                    <div className="grid gap-2">
                                         {t.browser.owasp.mitigationList.map((item, i) => (
-                                            <li key={i.toString() + item.substring(0, 5)} dangerouslySetInnerHTML={{ __html: item.replace(':', ':</strong>').replace(/^/, '<strong>') }} />
+                                            <div key={i} className="bg-green-950/40 p-2 rounded border border-green-500/20">
+                                                <div className="text-gray-300 text-sm pl-2 border-l-2 border-green-500" dangerouslySetInnerHTML={{ __html: item.replace(':', ':</strong>').replace(/^/, '<strong>') }} />
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>

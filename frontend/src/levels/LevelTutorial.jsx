@@ -154,54 +154,54 @@ const LevelTutorial = () => {
                 title: 'SOC Operations Guide',
                 icon: '📚',
                 content: (
-                    <div className="p-6 bg-blue-50 h-full overflow-y-auto">
+                    <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
-                            <h1 className="text-2xl font-bold text-gray-800 mb-4">📚 Welcome to the SOC!</h1>
+                            <h1 className="text-2xl font-bold mb-4">📚 Welcome to the SOC!</h1>
 
-                            <div className="bg-white rounded-lg shadow p-4 mb-4">
-                                <h2 className="text-lg font-semibold mb-2 text-blue-900">Your Mission</h2>
-                                <p className="text-sm text-gray-700">
+                            <div className="bg-gray-800 rounded-lg shadow p-4 mb-4 border border-gray-700">
+                                <h2 className="text-lg font-semibold mb-2 text-blue-400">Your Mission</h2>
+                                <p className="text-sm text-gray-300">
                                     As a Security Operations Center (SOC) analyst, your job is to monitor, detect, and respond to security threats in real-time.
                                 </p>
                             </div>
 
-                            <div className="bg-white rounded-lg shadow p-4 mb-4">
-                                <h2 className="text-lg font-semibold mb-2 text-blue-900">🛠️ Available Tools</h2>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-xl">📧</span>
+                            <div className="bg-gray-800 rounded-lg shadow p-4 mb-4 border border-gray-700">
+                                <h2 className="text-lg font-semibold mb-2 text-blue-400">🛠️ Available Tools</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div className="flex flex-col items-center text-center p-2 bg-gray-900/50 rounded-lg">
+                                        <span className="text-3xl mb-2">📧</span>
                                         <div>
-                                            <p className="font-semibold">Email Client</p>
-                                            <p className="text-gray-600">Receive security alerts and team communications</p>
+                                            <p className="font-semibold text-gray-200">Email Client</p>
+                                            <p className="text-gray-400 text-xs">Receive security alerts and team communications</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-xl">📊</span>
+                                    <div className="flex flex-col items-center text-center p-2 bg-gray-900/50 rounded-lg">
+                                        <span className="text-3xl mb-2">📊</span>
                                         <div>
-                                            <p className="font-semibold">SIEM Dashboard</p>
-                                            <p className="text-gray-600">Monitor security logs in real-time - Click on logs to analyze them!</p>
+                                            <p className="font-semibold text-gray-200">SIEM Dashboard</p>
+                                            <p className="text-gray-400 text-xs">Monitor security logs in real-time</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-xl">🌐</span>
+                                    <div className="flex flex-col items-center text-center p-2 bg-gray-900/50 rounded-lg">
+                                        <span className="text-3xl mb-2">🌐</span>
                                         <div>
-                                            <p className="font-semibold">Browser</p>
-                                            <p className="text-gray-600">Search for threat intelligence and security documentation</p>
+                                            <p className="font-semibold text-gray-200">Browser</p>
+                                            <p className="text-gray-400 text-xs">Search for threat intelligence</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-xl">💻</span>
+                                    <div className="flex flex-col items-center text-center p-2 bg-gray-900/50 rounded-lg">
+                                        <span className="text-3xl mb-2">💻</span>
                                         <div>
-                                            <p className="font-semibold">Terminal</p>
-                                            <p className="text-gray-600">Execute commands to investigate and block threats</p>
+                                            <p className="font-semibold text-gray-200">Terminal</p>
+                                            <p className="text-gray-400 text-xs">Execute commands to block threats</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                                <p className="text-sm font-semibold text-yellow-800 mb-1">💡 Workflow Tip</p>
-                                <p className="text-sm text-yellow-700">
+                            <div className="bg-yellow-900/30 border-l-4 border-yellow-500 p-4">
+                                <p className="text-sm font-semibold text-yellow-500 mb-1">💡 Workflow Tip</p>
+                                <p className="text-sm text-yellow-200/80">
                                     1. Check Email for alerts<br />
                                     2. Analyze SIEM logs (click on them!)<br />
                                     3. Research threats in Browser<br />

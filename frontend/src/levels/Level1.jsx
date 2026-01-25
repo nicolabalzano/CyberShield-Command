@@ -258,25 +258,35 @@ const Level1 = () => {
                 title: 'Gmail Anti-Phishing Guide',
                 icon: '📧',
                 content: (
-                    <div className="p-6 bg-white h-full">
+                    <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-2xl mx-auto">
-                            <h1 className="text-2xl font-bold mb-4">{t.browser.google.title}</h1>
-                            <div className="space-y-4 text-sm">
-                                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
-                                    <h3 className="font-semibold">{t.browser.google.dangerTitle}</h3>
-                                    <ul className="list-disc ml-4 mt-2 space-y-1">
+                            <h1 className="text-2xl font-bold mb-6 text-center">{t.browser.google.title}</h1>
+                            <div className="space-y-6 text-sm">
+                                <div className="bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r-lg">
+                                    <h3 className="font-semibold text-white text-lg mb-3 flex items-center gap-2">
+                                        <span className="text-xl">⚠️</span> {t.browser.google.dangerTitle}
+                                    </h3>
+                                    <div className="grid gap-3">
                                         {t.browser.google.dangerList.map((item, i) => (
-                                            <li key={i}>{item}</li>
+                                            <div key={i} className="bg-red-950/40 p-3 rounded border border-red-500/30 flex items-start gap-3">
+                                                <span className="text-red-400 font-bold">✗</span>
+                                                <span className="text-gray-300">{item}</span>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
-                                <div className="bg-green-50 border-l-4 border-green-400 p-3">
-                                    <h3 className="font-semibold">{t.browser.google.safeTitle}</h3>
-                                    <ul className="list-disc ml-4 mt-2 space-y-1">
+                                <div className="bg-green-900/30 border-l-4 border-green-500 p-4 rounded-r-lg">
+                                    <h3 className="font-semibold text-white text-lg mb-3 flex items-center gap-2">
+                                        <span className="text-xl">🛡️</span> {t.browser.google.safeTitle}
+                                    </h3>
+                                    <div className="grid gap-3">
                                         {t.browser.google.safeList.map((item, i) => (
-                                            <li key={i}>{item}</li>
+                                            <div key={i} className="bg-green-950/40 p-3 rounded border border-green-500/30 flex items-start gap-3">
+                                                <span className="text-green-400 font-bold">✓</span>
+                                                <span className="text-gray-300">{item}</span>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>

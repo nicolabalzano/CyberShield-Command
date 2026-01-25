@@ -504,30 +504,30 @@ const Level4 = () => {
                                 <h2 className="font-semibold mb-3 flex items-center gap-2">
                                     <span>🛡️</span> {t.browser.dashboard.protections.title}
                                 </h2>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">{t.browser.dashboard.protections.html}</span>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center justify-between">
+                                        <span className="text-sm text-gray-300">{t.browser.dashboard.protections.html}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.htmlSanitization ? 'text-green-400' : 'text-red-400'
                                             }`}>
                                             {protectionsEnabled.htmlSanitization ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">{t.browser.dashboard.protections.csp}</span>
+                                    <div className="bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center justify-between">
+                                        <span className="text-sm text-gray-300">{t.browser.dashboard.protections.csp}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.cspEnabled ? 'text-green-400' : 'text-red-400'
                                             }`}>
                                             {protectionsEnabled.cspEnabled ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between py-2 border-b border-gray-700">
-                                        <span className="text-sm">{t.browser.dashboard.protections.escaping}</span>
+                                    <div className="bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center justify-between">
+                                        <span className="text-sm text-gray-300">{t.browser.dashboard.protections.escaping}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.outputEscaping ? 'text-green-400' : 'text-red-400'
                                             }`}>
                                             {protectionsEnabled.outputEscaping ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between py-2">
-                                        <span className="text-sm">{t.browser.dashboard.protections.httpOnly}</span>
+                                    <div className="bg-gray-900/50 p-3 rounded border border-gray-700 flex items-center justify-between">
+                                        <span className="text-sm text-gray-300">{t.browser.dashboard.protections.httpOnly}</span>
                                         <span className={`text-sm font-bold ${protectionsEnabled.httpOnlyCookies ? 'text-green-400' : 'text-red-400'
                                             }`}>
                                             {protectionsEnabled.httpOnlyCookies ? t.browser.dashboard.protections.enabled : t.browser.dashboard.protections.disabled}
