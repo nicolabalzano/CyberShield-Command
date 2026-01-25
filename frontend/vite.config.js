@@ -10,6 +10,9 @@ export default defineConfig({
   ],
   server: {
     host: true, // Needed for Docker
+    allowedHosts: [
+      'bright-geese-happen.loca.lt'
+    ],
     proxy: {
       '/api': {
         target: 'http://backend:5000',

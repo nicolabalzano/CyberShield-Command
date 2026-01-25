@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel as useLevelFromTemplate } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import { useLevel } from '../contexts/LevelContext';
@@ -24,6 +25,12 @@ const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
     }, [health, completed, onGameOver]);
     
     return null;
+};
+
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
 };
 
 /**
@@ -198,6 +205,7 @@ const generateCSRFLogs = (attackActive, tokensEnabled) => [
 ];
 
 const Level6 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level6', 0);
     const { earnStar } = useReputation('level6', 0);
@@ -957,9 +965,9 @@ Active Protections:
                 </div>
                 
                 {completed && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={missionSuccess}
-                        stats={{ stars, health: 100 }}
+                        stats={{ stars }}
                         recapText={missionSuccess ? 
                             `CSRF DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
@@ -969,7 +977,7 @@ Active Protections:
                             `${!attackActive && !unauthorizedActions ? 'RISULTATO: CSRF attack successfully mitigated!' : 'RISULTATO: Completato.'}`
                             : 'Account funds were stolen through successful CSRF attacks.\n\nActivate CSRF tokens and SameSite cookie protection before restarting.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

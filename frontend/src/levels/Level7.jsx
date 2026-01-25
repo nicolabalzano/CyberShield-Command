@@ -8,6 +8,12 @@ import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
 import { useNavigate } from 'react-router-dom';
 
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
+
 const Level7Content = () => {
     const {
         health,
@@ -330,13 +336,18 @@ int main() {
         const lossRecap = `MISSIONE FALLITA. Sistema compromesso o troppi errori commessi.`;
 
         return (
-            <MissionDebrief 
-                success={gameState === 'won'}
-                stats={{ stars, health }}
-                recapText={gameState === 'won' ? winRecap : lossRecap}
-                onRetry={() => window.location.reload()}
-                onExit={() => navigate('/map')}
-            />
+            <LevelTemplateContent 
+                stars={stars}
+                hint={null}
+            >
+                <MissionDebriefWrapper
+                    success={gameState === 'won'}
+                    stats={{ stars }}
+                    recapText={gameState === 'won' ? winRecap : lossRecap}
+                    onRetry={() => window.location.reload()}
+                    onExit={() => navigate('/map')}
+                />
+            </LevelTemplateContent>
         );
     }
 

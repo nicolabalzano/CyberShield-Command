@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -22,6 +23,12 @@ const HealthSetter = ({ healthSetterRef, onGameOver }) => {
     }, [health, onGameOver]);
     
     return null;
+};
+
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
 };
 
 /**
@@ -169,6 +176,7 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
 ];
 
 const Level5 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level5', 0);
     const { earnStar } = useReputation('level5', 0);
@@ -690,9 +698,9 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                     <Timer secondsRemaining={secondsRemaining} />
                 </div>
                 {completed && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={!failed}
-                        stats={{ stars, health: 100 }}
+                        stats={{ stars }}
                         recapText={!failed ? 
                             `CACHE POISONING DEFENSE ANALYSIS\n\n` +
                             `Cache cleared: ${cacheCleared ? 'YES' : 'NO'}\n` +
@@ -702,7 +710,7 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                             `${!cachePoisoned && proxyRestarted ? 'RISULTATO: Cache poisoning threat neutralized!' : 'RISULTATO: Completato.'}`
                             : 'Time expired! The cache poisoning attack affected too many users.\n\nClear the cache and configure proper headers more quickly next time.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

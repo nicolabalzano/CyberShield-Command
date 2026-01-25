@@ -8,7 +8,7 @@ const defaultFeedbackMessages = {
     error_safe: '✗ Errore! Hai segnalato un\'email legittima come phishing.'
 };
 
-const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, showFeedbackPopup = true }) => {
+const EmailClient = ({ onEmailAction, onEmailRead = () => {}, emails: initialEmails, feedbackMessages, showFeedbackPopup = true }) => {
     const [emails, setEmails] = useState(initialEmails || []);
 
     // Se vengono passate nuove props email, aggiorna lo stato
@@ -137,6 +137,11 @@ const EmailClient = ({ onEmailAction, emails: initialEmails, feedbackMessages, s
         setSelectedEmail(email);
         setShowFeedback(false);
         setShowInspector(false);
+        
+        // Chiama il callback quando l'email viene letta
+        if (onEmailRead) {
+            onEmailRead(email);
+        }
     };
 
     const handleFlag = (isPhishing) => {

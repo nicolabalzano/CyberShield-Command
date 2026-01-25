@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -118,6 +119,12 @@ const DamageHandler = ({ errorTrigger, damageAmount, onGameOver }) => {
     return null;
 };
 
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
+};
+
 // Componente wrapper con logica interna che usa useLevel
 const Level1Content = ({ 
     stars,
@@ -128,6 +135,7 @@ const Level1Content = ({
     setFailed,
     finalStats,
     completionTime,
+    navigate,
     emailsChecked,
     totalEmails,
     damagePerError,
@@ -165,9 +173,9 @@ const Level1Content = ({
                 />
                 
                 {(completed || failed) && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={completed && !failed}
-                        stats={{ stars, health: completed ? 100 : 0 }}
+                        stats={{ stars }}
                         recapText={completed && !failed
                             ? `PHISHING DETECTION ANALYSIS\n\n` +
                                 `Email classificate: ${finalStats.total}/6\n` +
@@ -182,7 +190,7 @@ const Level1Content = ({
                             : `PHISHING DETECTION FAILED\n\nHai commesso troppi errori e perso credibilità presso il team di sicurezza.\n\nRiprova a classificare gli email con più attenzione:\n- Controlla il dominio del mittente\n- Ispeziona gli header SPF e DKIM\n- Verifica i link sospetti`
                         }
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>
@@ -221,6 +229,7 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, co
 };
 
 const Level1 = () => {
+    const navigate = useNavigate();
     const { stars, earnStar } = useReputation('level1', 0);
     const [currentStep, setCurrentStep] = useState(0);
     const [showHint, setShowHint] = useState(true);
@@ -414,6 +423,7 @@ const Level1 = () => {
             setFailed={setFailed}
             finalStats={finalStats}
             completionTime={completionTime}
+            navigate={navigate}
             emailsChecked={emailsChecked}
             totalEmails={totalEmails}
             damagePerError={damagePerError}

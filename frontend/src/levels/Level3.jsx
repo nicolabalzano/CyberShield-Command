@@ -101,17 +101,17 @@ if ($_POST['action'] == 'login') {
     const getHintText = () => {
         switch(phase) {
             case 0: 
-                return "Monitora il SIEM. Attendi un alert di sicurezza SQL Injection. Presta attenzione ai log che indicano tentativi di accesso sospetti.";
+                return "Monitora il SIEM e attendi un alert SQL Injection.";
             case 1:
                 const hints = [
-                    "Abbiamo rilevato SQL Injection nel login! Apri il CODE VIEWER (icona 📝) e analizza 'login.php' per vedere il codice vulnerabile.",
-                    "Il problema è nella funzione 'authenticate_user'. La query concatena direttamente l'input utente senza validazione. Nel TERMINALE usa 'show-vulnerability' per vedere il payload.",
-                    "Un attaccante può inserire: admin' OR '1'='1 per bypassare l'autenticazione. Usa il CODE VIEWER per modificare il codice e usare prepared statements.",
-                    "Modifica il codice usando prepared statements con bind_param. Nel TERMINALE usa 'compile-code' per compilare il codice corretto e testarlo."
+                    "Apri CODE EDITOR e analizza 'login.php' - è vulnerabile a SQL Injection.",
+                    "La query concatena direttamente input utente. Attaccante usa: admin' OR '1'='1",
+                    "Usa il PREPARED STATEMENT:\n\$stmt = \$db->prepare(\"SELECT * FROM users WHERE username=? AND password=?\");\n\$stmt->bind_param(\"ss\", \$username, \$password);",
+                    "I prepared statements compilano laquery PRIMA dei dati. Ciò rende SQL injection impossibile."
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             case 2:
-                return "Codice modificato! Nel TERMINALE usa il comando 'test-login' per verificare che la vulnerabilità sia stata risolta. Poi usa 'compile-code' per finalizzare.";
+                return "Modifica completata! Usa 'test-login' nel TERMINALE.";
             default:
                 return null;
         }

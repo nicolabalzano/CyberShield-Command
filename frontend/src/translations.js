@@ -5,6 +5,8 @@ export const translations = {
       title: "CYBERSHIELD\nCOMMAND",
       subtitle: "Interfaccia Avanzata di Difesa Informatica",
       play: "GIOCA",
+      continua: "CONTINUA",
+      newGame: "NUOVA PARTITA",
       options: "OPZIONI"
     },
     // Tutorial
@@ -101,6 +103,8 @@ export const translations = {
       title: "CYBERSHIELD\nCOMMAND",
       subtitle: "Advanced Cyber Defense Interface",
       play: "PLAY",
+      continua: "CONTINUE",
+      newGame: "NEW GAME",
       options: "OPTIONS"
     },
     // Tutorial

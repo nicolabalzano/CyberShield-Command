@@ -69,6 +69,7 @@ const LevelTutorial = () => {
     const navigate = useNavigate();
     const { stars, earnStar } = useReputation('tutorial', 0);
     const [showHint, setShowHint] = useState(true);
+    const [health] = useState(100);
     const { language } = useLanguage();
     const t = translations[language].tutorial;
     
@@ -140,14 +141,7 @@ const LevelTutorial = () => {
                 explanation: 'Questa è un\'email di alert automatica dal sistema SIEM. Quando ricevi alert di sicurezza, devi agire rapidamente per proteggere i sistemi.'
             }
         ],
-        showFeedbackPopup: false,
-        onEmailRead: (email) => {
-            if (!emailRead && email.id === 2 && currentStep === 0) {
-                setEmailRead(true);
-                setCurrentStep(1);
-                earnStar();
-            }
-        }
+        showFeedbackPopup: false
     };
 
     // === CONFIGURAZIONE BROWSER ===
@@ -260,7 +254,6 @@ const LevelTutorial = () => {
             if (!browserVisited && currentStep === 2) {
                 setBrowserVisited(true);
                 setCurrentStep(3);
-                earnStar();
             }
         }
     };
@@ -357,6 +350,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
             if (!siemLogClicked && log.threat && currentStep === 1) {
                 setSiemLogClicked(true);
                 setCurrentStep(2);
+                earnStar();
             }
         }
     };
@@ -395,11 +389,18 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
                 emailConfig={emailConfig}
+                onEmailRead={(email) => {
+                    if (!emailRead && email.id === 2 && currentStep === 0) {
+                        setEmailRead(true);
+                        setCurrentStep(1);
+                        earnStar();
+                    }
+                }}
             >                
                 {completed && (
                     <MissionDebrief
                         success={true}
-                        stats={{ stars }}
+                        stats={{ stars, health }}
                         recapText={`TUTORIAL COMPLETION\n\n` +
                             `Welcome to the SOC!\n\n` +
                             `You've learned the basics:\n` +
@@ -410,7 +411,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                             `- Threat mitigation: ${threatBlocked ? '✓' : '✗'}\n\n` +
                             `Completion time: ${completionTime}s\n\n` +
                             `You're ready to handle real threats. Good luck!`}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>

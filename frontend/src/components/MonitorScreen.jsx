@@ -16,6 +16,7 @@ import { BrowserProvider } from '../contexts/BrowserContext';
  */
 const MonitorScreen = ({ 
   onEmailAction, 
+  onEmailRead = () => {},
   onHintClick, 
   showHintButton = false, 
   terminalConfig = {},
@@ -158,6 +159,7 @@ const MonitorScreen = ({
                     onMaximize={() => maximizeWindow(window.id)}
                     onFocus={() => bringToFront(window.id)}
                     onEmailAction={onEmailAction}
+                    onEmailRead={onEmailRead}
                     terminalConfig={terminalConfig}
                     siemConfig={siemConfig}
                     emailConfig={emailConfig}
@@ -239,7 +241,8 @@ const Window = ({
   onMinimize, 
   onMaximize, 
   onFocus, 
-  onEmailAction, 
+  onEmailAction,
+  onEmailRead,
   terminalConfig,
   siemConfig,
   emailConfig,
@@ -337,7 +340,7 @@ const Window = ({
       </div>
 
       <div className="h-[calc(100%-2rem)] overflow-auto">
-        {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} {...emailConfig} />}
+        {windowData.contentType === 'email' && <EmailClient onEmailAction={onEmailAction} onEmailRead={onEmailRead} {...emailConfig} />}
         {windowData.contentType === 'terminal' && <Terminal {...terminalConfig} />}
         {windowData.contentType === 'browser' && (
           <Browser 

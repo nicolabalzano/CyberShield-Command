@@ -287,6 +287,95 @@ bool check_unlock_code(char* input) {
     }, [levelState]);
 
     // -------------------------------------------------------------------------
+    // RENDER CONTENT
+    // -------------------------------------------------------------------------
+
+    const Level8Content = () => {
+        const { health, setHealth } = useLevel();
+        const [showDebrief, setShowDebrief] = useState(false);
+        const [isWin, setIsWin] = useState(false);
+        const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
+        
+        // Assegno setHealth al ref per renderlo accessibile fuori
+        React.useEffect(() => {
+            healthSetterRef.current = setHealth;
+        }, [setHealth]);
+        
+        // This useEffect handles the shared timer logic
+        useEffect(() => {
+            if (levelState === 'victory' || levelState === 'briefing') return; // Don't count down during briefing or after win
+
+            const interval = setInterval(() => {
+                setSecondsRemaining(prev => {
+                    const newVal = prev - 1;
+                    
+                    if (newVal <= 0) {
+                        setHealth(0); // Game Over
+                        clearInterval(interval);
+                        return 0;
+                    }
+                    return newVal;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }, [levelState, setHealth]);
+
+        // Separate effect to update health based on time remaining
+        useEffect(() => {
+            if (levelState === 'victory' || levelState === 'briefing') return;
+            
+            // Calculate health based on remaining time (linear decrease)
+            // 300s = 100%, 0s = 0%
+            const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
+            setHealth(Math.max(0, healthPercentage));
+        }, [secondsRemaining, levelState, setHealth]);
+
+        // HANDLE WIN/LOSS
+        useEffect(() => {
+            // LOSS Condition
+            if (health <= 0 && !showDebrief && levelState !== 'victory') {
+                setIsWin(false);
+                setFinalStats({ stars: 0, health: 0 });
+                setShowDebrief(true);
+            }
+            
+            // WIN Condition
+            if (levelState === 'victory' && !showDebrief) {
+                 const duration = (Date.now() - startTime) / 1000;
+                 let stars = 1; 
+                 if (duration < 150) stars++; // Speed run
+                 if (attempts === 0) stars++; // Precision
+                 
+                 setIsWin(true);
+                 setFinalStats({ stars, health });
+                 setShowDebrief(true);
+            }
+        }, [health, levelState, showDebrief]);
+
+        return (
+            <>
+                {showDebrief && (
+                    <MissionDebrief 
+                        success={isWin}
+                        stats={finalStats}
+                        recapText={isWin 
+                            ? "Excellent work. You successfully intercepted the ransomware attack, identified the source via packet analysis, and retrieved the decryption key."
+                            : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
+                        }
+                        onRetry={() => window.location.reload()}
+                        onExit={() => navigate('/map')}
+                    />
+                )}
+                {/* TIMER & HUD */}
+                <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                     <Timer secondsRemaining={secondsRemaining} />
+                </div>
+            </>
+        );
+    };
+
+    // -------------------------------------------------------------------------
     // APP CONFIGURATIONS
     // -------------------------------------------------------------------------
 

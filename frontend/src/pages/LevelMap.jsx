@@ -19,7 +19,7 @@ function LevelMap() {
     // Torna sempre alla musica di background quando si apre la mappa
     changeTrack('/background-music.mp3');
   }, [changeTrack]);
-  
+
   const [selectedLevel, setSelectedLevel] = useState(null);
 
   // Usa le stelle dal contesto di salvataggio
@@ -57,7 +57,7 @@ function LevelMap() {
     return (
       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
         {[...Array(3)].map((_, index) => (
-          <img 
+          <img
             key={index}
             src={whiteHatStar}
             alt="star"
@@ -80,14 +80,14 @@ function LevelMap() {
       </button>
 
       <div className="stars-counter-top">
-        <img 
-          src={whiteHatStar} 
-          alt="star" 
-          style={{ 
-            width: '30px', 
+        <img
+          src={whiteHatStar}
+          alt="star"
+          style={{
+            width: '30px',
             height: '30px',
             filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.7))'
-          }} 
+          }}
         />
         <span className="stars-text">{totalStars} / 30</span>
       </div>
@@ -105,8 +105,8 @@ function LevelMap() {
                   <stop offset="100%" stopColor="rgba(0, 243, 255, 0.6)" />
                 </linearGradient>
               </defs>
-              <path 
-                d="M 2 15 Q 7 12, 12 15 Q 17 18, 22 15 Q 27 12, 32 15 Q 37 18, 42 15 Q 47 12, 52 15 Q 57 18, 62 15 Q 67 12, 72 15 Q 77 18, 82 15 Q 87 12, 92 15"
+              <path
+                d="M 4 15 Q 7 12, 12 15 Q 17 18, 22 15 Q 27 12, 32 15 Q 37 18, 42 15 Q 47 12, 52 15 Q 57 18, 62 15 Q 67 12, 72 15 Q 77 18, 82 15 Q 87 12, 92 15"
                 stroke="url(#pathGradient)"
                 strokeWidth="2"
                 fill="none"
@@ -119,7 +119,7 @@ function LevelMap() {
                 <button
                   key={level.id}
                   className={`level-node ${!level.unlocked ? 'locked' : ''} ${level.isTutorial ? 'tutorial' : ''}`}
-                  style={{ 
+                  style={{
                     left: `${level.position}%`
                   }}
                   onClick={() => level.unlocked && handleLevelClick(level)}
@@ -144,16 +144,16 @@ function LevelMap() {
             <button className="modal-close" onClick={handleCloseModal}>
               ✕
             </button>
-            
+
             <h2 className="modal-title">{selectedLevel.isTutorial ? 'Tutorial' : `Level ${selectedLevel.number}`}</h2>
             <h3 className="modal-name">{t.levelInfo[selectedLevel.id].name}</h3>
-            
+
             <p className="modal-description">{t.levelInfo[selectedLevel.id].description}</p>
-            
+
             <div className="modal-stars">
               {renderStars(selectedLevel.starsEarned)}
             </div>
-            
+
             <button className="modal-play-btn" onClick={handlePlayLevel}>
               ▶ {t.play}
             </button>

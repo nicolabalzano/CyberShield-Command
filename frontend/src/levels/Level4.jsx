@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
@@ -23,6 +24,12 @@ const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
     }, [health, completed, onGameOver]);
     
     return null;
+};
+
+// Wrapper per MissionDebrief con accesso alla salute
+const MissionDebriefWrapper = ({ stats, ...props }) => {
+    const { health } = useLevel();
+    return <MissionDebrief {...props} stats={{ ...stats, health }} />;
 };
 
 /**
@@ -182,6 +189,7 @@ const generateXSSLogs = (attackActive, sanitizationEnabled) => [
 ];
 
 const Level4 = () => {
+    const navigate = useNavigate();
     // Sistema di reputazione (stelle)
     const { stars } = useReputation('level4', 0);
     const { earnStar } = useReputation('level4', 0);
@@ -826,9 +834,9 @@ Active Protections:
                 </div>
                 
                 {completed && (
-                    <MissionDebrief
+                    <MissionDebriefWrapper
                         success={missionSuccess}
-                        stats={{ stars, health: 100 }}
+                        stats={{ stars }}
                         recapText={missionSuccess ? 
                             `XSS DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
@@ -838,7 +846,7 @@ Active Protections:
                             `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`
                             : 'XSS vulnerabilities not fully mitigated. System still vulnerable to script injection attacks.\n\nTry again with stronger protections: enable both sanitization AND CSP.'}
                         onRetry={() => window.location.reload()}
-                        onExit={() => window.location.href = '/'}
+                        onExit={() => navigate('/map')}
                     />
                 )}
             </LevelTemplate>
