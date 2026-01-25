@@ -17,8 +17,7 @@ export const useReputation = (levelId, initialStars = 0) => {
       const newStars = Math.min(prev + 1, 3);
       if (newStars > prev) {
         playSfx('/sfx/star.mp3');
-        // Salva le stelle aggiornate
-        updateStars(levelId, newStars);
+        // Non salviamo più qui, salviamo solo nel MissionDebrief
       }
       return newStars;
     });
@@ -47,8 +46,8 @@ const ReputationStars = ({ stars = 0, maxStars = 3 }) => {
             src={whiteHatStar}
             alt={`Rank ${i + 1}`}
             className={`w-20 h-20 transition-all duration-500 ${i < stars
-                ? "drop-shadow-[0_0_10px_rgba(255,255,255,0.7)] hover:scale-110 filter-none"
-                : "brightness-0 opacity-40 hover:opacity-60 grayscale"
+              ? "drop-shadow-[0_0_10px_rgba(255,255,255,0.7)] hover:scale-110 filter-none"
+              : "brightness-0 opacity-40 hover:opacity-60 grayscale"
               }`}
           />
         </div>

@@ -98,7 +98,7 @@ const LEVEL1_EMAILS = [
 const DamageHandler = ({ errorTrigger, damageAmount, onGameOver }) => {
     const { damage, health } = useLevel();
     const lastProcessedRef = React.useRef(null);
-    
+
     React.useEffect(() => {
         console.log('DamageHandler useEffect:', { errorTrigger, damageAmount, lastProcessed: lastProcessedRef.current });
         // Applica il danno solo se errorTrigger è cambiato e non è null
@@ -115,7 +115,7 @@ const DamageHandler = ({ errorTrigger, damageAmount, onGameOver }) => {
             onGameOver();
         }
     }, [health, onGameOver]);
-    
+
     return null;
 };
 
@@ -126,7 +126,7 @@ const MissionDebriefWrapper = ({ stats, ...props }) => {
 };
 
 // Componente wrapper con logica interna che usa useLevel
-const Level1Content = ({ 
+const Level1Content = ({
     stars,
     currentStep,
     showHint,
@@ -148,6 +148,7 @@ const Level1Content = ({
     return (
         <>
             {/* Status Bar - mostrato sopra tutto */}
+            {/*
             {!completed && !failed && (
                 <div className="fixed top-[71%] left-[69%] -translate-x-1/2 z-[15]">
                     <div className="text-cyber-green text-lg font-mono flex items-center gap-3">
@@ -155,37 +156,38 @@ const Level1Content = ({
                         <span className="text-2xl font-bold text-white ml-2">{emailsChecked} / {totalEmails}</span>
                     </div>
                 </div>
-            )}
+            )} */}
 
-            <LevelTemplate 
+            <LevelTemplate
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 emailConfig={emailConfig}
                 onEmailAction={onEmailAction}
-            >                
+            >
                 {/* Componente che gestisce il danno */}
-                <DamageHandler 
-                    key={lastErrorTrigger} 
-                    errorTrigger={lastErrorTrigger} 
+                <DamageHandler
+                    key={lastErrorTrigger}
+                    errorTrigger={lastErrorTrigger}
                     damageAmount={damagePerError}
                     onGameOver={() => setFailed(true)}
                 />
-                
+
                 {(completed || failed) && (
                     <MissionDebriefWrapper
                         success={completed && !failed}
+                        levelId="level1"
                         stats={{ stars }}
                         recapText={completed && !failed
                             ? `PHISHING DETECTION ANALYSIS\n\n` +
-                                `Email classificate: ${finalStats.total}/6\n` +
-                                `Identificazioni corrette: ${finalStats.correct}/${finalStats.total}\n` +
-                                `Precisione: ${Math.round((finalStats.correct / finalStats.total) * 100)}%\n` +
-                                `Tempo completamento: ${completionTime}s\n\n` +
-                                `${finalStats.correct === finalStats.total 
-                                    ? 'RISULTATO: ECCELLENTE - Perfetta identificazione di tutti gli email di phishing!' 
-                                    : finalStats.correct >= 5 
-                                    ? 'RISULTATO: BUONO - Hai identificato correttamente quasi tutti i phishing.' 
+                            `Email classificate: ${finalStats.total}/6\n` +
+                            `Identificazioni corrette: ${finalStats.correct}/${finalStats.total}\n` +
+                            `Precisione: ${Math.round((finalStats.correct / finalStats.total) * 100)}%\n` +
+                            `Tempo completamento: ${completionTime}s\n\n` +
+                            `${finalStats.correct === finalStats.total
+                                ? 'RISULTATO: ECCELLENTE - Perfetta identificazione di tutti gli email di phishing!'
+                                : finalStats.correct >= 5
+                                    ? 'RISULTATO: BUONO - Hai identificato correttamente quasi tutti i phishing.'
                                     : 'RISULTATO: ACCETTABILE - Hai completato il livello ma con alcuni errori.'}`
                             : `PHISHING DETECTION FAILED\n\nHai commesso troppi errori e perso credibilità presso il team di sicurezza.\n\nRiprova a classificare gli email con più attenzione:\n- Controlla il dominio del mittente\n- Ispeziona gli header SPF e DKIM\n- Verifica i link sospetti`
                         }
@@ -205,12 +207,12 @@ const Level1Inner = ({ onStepChange, onToggleHint, onComplete, emailsChecked, co
     const handleEmailAction = (email, markedAsPhishing, isCorrect) => {
         const newChecked = emailsChecked + 1;
         let finalCorrect = correctIdentifications;
-        
+
         onComplete(newChecked, isCorrect ? correctIdentifications + 1 : correctIdentifications);
 
         if (isCorrect) {
             finalCorrect = correctIdentifications + 1;
-            
+
             // Guadagna stella ogni 2 identificazioni corrette
             if (finalCorrect % 2 === 0) {
                 earnStar();
@@ -279,7 +281,7 @@ const Level1 = () => {
     // Stella 3: Istruzioni lette (CyberNav)
     useEffect(() => {
         if (!completed) return;
-        
+
         // Stella 1: Tutte le email controllate
         if (emailsChecked === LEVEL1_EMAILS.length && stars === 0) {
             earnStar();
@@ -302,7 +304,7 @@ const Level1 = () => {
         console.log('handleEmailAction chiamato:', { email: email.id, markedAsPhishing, isCorrect });
         const newChecked = emailsChecked + 1;
         let finalCorrect = correctIdentifications;
-        
+
         setEmailsChecked(newChecked);
 
         if (isCorrect) {
@@ -313,7 +315,7 @@ const Level1 = () => {
             console.log('Triggering damage:', damagePerError);
             setLastErrorTrigger(Date.now());
         }
-        
+
         // Completa quando tutte le 6 email sono state controllate
         if (newChecked === totalEmails) {
             setFinalStats({ correct: finalCorrect, total: newChecked });
@@ -393,7 +395,7 @@ const Level1 = () => {
     };
 
     const getHintText = () => {
-        switch(currentStep) {
+        switch (currentStep) {
             case 0:
                 return 'Apri ogni email e controlla il mittente. Clicca sull\'indirizzo per vedere il dominio completo. Cerca errori come "paypa1.com" invece di "paypal.com".';
             case 1:

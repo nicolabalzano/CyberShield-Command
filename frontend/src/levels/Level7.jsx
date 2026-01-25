@@ -17,17 +17,17 @@ const MissionDebriefWrapper = ({ stats, ...props }) => {
 const Level7Content = () => {
     const {
         health,
-        damage: takeDamage, 
+        damage: takeDamage,
         heal,
     } = useLevel();
-    
+
     const [stars, setStars] = useState(0);
     const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
     const navigate = useNavigate();
 
     const addStar = () => setStars(prev => Math.min(prev + 1, 3));
     const winLevel = () => setGameState('won');
-    
+
     const failLevel = () => {
         setGameState('lost');
     };
@@ -39,8 +39,8 @@ const Level7Content = () => {
     }, [health, gameState]);
 
     const [phase, setPhase] = useState(0);
-    const [activeView, setActiveView] = useState('SIEM'); 
-    
+    const [activeView, setActiveView] = useState('SIEM');
+
     const [files, setFiles] = useState({
         'auth.exe': {
             name: 'auth.exe',
@@ -154,15 +154,15 @@ int main() {
         if (phase === 1) {
             const timer = setInterval(() => {
                 setHintIndex(prev => prev + 1);
-            }, 15000); 
+            }, 15000);
             return () => clearInterval(timer);
         }
     }, [phase]);
 
     const getHintText = () => {
-        switch(phase) {
+        switch (phase) {
             case 0: return "Monitora il SIEM. Attendi un alert di sicurezza critico.";
-            case 1: 
+            case 1:
                 const hints = [
                     "Abbiamo rilevato che 'auth.exe' garantisce l'accesso a chiunque. Sembra esserci un grave errore di programmazione (Debug Mode lasciato attivo).",
                     "Analizza il codice C decompilato tramite 'RE Tool'. Cerca la funzione 'check_credentials'. Noti qualcosa di strano nell'istruzione IF?",
@@ -174,31 +174,31 @@ int main() {
             case 3: return "Perfetto, ora fallo di nuovo. 'updater.exe' ha un problema opposto. Blocca anche gli aggiornamenti validi. Analizzalo e correggi la logica.";
             case 4: return "Hai patchato updater.exe? Bene. Ora compilalo ed eseguilo nel terminale come hai imparato.";
             default: return null;
-        }   
+        }
     };
 
     useEffect(() => {
         const text = getHintText();
         if (text !== visibleHint) {
-            setVisibleHint(null); 
+            setVisibleHint(null);
             const timeout = setTimeout(() => {
-                setVisibleHint(text); 
-            }, 400); 
+                setVisibleHint(text);
+            }, 400);
             return () => clearTimeout(timeout);
         }
-    }, [phase, hintIndex]); 
+    }, [phase, hintIndex]);
 
 
     useEffect(() => {
         if (phase === 0) {
             const timer = setTimeout(() => {
-                const newLog = { 
-                    id: 3, 
-                    timestamp: '10:11:45', 
-                    source: 'INTERNAL', 
-                    severity: 'critical', 
-                    message: 'Auth Bypass Detected: Admin access granted to anonymous user.', 
-                    threat: true 
+                const newLog = {
+                    id: 3,
+                    timestamp: '10:11:45',
+                    source: 'INTERNAL',
+                    severity: 'critical',
+                    message: 'Auth Bypass Detected: Admin access granted to anonymous user.',
+                    threat: true
                 };
                 setLogs(prev => [...prev, newLog]);
             }, 5000);
@@ -233,7 +233,7 @@ int main() {
 
     const runTerminalCommand = (args, fullCommand) => {
         const cmd = args.length > 0 ? fullCommand.split(' ')[0] : fullCommand;
-        
+
         if (cmd === 'gcc' || cmd === 'make' || cmd === 'build') {
             if (phase === 2) return "$ Compiling auth.exe... OK. (Binary patched)";
             if (phase === 4) return "$ Compiling updater.exe... OK. (Binary patched)";
@@ -243,11 +243,11 @@ int main() {
         if (cmd === './auth.exe' && phase === 2) {
             const currentCode = files['auth.exe'].c;
             const isPatched = currentCode.includes('if (input_code == 195932126)');
-            
+
             if (isPatched) {
                 heal(10);
                 addStar(); // Prima stella (uguale a prima)
-                setTerminalHistory(prev => [...prev, 
+                setTerminalHistory(prev => [...prev,
                     '> Executing auth.exe...',
                     '> Enter Access Code: 195932126',
                     '[SUCCESS] Access Granted! System Unlocked.',
@@ -278,13 +278,13 @@ int main() {
             const normCode = currentCode.replace(/\s+/g, ' ');
             const hasPayload = normCode.includes('system("service_update.bat")');
             const isCheckGone = !normCode.includes('if (is_valid != 1)');
-            
+
             // Nuova logica: Verifica se è stato usato il bypass "if (1)"
             const isLazyBypass = normCode.includes('if(1)') || normCode.includes('if (1)');
 
             if (hasPayload && isCheckGone) {
                 heal(20);
-                
+
                 // Seconda Stella: solo se non è un bypass pigro
                 if (!isLazyBypass) {
                     addStar();
@@ -299,7 +299,7 @@ int main() {
                     addStar();
                 }
 
-                setTerminalHistory(prev => [...prev, 
+                setTerminalHistory(prev => [...prev,
                     '> Executing updater.exe...',
                     '[SUCCESS] Signature Verified (Bypassed). Running update...',
                     '$ MISSION ACCOMPLISHED.'
@@ -322,7 +322,7 @@ int main() {
         if (cmd === 'ls') {
             return "auth.exe   updater.exe   README.txt";
         }
-        
+
         return `Command not found: ${cmd}`;
     };
 
@@ -336,12 +336,13 @@ int main() {
         const lossRecap = `MISSIONE FALLITA. Sistema compromesso o troppi errori commessi.`;
 
         return (
-            <LevelTemplateContent 
+            <LevelTemplateContent
                 stars={stars}
                 hint={null}
             >
                 <MissionDebriefWrapper
                     success={gameState === 'won'}
+                    levelId="level7"
                     stats={{ stars }}
                     recapText={gameState === 'won' ? winRecap : lossRecap}
                     onRetry={() => window.location.reload()}
@@ -352,7 +353,7 @@ int main() {
     }
 
     return (
-        <LevelTemplateContent 
+        <LevelTemplateContent
             title="Level 7: Reverse Engineering & Patching"
             subtitle="Analyze binary logic and bypass security controls"
             health={health}
@@ -369,7 +370,7 @@ int main() {
                 commands: {
                     'build': (args) => runTerminalCommand(args, 'build'),
                     'gcc': (args) => runTerminalCommand(args, 'gcc'),
-                    './auth.exe': (args) => runTerminalCommand(args, './auth.exe'), 
+                    './auth.exe': (args) => runTerminalCommand(args, './auth.exe'),
                     './updater.exe': (args) => runTerminalCommand(args, './updater.exe'),
                     'ls': (args) => runTerminalCommand(args, 'ls'),
                     'help': () => "Available: ls, build, ./auth.exe, ./updater.exe"

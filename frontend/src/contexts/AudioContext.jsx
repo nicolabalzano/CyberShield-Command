@@ -16,7 +16,7 @@ export const AudioProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(true); 
   
   // PERCORSO CORRETTO
-  const [currentTrack, setCurrentTrack] = useState('/sfx/background-music.mp3');
+  const [currentTrack, setCurrentTrack] = useState('/level-music.mp3');
   const audioRef = useRef(null);
   
   // Riferimenti per la tastiera

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
+import Timer from '../components/Timer';
 
 // -------------------------------------------------------------------------
 // LEVEL 9: CRYPTOGRAPHY VULNERABILITY - DES Weak Keys
@@ -14,7 +15,9 @@ const Level9Content = ({
     startTime,
     stars,
     navigate,
-    healthSetterRef
+    healthSetterRef,
+    secondsRemaining,
+    setSecondsRemaining
 }) => {
     const { health, setHealth, damage, heal } = useLevel();
     const [showDebrief, setShowDebrief] = useState(false);
@@ -27,6 +30,38 @@ const Level9Content = ({
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
+
+    // Timer Logic (Conteggio alla rovescia)
+    useEffect(() => {
+        if (levelState === 'victory' || showDebrief) return;
+
+        const interval = setInterval(() => {
+            setSecondsRemaining(prev => {
+                const newVal = prev - 1;
+
+                if (newVal <= 0) {
+                    setHealth(0); // Game Over
+                    clearInterval(interval);
+                    return 0;
+                }
+                return newVal;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [levelState, showDebrief, setSecondsRemaining, setHealth]);
+
+    // Apply Health Decay based on Time Remaining
+    useEffect(() => {
+        if (levelState === 'victory' || showDebrief) return;
+
+        // 300s = 100%, 0s = 0%
+        const MAX_TIME = 300;
+        const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
+        setHealth(Math.max(0, healthPercentage));
+
+    }, [secondsRemaining, levelState, showDebrief, setHealth]);
+
 
     // WIN/LOSS Condition Logic
     useEffect(() => {
@@ -50,6 +85,7 @@ const Level9Content = ({
             {showDebrief && (
                 <MissionDebrief
                     success={isWin}
+                    levelId="level9"
                     stats={finalStats}
                     recapText={isWin
                         ? `VULNERABILITÀ CORRETTA: DES con Chiavi Deboli
@@ -68,6 +104,11 @@ Hai sostituito DES con AES-256, un algoritmo moderno con chiavi a 256 bit, rende
                     onExit={() => navigate('/map')}
                 />
             )}
+
+            {/* TIMER & HUD */}
+            <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                <Timer secondsRemaining={secondsRemaining} />
+            </div>
         </>
     );
 };
@@ -82,6 +123,10 @@ const Level9 = () => {
     const [gamePhase, setGamePhase] = useState('email_arrived'); // email_arrived -> siem_check -> code_review -> fix_code -> terminal_build -> victory
     const [startTime] = useState(Date.now());
     const [stars, setStars] = useState(0);
+
+    // Timer State (5 minutes)
+    const MAX_TIME = 300;
+    const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
 
     // Hint system
     const [currentHint, setCurrentHint] = useState("Hai ricevuto una nuova email dall'HR. Controlla la tua casella di posta elettronica.");
@@ -365,9 +410,15 @@ if __name__ == "__main__":
             setStars(prev => Math.min(3, prev + 1));
             setCurrentHint("Ottimo! Hai sostituito DES con AES. Ora vai nel Terminal ed esegui: build mail_server e poi update mail_server");
 
-            // Apply damage reduction for fixing vulnerability
+            // Apply damage reduction for fixing vulnerability (restore some health)
             if (healthSetterRef.current) {
-                healthSetterRef.current(h => Math.min(100, h + 10));
+                // Restore 10% health but respect max time constraint logic
+                // Actually, if we just add 10, the next timer tick will overwrite it?
+                // No, timer check runs often but only sets health based on time.
+                // Wait, if I set health here based on +10, and then the next second the timer effect runs, it will reset health to time-based value.
+                // In Level 8, time-based health is authoritative.
+                // So healing is effectively increasing remaining TIME.
+                setSecondsRemaining(t => Math.min(MAX_TIME, t + 30)); // Heal = Add 30 seconds
             }
         } else {
             // Provide feedback about what's missing
@@ -377,9 +428,9 @@ if __name__ == "__main__":
                 setCurrentHint("Quasi! Ci sono ancora occorrenze di DES nel codice. Sostituiscile tutte con AES.");
             }
 
-            // Small damage for wrong attempt
+            // Small damage for wrong attempt = lose time
             if (healthSetterRef.current) {
-                healthSetterRef.current(h => Math.max(0, h - 5));
+                setSecondsRemaining(t => Math.max(0, t - 15)); // Damage = Lose 15 seconds
             }
         }
     };
@@ -455,18 +506,7 @@ if __name__ == "__main__":
     // EFFECTS
     // -------------------------------------------------------------------------
 
-    // Damage over time when vulnerability is not fixed
-    useEffect(() => {
-        if (levelState === 'victory' || !siemChecked) return;
-
-        const damageInterval = setInterval(() => {
-            if (!codeFixed && healthSetterRef.current) {
-                healthSetterRef.current(h => Math.max(0, h - 3));
-            }
-        }, 10000); // 3% damage every 10 seconds
-
-        return () => clearInterval(damageInterval);
-    }, [levelState, siemChecked, codeFixed]);
+    // Removed manual damage over time effect (now handled by timer health synchronization)
 
     // Traffic simulation
     useEffect(() => {
@@ -550,6 +590,8 @@ if __name__ == "__main__":
                 stars={stars}
                 navigate={navigate}
                 healthSetterRef={healthSetterRef}
+                secondsRemaining={secondsRemaining}
+                setSecondsRemaining={setSecondsRemaining}
             />
         </LevelTemplate>
     );

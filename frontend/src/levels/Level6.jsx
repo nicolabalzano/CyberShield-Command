@@ -10,20 +10,20 @@ import Timer from '../components/Timer';
 // Componente interno per monitorare la salute e gestire il game over
 const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
     const { health, setHealth } = useLevel();
-    
+
     // Assegna setHealth al ref
     React.useEffect(() => {
         if (healthSetterRef) {
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
-    
+
     useEffect(() => {
         if (health <= 0 && !completed) {
             onGameOver();
         }
     }, [health, completed, onGameOver]);
-    
+
     return null;
 };
 
@@ -133,7 +133,7 @@ const generateCSRFLogs = (attackActive, tokensEnabled) => [
         severity: attackActive ? 'critical' : 'medium',
         source: '203.0.113.88',
         type: attackActive ? 'ALERT' : 'WARNING',
-        message: attackActive 
+        message: attackActive
             ? 'CSRF Attack: Unauthorized transfer request from external origin http://evil-site.com'
             : 'CSRF attempt blocked: Missing or invalid CSRF token',
         threat: attackActive
@@ -207,20 +207,19 @@ const generateCSRFLogs = (attackActive, tokensEnabled) => [
 const Level6 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
-    const { stars } = useReputation('level6', 0);
-    const { earnStar } = useReputation('level6', 0);
+    const { stars, earnStar } = useReputation('level6', 0);
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // CSRF attivo
     const [unauthorizedActions, setUnauthorizedActions] = useState(true); // Azioni non autorizzate eseguite
-    
+
     // Timer State (5 minutes)
     const MAX_TIME = 300;
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
-    
+
     // Ref per accedere a setHealth da Level6Content
     const healthSetterRef = React.useRef(null);
-    
+
     const [protectionsEnabled, setProtectionsEnabled] = useState({
         csrfTokens: false,
         sameSiteCookies: false,
@@ -232,7 +231,7 @@ const Level6 = () => {
     const [csrfType, setCsrfType] = useState(''); // Tipo identificato
     const [legitimateBlocked, setLegitimateBlocked] = useState(false);
     const [accountBalance, setAccountBalance] = useState(USER_ACCOUNT.balance);
-    
+
     // UI State
     const [completed, setCompleted] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -270,7 +269,7 @@ const Level6 = () => {
             return () => clearTimeout(timeout);
         }
     }, [currentStep, hintIndex]);
-    
+
     // Timer logic - countdown every second
     useEffect(() => {
         if (completed || failed) return; // Don't count down after completion or failure
@@ -278,7 +277,7 @@ const Level6 = () => {
         const interval = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newVal = prev - 1;
-                
+
                 if (newVal <= 0) {
                     if (healthSetterRef.current) {
                         healthSetterRef.current(0); // Game Over
@@ -296,7 +295,7 @@ const Level6 = () => {
     // Update health based on remaining time (linear decrease)
     useEffect(() => {
         if (completed || failed) return;
-        
+
         // Calculate health based on remaining time (linear decrease)
         // 300s = 100%, 0s = 0%
         const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
@@ -334,7 +333,7 @@ const Level6 = () => {
     // Blocca transazioni CSRF quando le protezioni sono attive
     useEffect(() => {
         if (protectionsEnabled.csrfTokens || protectionsEnabled.sameSiteCookies || protectionsEnabled.originValidation) {
-            setTransactions(prevTransactions => 
+            setTransactions(prevTransactions =>
                 prevTransactions.map(transaction => {
                     if (transaction.csrf && transaction.status === 'pending') {
                         return {
@@ -350,7 +349,7 @@ const Level6 = () => {
             setAccountBalance(USER_ACCOUNT.balance);
         } else {
             // Se nessuna protezione, le transazioni CSRF vanno a buon fine
-            setTransactions(prevTransactions => 
+            setTransactions(prevTransactions =>
                 prevTransactions.map(transaction => {
                     if (transaction.csrf && transaction.status === 'pending') {
                         return {
@@ -376,18 +375,18 @@ const Level6 = () => {
             if (stars === 0) {
                 earnStar();
             }
-            
+
             // Stella 2: nessun falso positivo
             if (!legitimateBlocked && stars === 1) {
                 earnStar();
             }
-            
+
             // Stella 3: analisi completa + protezioni multiple
             const multipleProtections = Object.values(protectionsEnabled).filter(Boolean).length >= 2;
             if (multipleProtections && csrfType && stars === 2) {
                 earnStar();
             }
-            
+
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setTimeout(() => {
                 setCompleted(true);
@@ -407,19 +406,17 @@ const Level6 = () => {
                         <div className="max-w-4xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
                                 <h1 className="text-2xl font-bold text-gray-800">🏦 Company Finance Portal</h1>
-                                <div className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                    attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
-                                }`}>
+                                <div className={`px-3 py-1 rounded-full text-sm font-bold ${attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
+                                    }`}>
                                     {attackActive ? '⚠️ VULNERABLE' : '✅ SECURE'}
                                 </div>
                             </div>
 
                             {/* Security Alert */}
-                            <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-                                attackActive 
-                                    ? 'bg-red-100 border-red-500'
-                                    : 'bg-green-100 border-green-500'
-                            }`}>
+                            <div className={`mb-6 p-4 rounded-lg border-l-4 ${attackActive
+                                ? 'bg-red-100 border-red-500'
+                                : 'bg-green-100 border-green-500'
+                                }`}>
                                 {attackActive ? (
                                     <div className="text-red-800">
                                         <p className="font-bold mb-1">⚠️ SECURITY ALERT</p>
@@ -449,9 +446,8 @@ const Level6 = () => {
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Current Balance</p>
-                                        <p className={`text-2xl font-bold ${
-                                            accountBalance < USER_ACCOUNT.balance ? 'text-red-600 animate-pulse' : 'text-green-600'
-                                        }`}>
+                                        <p className={`text-2xl font-bold ${accountBalance < USER_ACCOUNT.balance ? 'text-red-600 animate-pulse' : 'text-green-600'
+                                            }`}>
                                             ${accountBalance.toLocaleString()}
                                         </p>
                                         {accountBalance < USER_ACCOUNT.balance && (
@@ -472,15 +468,14 @@ const Level6 = () => {
                                 <h2 className="text-xl font-semibold mb-4 text-gray-800">Recent Activity</h2>
                                 <div className="space-y-3">
                                     {transactions.map(transaction => (
-                                        <div 
+                                        <div
                                             key={transaction.id}
-                                            className={`p-3 rounded border ${
-                                                transaction.csrf && attackActive
-                                                    ? 'border-red-400 bg-red-50'
-                                                    : transaction.csrf && transaction.status === 'blocked'
+                                            className={`p-3 rounded border ${transaction.csrf && attackActive
+                                                ? 'border-red-400 bg-red-50'
+                                                : transaction.csrf && transaction.status === 'blocked'
                                                     ? 'border-yellow-400 bg-yellow-50'
                                                     : 'border-gray-200 bg-gray-50'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div className="flex-1">
@@ -489,11 +484,10 @@ const Level6 = () => {
                                                             {transaction.action}
                                                         </p>
                                                         {transaction.csrf && (
-                                                            <span className={`text-xs px-2 py-0.5 rounded ${
-                                                                transaction.status === 'blocked'
-                                                                    ? 'bg-yellow-500 text-white'
-                                                                    : 'bg-red-500 text-white animate-pulse'
-                                                            }`}>
+                                                            <span className={`text-xs px-2 py-0.5 rounded ${transaction.status === 'blocked'
+                                                                ? 'bg-yellow-500 text-white'
+                                                                : 'bg-red-500 text-white animate-pulse'
+                                                                }`}>
                                                                 {transaction.status === 'blocked' ? '🛡️ BLOCKED' : '🚨 CSRF'}
                                                             </span>
                                                         )}
@@ -518,15 +512,14 @@ const Level6 = () => {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <span className={`text-xs font-bold px-2 py-1 rounded ${
-                                                        transaction.status === 'completed' && !transaction.csrf
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : transaction.status === 'blocked'
+                                                    <span className={`text-xs font-bold px-2 py-1 rounded ${transaction.status === 'completed' && !transaction.csrf
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : transaction.status === 'blocked'
                                                             ? 'bg-yellow-100 text-yellow-800'
                                                             : transaction.status === 'completed' && transaction.csrf
-                                                            ? 'bg-red-100 text-red-800'
-                                                            : 'bg-gray-100 text-gray-800'
-                                                    }`}>
+                                                                ? 'bg-red-100 text-red-800'
+                                                                : 'bg-gray-100 text-gray-800'
+                                                        }`}>
                                                         {transaction.status.toUpperCase()}
                                                     </span>
                                                 </div>
@@ -561,33 +554,29 @@ const Level6 = () => {
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">CSRF Tokens (Synchronizer Pattern)</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.csrfTokens ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.csrfTokens ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.csrfTokens ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">SameSite Cookies</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.sameSiteCookies ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.sameSiteCookies ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.sameSiteCookies ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">Origin/Referer Validation</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.originValidation ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.originValidation ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.originValidation ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="text-sm">Double Submit Cookie</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.doubleSubmitCookie ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.doubleSubmitCookie ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.doubleSubmitCookie ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
@@ -603,24 +592,22 @@ const Level6 = () => {
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
                                             <span>Overall Risk Level</span>
-                                            <span className={`font-bold ${
-                                                attackActive ? 'text-red-400' : 'text-green-400'
-                                            }`}>
+                                            <span className={`font-bold ${attackActive ? 'text-red-400' : 'text-green-400'
+                                                }`}>
                                                 {attackActive ? 'CRITICAL' : 'LOW'}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
-                                            <div 
-                                                className={`h-2 rounded-full transition-all ${
-                                                    attackActive ? 'bg-red-500 w-full' : 'bg-green-500 w-1/4'
-                                                }`}
+                                            <div
+                                                className={`h-2 rounded-full transition-all ${attackActive ? 'bg-red-500 w-full' : 'bg-green-500 w-1/4'
+                                                    }`}
                                             />
                                         </div>
                                     </div>
                                     <div className="text-xs text-gray-400">
                                         <p className="mb-1">
                                             <strong>CSRF Requests Detected:</strong> {
-                                                attackActive 
+                                                attackActive
                                                     ? INITIAL_TRANSACTIONS.filter(t => t.csrf).length
                                                     : 0
                                             }
@@ -630,7 +617,7 @@ const Level6 = () => {
                                         </p>
                                         <p>
                                             <strong>Financial Loss:</strong> {
-                                                attackActive 
+                                                attackActive
                                                     ? `$${(USER_ACCOUNT.balance - accountBalance).toLocaleString()}`
                                                     : '$0'
                                             }
@@ -671,10 +658,10 @@ const Level6 = () => {
                     <div className="p-6 bg-black text-red-500 h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
                             <h1 className="text-2xl font-bold mb-6 animate-pulse">☠️ Attacker&apos;s Site</h1>
-                            
+
                             <div className="bg-gray-900 border border-red-500 rounded-lg p-4 mb-4">
                                 <p className="text-sm text-gray-400 mb-3">This malicious page contains hidden CSRF attacks:</p>
-                                
+
                                 <div className="font-mono text-xs bg-black p-3 rounded border border-red-700">
                                     <p className="text-green-400">&lt;!-- Hidden malicious form --&gt;</p>
                                     <p className="text-white">&lt;form action=&quot;http://company-finance.internal/transfer&quot; method=&quot;POST&quot;&gt;</p>
@@ -729,11 +716,11 @@ ${csrfRequests.map((t, i) => `${i + 1}. ${t.action} from ${t.origin || 'unknown 
             'show-transaction': (args) => {
                 const id = parseInt(args[0]);
                 const transaction = transactions.find(t => t.id === id);
-                
+
                 if (!transaction) {
                     return 'Usage: show-transaction <id>\nExample: show-transaction 2';
                 }
-                
+
                 return `=== TRANSACTION DETAILS ===
 ID: ${transaction.id}
 Time: ${transaction.time}
@@ -841,7 +828,7 @@ ${accountBalance < USER_ACCOUNT.balance ? 'WARNING: Unauthorized transfer detect
                 if (!protectionsEnabled.sameSiteCookies) vulns.push('- SameSite cookies not configured');
                 if (!protectionsEnabled.originValidation) vulns.push('- No Origin/Referer validation');
                 if (!protectionsEnabled.doubleSubmitCookie) vulns.push('- Double Submit Cookie not implemented');
-                
+
                 return `=== CSRF VULNERABILITY SCAN ===
 ${vulns.length > 0 ? 'VULNERABILITIES FOUND:\n' + vulns.join('\n') : '✓ No critical vulnerabilities detected'}
 
@@ -884,15 +871,15 @@ Active Protections:
             { time: '14:30', value: attackActive ? 55 : 19 },
             { time: '14:35', value: attackActive ? 60 : 17 }
         ],
-        networkTraffic: { 
-            incoming: attackActive ? 320 : 180, 
-            outgoing: attackActive ? 450 : 220 
+        networkTraffic: {
+            incoming: attackActive ? 320 : 180,
+            outgoing: attackActive ? 450 : 220
         },
-        protocols: { 
+        protocols: {
             http: attackActive ? 550 : 280,
-            https: 180, 
-            ssh: 20, 
-            ftp: 0 
+            https: 180,
+            ssh: 20,
+            ftp: 0
         },
         selectedLog: null,
         onLogClick: (log) => console.log('Log analizzato:', log)
@@ -901,8 +888,8 @@ Active Protections:
     // === HINT PROGRESSIVI ===
     const getHintText = () => {
         if (completed) return '';
-        
-        switch(currentStep) {
+
+        switch (currentStep) {
             case 0:
                 return 'Nel SIEM analizza le transazioni. Vedi richieste da origini esterne (evil-site.com)? Nel TERMINALE usa "analyze-requests" per analizzare i dettagli della richiesta CSRF.';
             case 1:
@@ -943,32 +930,33 @@ Active Protections:
 
     return (
         <div>
-            <LevelTemplate 
+            <LevelTemplate
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-            >                
-                <HealthMonitor 
-                    completed={completed} 
+            >
+                <HealthMonitor
+                    completed={completed}
                     healthSetterRef={healthSetterRef}
                     onGameOver={() => {
                         setMissionSuccess(false);
                         setFailed(true);
                         setCompleted(true);
-                    }} 
+                    }}
                 />
                 {/* TIMER */}
                 <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
                     <Timer secondsRemaining={secondsRemaining} />
                 </div>
-                
+
                 {completed && (
                     <MissionDebriefWrapper
                         success={missionSuccess}
+                        levelId="level6"
                         stats={{ stars }}
-                        recapText={missionSuccess ? 
+                        recapText={missionSuccess ?
                             `CSRF DEFENSE ANALYSIS\n\n` +
                             `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
                             `Unauthorized actions: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +

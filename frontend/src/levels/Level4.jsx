@@ -9,20 +9,20 @@ import Timer from '../components/Timer';
 // Componente interno per monitorare la salute e gestire il game over
 const HealthMonitor = ({ completed, onGameOver, healthSetterRef }) => {
     const { health, setHealth } = useLevel();
-    
+
     // Assegna setHealth al ref
     React.useEffect(() => {
         if (healthSetterRef) {
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
-    
+
     useEffect(() => {
         if (health <= 0 && !completed) {
             onGameOver();
         }
     }, [health, completed, onGameOver]);
-    
+
     return null;
 };
 
@@ -119,7 +119,7 @@ const generateXSSLogs = (attackActive, sanitizationEnabled) => [
         severity: attackActive ? 'critical' : 'medium',
         source: '203.0.113.66',
         type: attackActive ? 'ALERT' : 'WARNING',
-        message: attackActive 
+        message: attackActive
             ? 'XSS payload detected in comment: <script>alert("XSS Attack!")</script>'
             : 'Suspicious input blocked: <script> tag detected and sanitized',
         threat: attackActive
@@ -191,8 +191,7 @@ const generateXSSLogs = (attackActive, sanitizationEnabled) => [
 const Level4 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
-    const { stars } = useReputation('level4', 0);
-    const { earnStar } = useReputation('level4', 0);
+    const { stars, earnStar } = useReputation('level4', 0);
 
     // === STATO DEL LIVELLO ===
     const [attackActive, setAttackActive] = useState(true); // XSS attivo
@@ -206,19 +205,23 @@ const Level4 = () => {
     const [comments, setComments] = useState(INITIAL_COMMENTS); // Commenti
     const [appRestarted, setAppRestarted] = useState(false);
     const [xssType, setXssType] = useState(''); // Tipo identificato
-    const [legitimateBlocked, setLegitimateBlocked] = useState(false);
-    
+
+    // Traccia azioni bonus per stelle
+    const [showPayloadUsed, setShowPayloadUsed] = useState(false); // Stella 1
+    const [escapingUsed, setEscapingUsed] = useState(false); // Stella 2
+    const [identifyUsed, setIdentifyUsed] = useState(false); // Stella 3
+
     // UI State
     const [completed, setCompleted] = useState(false);
     const [failed, setFailed] = useState(false);
     const [showHint, setShowHint] = useState(true);
     const [currentStep, setCurrentStep] = useState(0);
     const [startTime] = useState(Date.now());
-    
+
     // Timer State (5 minutes)
     const MAX_TIME = 300;
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
-    
+
     // Ref per accedere a setHealth da Level4Content
     const healthSetterRef = React.useRef(null);
     const [completionTime, setCompletionTime] = useState(0);
@@ -252,7 +255,7 @@ const Level4 = () => {
             return () => clearTimeout(timeout);
         }
     }, [currentStep, hintIndex]);
-    
+
     // Timer logic - countdown every second
     useEffect(() => {
         if (completed || failed) return; // Don't count down after completion or failure
@@ -260,7 +263,7 @@ const Level4 = () => {
         const interval = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newVal = prev - 1;
-                
+
                 if (newVal <= 0) {
                     if (healthSetterRef.current) {
                         healthSetterRef.current(0); // Game Over
@@ -278,7 +281,7 @@ const Level4 = () => {
     // Update health based on remaining time (linear decrease)
     useEffect(() => {
         if (completed || failed) return;
-        
+
         // Calculate health based on remaining time (linear decrease)
         // 300s = 100%, 0s = 0%
         const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
@@ -312,7 +315,7 @@ const Level4 = () => {
     // Sanitizza i commenti quando le protezioni sono attive
     useEffect(() => {
         if (protectionsEnabled.htmlSanitization || protectionsEnabled.outputEscaping) {
-            setComments(prevComments => 
+            setComments(prevComments =>
                 prevComments.map(comment => {
                     if (!comment.safe) {
                         return {
@@ -336,30 +339,21 @@ const Level4 = () => {
     }, [protectionsEnabled.htmlSanitization, protectionsEnabled.outputEscaping]);
 
     // === CONDIZIONE DI COMPLETAMENTO ===
+    // VITTORIA: enable-httponly + enable-sanitization + restart-app
     useEffect(() => {
-        if (!attackActive && !scriptExecuted && appRestarted && !completed) {
-            // Stella 1: completamento base
-            if (stars === 0) {
-                earnStar();
-            }
-            
-            // Stella 2: nessun falso positivo
-            if (!legitimateBlocked && stars === 1) {
-                earnStar();
-            }
-            
-            // Stella 3: analisi completa + protezioni multiple
-            const multipleProtections = Object.values(protectionsEnabled).filter(Boolean).length >= 2;
-            if (multipleProtections && xssType && stars === 2) {
-                earnStar();
-            }
-            
+        if (protectionsEnabled.httpOnlyCookies &&
+            protectionsEnabled.htmlSanitization &&
+            appRestarted &&
+            !completed) {
+
+            setAttackActive(false);
+            setScriptExecuted(false);
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setTimeout(() => {
                 setCompleted(true);
-            }, 2000);
+            }, 1500);
         }
-    }, [attackActive, scriptExecuted, appRestarted, completed, legitimateBlocked, protectionsEnabled, xssType, stars, earnStar, startTime]);
+    }, [protectionsEnabled.httpOnlyCookies, protectionsEnabled.htmlSanitization, appRestarted, completed, startTime]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -373,19 +367,17 @@ const Level4 = () => {
                         <div className="max-w-3xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
                                 <h1 className="text-2xl font-bold text-gray-800">💬 Company Employee Portal</h1>
-                                <div className={`px-3 py-1 rounded-full text-sm font-bold ${
-                                    attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
-                                }`}>
+                                <div className={`px-3 py-1 rounded-full text-sm font-bold ${attackActive ? 'bg-red-500 text-white animate-pulse' : 'bg-green-500 text-white'
+                                    }`}>
                                     {attackActive ? '⚠️ VULNERABLE' : '✅ SECURE'}
                                 </div>
                             </div>
 
                             {/* Security Notice */}
-                            <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-                                attackActive 
-                                    ? 'bg-red-100 border-red-500'
-                                    : 'bg-green-100 border-green-500'
-                            }`}>
+                            <div className={`mb-6 p-4 rounded-lg border-l-4 ${attackActive
+                                ? 'bg-red-100 border-red-500'
+                                : 'bg-green-100 border-green-500'
+                                }`}>
                                 {attackActive ? (
                                     <div className="text-red-800">
                                         <p className="font-bold mb-1">⚠️ SECURITY WARNING</p>
@@ -404,11 +396,10 @@ const Level4 = () => {
                             {/* Comments */}
                             <div className="space-y-4">
                                 {comments.map(comment => (
-                                    <div 
+                                    <div
                                         key={comment.id}
-                                        className={`bg-white rounded-lg shadow p-4 ${
-                                            !comment.safe && attackActive ? 'border-2 border-red-400 animate-pulse' : ''
-                                        }`}
+                                        className={`bg-white rounded-lg shadow p-4 ${!comment.safe && attackActive ? 'border-2 border-red-400 animate-pulse' : ''
+                                            }`}
                                     >
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
@@ -421,9 +412,8 @@ const Level4 = () => {
                                                 </div>
                                             </div>
                                             {!comment.safe && (
-                                                <span className={`text-xs px-2 py-1 rounded ${
-                                                    attackActive ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
-                                                }`}>
+                                                <span className={`text-xs px-2 py-1 rounded ${attackActive ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'
+                                                    }`}>
                                                     {attackActive ? '🚨 XSS' : '🛡️ BLOCKED'}
                                                 </span>
                                             )}
@@ -454,13 +444,13 @@ const Level4 = () => {
                             {/* Comment Form */}
                             <div className="mt-6 bg-white rounded-lg shadow p-4">
                                 <h3 className="font-semibold mb-2 text-gray-800">Add Comment</h3>
-                                <textarea 
+                                <textarea
                                     className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
                                     rows={3}
                                     placeholder="Share your thoughts..."
                                     disabled
                                 />
-                                <button 
+                                <button
                                     className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
                                     disabled
                                 >
@@ -488,33 +478,29 @@ const Level4 = () => {
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">HTML Sanitization</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.htmlSanitization ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.htmlSanitization ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.htmlSanitization ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">Content Security Policy (CSP)</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.cspEnabled ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.cspEnabled ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.cspEnabled ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2 border-b border-gray-700">
                                         <span className="text-sm">Output Escaping</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.outputEscaping ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.outputEscaping ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.outputEscaping ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-2">
                                         <span className="text-sm">HttpOnly Cookies</span>
-                                        <span className={`text-sm font-bold ${
-                                            protectionsEnabled.httpOnlyCookies ? 'text-green-400' : 'text-red-400'
-                                        }`}>
+                                        <span className={`text-sm font-bold ${protectionsEnabled.httpOnlyCookies ? 'text-green-400' : 'text-red-400'
+                                            }`}>
                                             {protectionsEnabled.httpOnlyCookies ? '✅ ENABLED' : '❌ DISABLED'}
                                         </span>
                                     </div>
@@ -530,24 +516,22 @@ const Level4 = () => {
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
                                             <span>Overall Risk Level</span>
-                                            <span className={`font-bold ${
-                                                attackActive ? 'text-red-400' : 'text-green-400'
-                                            }`}>
+                                            <span className={`font-bold ${attackActive ? 'text-red-400' : 'text-green-400'
+                                                }`}>
                                                 {attackActive ? 'CRITICAL' : 'LOW'}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
-                                            <div 
-                                                className={`h-2 rounded-full transition-all ${
-                                                    attackActive ? 'bg-red-500 w-full' : 'bg-green-500 w-1/4'
-                                                }`}
+                                            <div
+                                                className={`h-2 rounded-full transition-all ${attackActive ? 'bg-red-500 w-full' : 'bg-green-500 w-1/4'
+                                                    }`}
                                             />
                                         </div>
                                     </div>
                                     <div className="text-xs text-gray-400">
                                         <p className="mb-1">
                                             <strong>Detected XSS Payloads:</strong> {
-                                                attackActive 
+                                                attackActive
                                                     ? INITIAL_COMMENTS.filter(c => !c.safe).length
                                                     : 0
                                             }
@@ -609,15 +593,21 @@ ${unsafeComments.map((c, i) => `${i + 1}. User: ${c.user} - Type: ${c.xssType ||
             'show-payload': (args) => {
                 const id = parseInt(args[0]);
                 const comment = comments.find(c => c.id === id);
-                
+
                 if (!comment) {
                     return 'Usage: show-payload <comment_id>\nExample: show-payload 3';
                 }
-                
+
                 if (comment.safe) {
                     return `Comment ${id} is safe - no XSS detected`;
                 }
-                
+
+                // Stella 1: analisi payload
+                if (!showPayloadUsed) {
+                    setShowPayloadUsed(true);
+                    earnStar();
+                }
+
                 return `=== XSS PAYLOAD ANALYSIS ===
 Comment ID: ${id}
 User: ${comment.user}
@@ -632,8 +622,12 @@ Risk: ${attackActive ? 'CRITICAL - Script can execute!' : 'MITIGATED - Payload b
             },
 
             'identify-xss': () => {
+                // Stella 3: identificazione tipo XSS
+                if (!identifyUsed) {
+                    setIdentifyUsed(true);
+                    earnStar();
+                }
                 setXssType('STORED_XSS');
-                setCurrentStep(1);
                 return `=== XSS TYPE IDENTIFICATION ===
 Type: STORED XSS (Persistent XSS)
 Description: Malicious scripts stored in database
@@ -676,6 +670,11 @@ Attack Flow:
                 if (protectionsEnabled.outputEscaping) {
                     return '[!] Output escaping is already enabled';
                 }
+                // Stella 2: output escaping
+                if (!escapingUsed) {
+                    setEscapingUsed(true);
+                    earnStar();
+                }
                 setProtectionsEnabled(prev => ({ ...prev, outputEscaping: true }));
                 return `[✓] Output escaping enabled
 [+] HTML entities escaped: < becomes &lt;, > becomes &gt;
@@ -695,14 +694,21 @@ Attack Flow:
             },
 
             'restart-app': () => {
-                if (!protectionsEnabled.htmlSanitization && !protectionsEnabled.outputEscaping) {
-                    return '[!] No security changes detected. Apply mitigations first.';
+                if (!protectionsEnabled.htmlSanitization && !protectionsEnabled.httpOnlyCookies) {
+                    return '[!] Abilita almeno sanitization e httponly cookies prima di riavviare.';
+                }
+                if (!protectionsEnabled.htmlSanitization) {
+                    return '[!] Manca la sanitization. Usa enable-sanitization prima.';
+                }
+                if (!protectionsEnabled.httpOnlyCookies) {
+                    return '[!] Manca httponly cookies. Usa enable-httponly prima.';
                 }
                 setAppRestarted(true);
                 return `[✓] Application restarted
-[✓] New security configurations applied
-[✓] XSS protection status: ${!attackActive ? 'ACTIVE' : 'PARTIAL'}
-${!attackActive ? '[✓] XSS attack mitigated successfully!' : '[!] Additional protections recommended'}`;
+[✓] Security configurations applied
+[✓] HTML Sanitization: ACTIVE
+[✓] HttpOnly Cookies: ACTIVE
+[✓] XSS attack mitigated successfully!`;
             },
 
             'scan-vulnerabilities': () => {
@@ -711,7 +717,7 @@ ${!attackActive ? '[✓] XSS attack mitigated successfully!' : '[!] Additional p
                 if (!protectionsEnabled.cspEnabled) vulns.push('- Missing Content Security Policy');
                 if (!protectionsEnabled.outputEscaping) vulns.push('- No output escaping');
                 if (!protectionsEnabled.httpOnlyCookies) vulns.push('- Cookies accessible to scripts');
-                
+
                 return `=== VULNERABILITY SCAN ===
 ${vulns.length > 0 ? 'VULNERABILITIES FOUND:\n' + vulns.join('\n') : '✓ No critical vulnerabilities detected'}
 
@@ -753,43 +759,47 @@ Active Protections:
             { time: '16:42', value: attackActive ? 60 : 25 },
             { time: '16:45', value: attackActive ? 65 : 22 }
         ],
-        networkTraffic: { 
-            incoming: attackActive ? 380 : 220, 
-            outgoing: attackActive ? 520 : 280 
+        networkTraffic: {
+            incoming: attackActive ? 380 : 220,
+            outgoing: attackActive ? 520 : 280
         },
-        protocols: { 
+        protocols: {
             http: attackActive ? 650 : 350,
-            https: 200, 
-            ssh: 30, 
-            ftp: 0 
+            https: 200,
+            ssh: 30,
+            ftp: 0
         },
         selectedLog: null,
         onLogClick: (log) => console.log('Log analizzato:', log)
     };
 
-    // === HINT PROGRESSIVI ===
+    // === HINT PROGRESSIVI (basati sul tempo) ===
     const getHintText = () => {
         if (completed) return '';
-        
-        switch(currentStep) {
-            case 0:
-                return 'Analizza i commenti nel BROWSER. Vedi tag <script> o attributi strani? Nel TERMINALE usa "analyze-comments" per analizzare il payload XSS.';
-            case 1:
-                return 'Hai identificato XSS Stored! Nel TERMINALE usa "enable-sanitization" per bloccare i tag e gli attributi pericolosi come <script> e onerror.';
-            case 2:
-                return 'Nel TERMINALE attiva "enable-csp" per aggiungere protezione extra, poi usa "restart-app" per riavviare l\'applicazione con le nuove protezioni.';
-            case 3: {
-                const hints = [
-                    '✅ Bene! Le protezioni sono attive. Nel TERMINALE usa "status" per verificare che sia sanitization che CSP siano abilitate, poi controlla il forum nel BROWSER.',
-                    'Verifica con il comando "status" che sanitization e CSP siano entrambe abilitate. Analizza di nuovo i commenti per confermare che gli XSS sono bloccati.',
-                    'Stai per completare il livello! Nel TERMINALE usa "analyze-comments" per assicurati che tutti gli script XSS siano bloccati dalle protezioni.'
-                ];
-                return hints[Math.min(hintIndex, hints.length - 1)];
-            }
-            default:
-                return '✅ Nel TERMINALE controlla lo stato con "status" e verifica il forum nel BROWSER per assicurarti che gli XSS siano bloccati!';
-        }
+
+        const hints = [
+            'Il portale aziendale mostra comportamenti anomali. Controlla i commenti nel BROWSER per capire cosa sta succedendo.',
+            'Alcuni commenti sembrano contenere codice. Nel TERMINALE usa "help" per vedere i comandi disponibili.',
+            'Gli attacchi XSS sfruttano input non sanitizzati. Analizza i log SIEM per vedere i pattern di attacco.',
+            'Per proteggere i cookie da JavaScript, considera le impostazioni HttpOnly. Per bloccare tag pericolosi, usa la sanitization.',
+            'Dopo aver attivato le protezioni necessarie, ricorda di riavviare l\'applicazione per applicarle.'
+        ];
+        return hints[Math.min(currentStep, hints.length - 1)];
     };
+
+    // Avanzamento hint basato sul tempo (ogni 30 secondi)
+    useEffect(() => {
+        if (completed || failed) return;
+
+        const stepTimer = setInterval(() => {
+            setCurrentStep(prev => {
+                if (prev < 4) return prev + 1;
+                return prev;
+            });
+        }, 30000);
+
+        return () => clearInterval(stepTimer);
+    }, [completed, failed]);
 
     // === STATISTICHE FINALI ===
     const additionalStats = [
@@ -812,39 +822,42 @@ Active Protections:
 
     return (
         <div>
-            <LevelTemplate 
+            <LevelTemplate
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-            >                
-                <HealthMonitor 
-                    completed={completed} 
+            >
+                <HealthMonitor
+                    completed={completed}
                     healthSetterRef={healthSetterRef}
                     onGameOver={() => {
                         setMissionSuccess(false);
                         setFailed(true);
                         setCompleted(true);
-                    }} 
+                    }}
                 />
                 {/* TIMER */}
                 <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
                     <Timer secondsRemaining={secondsRemaining} />
                 </div>
-                
+
                 {completed && (
                     <MissionDebriefWrapper
                         success={missionSuccess}
+                        levelId="level4"
                         stats={{ stars }}
-                        recapText={missionSuccess ? 
-                            `XSS DEFENSE ANALYSIS\n\n` +
-                            `Protezioni attivate: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
-                            `Script execution: ${scriptExecuted ? 'VULNERABLE' : 'BLOCKED'}\n` +
-                            `XSS Type identified: ${xssType || 'N/A'}\n` +
-                            `Tempo completamento: ${completionTime}s\n\n` +
-                            `${!attackActive && !scriptExecuted ? 'RISULTATO: Vulnerabilità XSS mitigata con successo!' : 'RISULTATO: Completato.'}`
-                            : 'XSS vulnerabilities not fully mitigated. System still vulnerable to script injection attacks.\n\nTry again with stronger protections: enable both sanitization AND CSP.'}
+                        recapText={missionSuccess ?
+                            `ATTACCO XSS MITIGATO!\n\n` +
+                            `Hai protetto il portale aziendale da script malevoli.\n\n` +
+                            `TECNICHE DI DIFESA XSS:\n` +
+                            `• HTML Sanitization: rimuove tag pericolosi (<script>, <iframe>)\n` +
+                            `• Output Escaping: converte caratteri speciali in entità HTML\n` +
+                            `• Content Security Policy: blocca script inline non autorizzati\n` +
+                            `• HttpOnly Cookies: impedisce accesso JavaScript ai cookie\n\n` +
+                            `IMPORTANTE: In produzione, abilita TUTTE le difese per una protezione completa!`
+                            : `Attacco XSS non mitigato.\n\nIl sistema è ancora vulnerabile.\n\nRicorda: devi abilitare sia sanitization che httponly cookies, poi riavviare l'app.`}
                         onRetry={() => window.location.reload()}
                         onExit={() => navigate('/map')}
                     />

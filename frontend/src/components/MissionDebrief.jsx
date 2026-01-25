@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReputationStars from './ReputationStars';
+import { useSave } from '../contexts/SaveContext';
 
-const MissionDebrief = ({ 
-    success, 
+const MissionDebrief = ({
+    success,
     stats = { stars: 0, health: 0 },
     recapText = "",
+    levelId = null, // ID del livello per il salvataggio (es: 'level1', 'level2', ecc.)
     onRetry,
     onExit
 }) => {
     const navigate = useNavigate();
+    const { updateStars, getStars } = useSave();
+
+    // Salva il progresso quando il debrief viene mostrato (solo se vittoria)
+    // Logica High Score: salva solo se il punteggio attuale migliora quello salvato
+    useEffect(() => {
+        if (success && levelId && stats.stars > 0) {
+            const currentStars = getStars(levelId) || 0;
+            if (stats.stars > currentStars) {
+                updateStars(levelId, stats.stars);
+            }
+        }
+    }, [success, levelId, stats.stars, updateStars, getStars]);
 
     const handleExit = () => {
         if (onExit) onExit();
@@ -62,6 +76,17 @@ const MissionDebrief = ({
                         </div>
                     )}
 
+                    {/* Security Tip for partial success */}
+                    {success && stats.stars > 0 && stats.stars < 3 && (
+                        <div className="w-full mb-4 px-4 py-3 bg-yellow-900/40 border border-yellow-700/50 rounded text-yellow-100 text-xs font-mono text-left flex items-start gap-3">
+                            <span className="text-xl">💡</span>
+                            <div>
+                                <span className="font-bold text-yellow-400 block mb-1">SECURITY TIP:</span>
+                                Per ottenere la massima sicurezza è "ottimale" completare tutte le azioni richieste e le mitigazioni avanzate.
+                            </div>
+                        </div>
+                    )}
+
                     {/* Recap / Message Box */}
                     {recapText && (
                         <div className="w-full bg-black/40 border border-gray-700 p-4 rounded mb-4 text-left max-h-[120px] overflow-y-auto">
@@ -77,21 +102,21 @@ const MissionDebrief = ({
                     {/* Actions */}
                     <div className="flex gap-3 w-full justify-center">
                         {!success && (
-                            <button 
+                            <button
                                 onClick={handleRetry}
                                 className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded font-mono transition-all border border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
                             >
                                 RETRY LEVEL
                             </button>
                         )}
-                        
-                        <button 
+
+                        <button
                             onClick={handleExit}
                             className={`
                                 px-6 py-2 font-bold text-sm rounded font-mono transition-all 
                                 border 
-                                ${success 
-                                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-400 hover:shadow-[0_0_15px_rgba(22,163,74,0.6)]' 
+                                ${success
+                                    ? 'bg-green-600 hover:bg-green-700 text-white border-green-400 hover:shadow-[0_0_15px_rgba(22,163,74,0.6)]'
                                     : 'bg-transparent hover:bg-white/10 text-white border-white/30'
                                 }
                             `}

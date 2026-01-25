@@ -10,28 +10,28 @@ import MissionDebrief from '../components/MissionDebrief';
 // -------------------------------------------------------------------------
 // LEVEL CONTENT COMPONENT (Spostato fuori per evitare re-mount loop)
 // -------------------------------------------------------------------------
-const Level8Content = ({ 
-    levelState, 
-    secondsRemaining, 
-    setSecondsRemaining, 
-    startTime, 
-    attempts, 
-    navigate, 
-    healthSetterRef 
+const Level8Content = ({
+    levelState,
+    secondsRemaining,
+    setSecondsRemaining,
+    startTime,
+    attempts,
+    navigate,
+    healthSetterRef
 }) => {
     const { health, setHealth } = useLevel();
     const [showDebrief, setShowDebrief] = useState(false);
     const [isWin, setIsWin] = useState(false);
     const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
     const previousHealthRef = React.useRef(health);
-    
+
     // Assegno setHealth al ref del genitore
     React.useEffect(() => {
         if (healthSetterRef) {
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
-    
+
     // Timer Logic (Conteggio alla rovescia)
     useEffect(() => {
         if (levelState === 'victory' || levelState === 'briefing') return;
@@ -39,7 +39,7 @@ const Level8Content = ({
         const interval = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newVal = prev - 1;
-                
+
                 if (newVal <= 0) {
                     setHealth(0); // Game Over
                     clearInterval(interval);
@@ -58,9 +58,9 @@ const Level8Content = ({
         if (levelState === 'victory' || levelState === 'briefing') {
             return;
         }
-        
+
         console.log('[Health Effect] Starting health interval');
-        
+
         const healthInterval = setInterval(() => {
             console.log('[Health Interval] Fired! Decreasing health...');
             setHealth(h => Math.max(0, h - 10)); // Toglie il 10%
@@ -70,14 +70,14 @@ const Level8Content = ({
             console.log('[Health Effect] Clearing interval');
             clearInterval(healthInterval);
         };
-    }, [levelState, setHealth]); 
+    }, [levelState, setHealth]);
 
     // Sound Effect Logic
     useEffect(() => {
         if (health < previousHealthRef.current && health > 0) {
             const audio = new Audio('/sfx/damage.mp3');
             audio.volume = 0.5;
-            audio.play().catch(() => {});
+            audio.play().catch(() => { });
         }
         previousHealthRef.current = health;
     }, [health]);
@@ -90,27 +90,28 @@ const Level8Content = ({
             setFinalStats({ stars: 0, health: 0 });
             setShowDebrief(true);
         }
-        
+
         // WIN Condition
         if (levelState === 'victory' && !showDebrief) {
-                const duration = (Date.now() - startTime) / 1000;
-                let stars = 1; 
-                if (duration < 150) stars++; 
-                if (attempts === 0) stars++; 
-                
-                setIsWin(true);
-                setFinalStats({ stars, health });
-                setShowDebrief(true);
+            const duration = (Date.now() - startTime) / 1000;
+            let stars = 1;
+            if (duration < 150) stars++;
+            if (attempts === 0) stars++;
+
+            setIsWin(true);
+            setFinalStats({ stars, health });
+            setShowDebrief(true);
         }
     }, [health, levelState, showDebrief, startTime, attempts]);
 
     return (
         <>
             {showDebrief && (
-                <MissionDebrief 
+                <MissionDebrief
                     success={isWin}
+                    levelId="level8"
                     stats={finalStats}
-                    recapText={isWin 
+                    recapText={isWin
                         ? "Ottimo lavoro. Hai intercettato con successo l'attacco ransomware."
                         : "Missione Fallita. Il ransomware ha crittografato i sistemi."
                     }
@@ -120,7 +121,7 @@ const Level8Content = ({
             )}
             {/* TIMER & HUD */}
             <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
-                    <Timer secondsRemaining={secondsRemaining} />
+                <Timer secondsRemaining={secondsRemaining} />
             </div>
         </>
     );
@@ -131,12 +132,12 @@ const Level8 = () => {
     // LEVEL CONFIGURATION & STATE
     // -------------------------------------------------------------------------
     const navigate = useNavigate();
-    
+
     const [levelState, setLevelState] = useState('briefing');
     const [ransomwareActive, setRansomwareActive] = useState(false);
-    const [ransomwareVisible, setRansomwareVisible] = useState(true); 
-    const [killSwitchActivated, setKillSwitchActivated] = useState(false); 
-    const [attempts, setAttempts] = useState(0); 
+    const [ransomwareVisible, setRansomwareVisible] = useState(true);
+    const [killSwitchActivated, setKillSwitchActivated] = useState(false);
+    const [attempts, setAttempts] = useState(0);
     const [startTime] = useState(Date.now());
 
     // Consolidated Timer State (5 minutes)
@@ -152,7 +153,7 @@ const Level8 = () => {
     // -------------------------------------------------------------------------
     // DATA MOCKS (Invariati)
     // -------------------------------------------------------------------------
-    
+
     const mockPackets = [
         { id: 1, time: '10:00:01', source: '192.168.1.50', destination: '8.8.8.8', protocol: 'UDP', info: 'Query standard 0x1234 A www.google.com', payload: '', payloadHex: '' },
         { id: 2, time: '10:00:02', source: '192.168.1.50', destination: '172.217.16.196', protocol: 'TCP', info: '443 -> 49152 [ACK] Seq=1 Ack=1 Win=65535 Len=0', payload: '', payloadHex: '' },
@@ -166,7 +167,7 @@ const Level8 = () => {
         { id: 2, timestamp: '10:01:15', severity: 'critical', source: 'IDS', message: 'Rilevato download di file sospetto da 145.2.33.11' },
         { id: 3, timestamp: '10:01:16', severity: 'high', source: 'Antivirus', message: 'Scansione firma saltata per cryptolocker_v2.exe (Override Policy)' },
     ];
-    
+
     const mockEmails = [
         {
             id: 101,
@@ -262,9 +263,9 @@ bool check_unlock_code(char* input) {
             if (e.ctrlKey && e.altKey && (e.key === 'k' || e.key === 'K')) {
                 if (levelState === 'infected') {
                     setLevelState('emergency_mode');
-                    setRansomwareActive(true); 
-                    setRansomwareVisible(false); 
-                    setKillSwitchActivated(true); 
+                    setRansomwareActive(true);
+                    setRansomwareVisible(false);
+                    setKillSwitchActivated(true);
                     setCurrentHint("Ottimo! Processo Terminato. Ora indaga sui log (SIEM) per trovare l'IP sorgente.");
                 }
             }
@@ -281,7 +282,7 @@ bool check_unlock_code(char* input) {
                 setLevelState('infected');
                 setRansomwareActive(true);
                 setCurrentHint("SISTEMA COMPROMESSO! Trova l'override manuale! (Suggerimento: Il Manuale di Emergenza dice Ctrl+Alt+K per disabilitare l'interfaccia di rete e avviare l'indagine.)");
-            }, 30000); 
+            }, 30000);
             return () => clearTimeout(timer);
         }
     }, [levelState]);
@@ -295,12 +296,12 @@ bool check_unlock_code(char* input) {
         const [showDebrief, setShowDebrief] = useState(false);
         const [isWin, setIsWin] = useState(false);
         const [finalStats, setFinalStats] = useState({ stars: 0, health: 0 });
-        
+
         // Assegno setHealth al ref per renderlo accessibile fuori
         React.useEffect(() => {
             healthSetterRef.current = setHealth;
         }, [setHealth]);
-        
+
         // This useEffect handles the shared timer logic
         useEffect(() => {
             if (levelState === 'victory' || levelState === 'briefing') return; // Don't count down during briefing or after win
@@ -308,7 +309,7 @@ bool check_unlock_code(char* input) {
             const interval = setInterval(() => {
                 setSecondsRemaining(prev => {
                     const newVal = prev - 1;
-                    
+
                     if (newVal <= 0) {
                         setHealth(0); // Game Over
                         clearInterval(interval);
@@ -324,7 +325,7 @@ bool check_unlock_code(char* input) {
         // Separate effect to update health based on time remaining
         useEffect(() => {
             if (levelState === 'victory' || levelState === 'briefing') return;
-            
+
             // Calculate health based on remaining time (linear decrease)
             // 300s = 100%, 0s = 0%
             const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
@@ -339,27 +340,27 @@ bool check_unlock_code(char* input) {
                 setFinalStats({ stars: 0, health: 0 });
                 setShowDebrief(true);
             }
-            
+
             // WIN Condition
             if (levelState === 'victory' && !showDebrief) {
-                 const duration = (Date.now() - startTime) / 1000;
-                 let stars = 1; 
-                 if (duration < 150) stars++; // Speed run
-                 if (attempts === 0) stars++; // Precision
-                 
-                 setIsWin(true);
-                 setFinalStats({ stars, health });
-                 setShowDebrief(true);
+                const duration = (Date.now() - startTime) / 1000;
+                let stars = 1;
+                if (duration < 150) stars++; // Speed run
+                if (attempts === 0) stars++; // Precision
+
+                setIsWin(true);
+                setFinalStats({ stars, health });
+                setShowDebrief(true);
             }
         }, [health, levelState, showDebrief]);
 
         return (
             <>
                 {showDebrief && (
-                    <MissionDebrief 
+                    <MissionDebrief
                         success={isWin}
                         stats={finalStats}
-                        recapText={isWin 
+                        recapText={isWin
                             ? "Excellent work. You successfully intercepted the ransomware attack, identified the source via packet analysis, and retrieved the decryption key."
                             : "Mission Failed. The ransomware encrypted critical systems before you could deploy the countermeasure."
                         }
@@ -369,7 +370,7 @@ bool check_unlock_code(char* input) {
                 )}
                 {/* TIMER & HUD */}
                 <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
-                     <Timer secondsRemaining={secondsRemaining} />
+                    <Timer secondsRemaining={secondsRemaining} />
                 </div>
             </>
         );
@@ -412,7 +413,7 @@ bool check_unlock_code(char* input) {
                 }
                 const target = args[0];
                 const fs = fileSystem;
-                
+
                 if (target.startsWith('/')) {
                     const parts = target.split('/').filter(p => p);
                     let current = fs;
@@ -555,8 +556,8 @@ bool check_unlock_code(char* input) {
     };
 
     return (
-        <LevelTemplate 
-            initialHealth={100} 
+        <LevelTemplate
+            initialHealth={100}
             hint={<InfoPanel text={currentHint} />}
             siemConfig={siemConfig}
             emailConfig={emailConfig}
@@ -565,7 +566,7 @@ bool check_unlock_code(char* input) {
             packetAnalyzerConfig={levelState === 'emergency_mode' || levelState === 'decrypted' ? packetAnalyzerConfig : null}
             ransomwareOverlayConfig={ransomwareOverlayConfig}
         >
-            <Level8Content 
+            <Level8Content
                 levelState={levelState}
                 secondsRemaining={secondsRemaining}
                 setSecondsRemaining={setSecondsRemaining}

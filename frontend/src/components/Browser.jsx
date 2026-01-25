@@ -119,12 +119,12 @@ const Browser = ({
             <div className="bg-slate-100 border-b border-slate-300 p-2">
                 <div className="flex items-center gap-2">
                     {currentUrl !== 'home' && (
-                        <button
+                        <span
                             onClick={() => handleSiteClick('home')}
                             className="px-2 py-1 hover:bg-slate-200 rounded text-slate-600 text-xs"
                         >
                             ← Back
-                        </button>
+                        </span>
                     )}
                     <div className="flex items-center bg-white border border-slate-300 rounded-full px-3 py-1.5 flex-1">
                         <span className="text-green-600 text-xs mr-2">🔒</span>

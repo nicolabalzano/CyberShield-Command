@@ -9,19 +9,19 @@ import Timer from '../components/Timer';
 // Componente interno per impostare il ref di setHealth e monitorare game over
 const HealthSetter = ({ healthSetterRef, onGameOver }) => {
     const { health, setHealth } = useLevel();
-    
+
     React.useEffect(() => {
         if (healthSetterRef) {
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
-    
+
     React.useEffect(() => {
         if (health <= 0 && onGameOver) {
             onGameOver();
         }
     }, [health, onGameOver]);
-    
+
     return null;
 };
 
@@ -146,21 +146,21 @@ const generateDDoSLogs = () => [
 
 const Level2 = () => {
     // Sistema di reputazione (stelle)
-    const { stars } = useReputation('level2', 0);
-    const { earnStar } = useReputation('level2', 0);
+    const { stars, earnStar } = useReputation('level2', 0);
 
     const [attackActive, setAttackActive] = useState(true); // Attacco in corso
     const [trafficLevel, setTrafficLevel] = useState(95); // Traffico anomalo (0-100)
     const [blockedIPs, setBlockedIPs] = useState([]); // IP bloccati dal giocatore
     const [firewallEnabled, setFirewallEnabled] = useState(false); // Firewall attivo
     const [rateLimitEnabled, setRateLimitEnabled] = useState(false); // Rate limiting attivo
+    const [analyzeUsed, setAnalyzeUsed] = useState(false); // Comando analyze usato
     const [falsePositives, setFalsePositives] = useState(0); // IP legittimi bloccati per errore
     const [correctBlocks, setCorrectBlocks] = useState(0); // IP malevoli bloccati correttamente
 
     // Health bar: calcolata in base al tempo e traffico
     const [missionEnd, setMissionEnd] = useState(false);
     const [missionSuccess, setMissionSuccess] = useState(false);
-    
+
     // UI State
     const [completed, setCompleted] = useState(false);
     const [showHint, setShowHint] = useState(true);
@@ -170,11 +170,11 @@ const Level2 = () => {
     const [terminalOutput, setTerminalOutput] = useState([]);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
-    
+
     // Timer State (5 minutes)
     const MAX_TIME = 300;
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
-    
+
     // Ref per accedere a setHealth da Level2Content
     const healthSetterRef = React.useRef(null);
 
@@ -185,7 +185,7 @@ const Level2 = () => {
         const interval = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newVal = prev - 1;
-                
+
                 if (newVal <= 0) {
                     if (healthSetterRef.current) {
                         healthSetterRef.current(0); // Game Over
@@ -203,7 +203,7 @@ const Level2 = () => {
     // Update health based on remaining time (linear decrease)
     useEffect(() => {
         if (missionEnd || completed) return;
-        
+
         // Calculate health based on remaining time (linear decrease)
         // 300s = 100%, 0s = 0%
         const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
@@ -251,19 +251,16 @@ const Level2 = () => {
         // Il traffico non può scendere sotto 5 (traffico normale)
         newTraffic = Math.max(5, newTraffic);
         setTrafficLevel(newTraffic);
-        // L'attacco è mitigato se il traffico scende sotto 40%
-        if (newTraffic < 40 && attackActive) {
+        // VITTORIA: Bloccare TUTTI gli IP malevoli (5/5)
+        if (correctBlocks >= MALICIOUS_IPS.length && attackActive) {
             setAttackActive(false);
             setCompleted(true);
             setMissionEnd(true);
             setMissionSuccess(true);
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-            // Assegna stelle in modo progressivo
-            if (stars < 1) earnStar(); // 1 stella: completamento
-            if (falsePositives === 0 && stars < 2) earnStar(); // 2 stelle: nessun falso positivo
-            if (correctBlocks === MALICIOUS_IPS.length && stars < 3) earnStar(); // 3 stelle: tutti i malevoli bloccati
+            // Stelle assegnate per azioni bonus (già assegnate durante il gioco)
         }
-    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, stars, earnStar, falsePositives, startTime]);
+    }, [blockedIPs, firewallEnabled, rateLimitEnabled, correctBlocks, attackActive, startTime]);
 
     const browserConfig = {
         availableSites: [
@@ -281,8 +278,8 @@ const Level2 = () => {
                             <p className="text-gray-700 mb-4">Il server non può gestire la richiesta al momento.</p>
                             <div className="bg-red-100 border border-red-300 rounded p-4 mt-4">
                                 <p className="text-sm text-red-800 font-mono">
-                                    Error: Connection timeout<br/>
-                                    Too many requests to server<br/>
+                                    Error: Connection timeout<br />
+                                    Too many requests to server<br />
                                     Retry-After: unknown
                                 </p>
                             </div>
@@ -323,7 +320,7 @@ const Level2 = () => {
                                 <div className="bg-blue-900/30 border-l-4 border-blue-500 p-3">
                                     <h3 className="font-semibold text-lg mb-2">🎯 Cos'è un attacco DDoS?</h3>
                                     <p className="text-gray-300">
-                                        Distributed Denial of Service: attacco che rende un servizio 
+                                        Distributed Denial of Service: attacco che rende un servizio
                                         inutilizzabile sovraccaricandolo con traffico da fonti multiple.
                                     </p>
                                 </div>
@@ -366,17 +363,17 @@ const Level2 = () => {
                 if (!args[0]) {
                     return 'Usage: block <ip>\nExample: block 203.0.113.42';
                 }
-                
+
                 const ip = args[0];
-                
+
                 // IP già bloccato
                 if (blockedIPs.includes(ip)) {
                     return `[!] IP ${ip} is already blocked`;
                 }
-                
+
                 // Blocca l'IP
                 setBlockedIPs(prev => [...prev, ip]);
-                
+
                 // Verifica se è un IP malevolo o legittimo
                 if (MALICIOUS_IPS.includes(ip)) {
                     setCorrectBlocks(prev => prev + 1);
@@ -388,24 +385,25 @@ const Level2 = () => {
                     return `[✓] IP ${ip} blocked`;
                 }
             },
-            
+
             'enable-firewall': () => {
                 if (firewallEnabled) {
                     return '[!] Firewall is already enabled';
                 }
                 setFirewallEnabled(true);
+                earnStar();
                 return '[✓] Advanced firewall rules enabled\n[+] Suspicious traffic patterns will be filtered';
             },
-            
+
             'rate-limit': () => {
                 if (rateLimitEnabled) {
                     return '[!] Rate limiting is already active';
                 }
                 setRateLimitEnabled(true);
-                setCurrentStep(1);
+                earnStar();
                 return '[✓] HTTP rate limiting enabled\n[+] Maximum 100 requests/minute per IP\n[+] This significantly reduces flood attacks!';
             },
-            
+
             'status': () => {
                 return `=== SECURITY STATUS ===
 Attack Status: ${attackActive ? '🔴 ACTIVE' : '🟢 MITIGATED'}
@@ -416,8 +414,12 @@ Blocked IPs: ${blockedIPs.length}
 Correct Blocks: ${correctBlocks}
 False Positives: ${falsePositives}`;
             },
-            
+
             'analyze': () => {
+                if (!analyzeUsed) {
+                    setAnalyzeUsed(true);
+                    earnStar();
+                }
                 return `=== TRAFFIC ANALYSIS ===
 Total Requests: 12,450/sec (CRITICAL)
 Protocol: 98% HTTP GET requests
@@ -425,7 +427,7 @@ Pattern: Repeated requests to same endpoint
 Source IPs: ${MALICIOUS_IPS.length} high-volume sources detected
 Recommendation: Block malicious IPs and enable rate-limit`;
             },
-            
+
             'list-ips': () => {
                 return `=== SUSPICIOUS IP ADDRESSES ===
 High-volume sources:
@@ -458,15 +460,15 @@ Normal users:
             { time: '14:29', value: 75 },
             { time: '14:30', value: trafficLevel }
         ],
-        networkTraffic: { 
-            incoming: attackActive ? 8500 : 350, 
-            outgoing: attackActive ? 2200 : 450 
+        networkTraffic: {
+            incoming: attackActive ? 8500 : 350,
+            outgoing: attackActive ? 2200 : 450
         },
-        protocols: { 
+        protocols: {
             http: attackActive ? 8200 : 450,  // HTTP flood
-            https: 250, 
-            ssh: 50, 
-            ftp: 0 
+            https: 250,
+            ssh: 50,
+            ftp: 0
         },
         selectedLog: null,
         onLogClick: (log) => console.log('Log analizzato:', log)
@@ -475,36 +477,38 @@ Normal users:
     // === HINT PROGRESSIVI ===
     const getHintText = () => {
         if (completed) return '';
-        
-        switch(currentStep) {
+
+        switch (currentStep) {
             case 0:
-                return 'Analizza i log SIEM per capire il pattern dell\'attacco. Vedrai molte richieste HTTP da IP diversi. Apri il TERMINALE per eseguire i comandi di mitigazione.';
+                return 'Il sito aziendale è sotto attacco DDoS! Analizza i log SIEM per identificare gli IP malevoli. Apri il TERMINALE e usa "help" per vedere i comandi disponibili.';
             case 1:
-                return 'Nel TERMINALE, usa il comando "list-ips" per vedere gli IP sospetti. Poi usa "block-ip <ip>" per bloccare quelli malevoli uno per uno. Attenzione: non bloccare gli IP verdi (legittimi)!';
             case 2:
-                return 'Usa il comando "enable-firewall" nel TERMINALE per filtrare automaticamente il traffico sospetto. Questo aiuterà a ridurre ulteriormente l\'attacco DDoS.';
             case 3: {
                 const hints = [
-                    'Bene! Il traffico sta diminuendo. Continua a usare "block-ip" per bloccare gli IP malevoli rimanenti. Controlla la dashboard SIEM per monitorare i progressi.',
-                    'Ricorda: blocca solo gli IP sospetti con rate alto. Attenzione ai falsi positivi (IP verdi con basso rate)! Usa il TERMINALE per il comando "block-ip".',
-                    'Quasi fatto! Completa la mitigazione bloccando tutti gli IP malevoli rimanenti.'
+                    `Usa "list-ips" nel terminale per vedere gli IP sospetti. Blocca quelli malevoli con "block <ip>". IP bloccati: ${correctBlocks}/${MALICIOUS_IPS.length}`,
+                    `Continua a bloccare gli IP con traffico alto (🔴). Attenzione a non bloccare quelli legittimi (🟢)! Mancano ${MALICIOUS_IPS.length - correctBlocks} IP.`,
+                    'Quasi fatto! Blocca tutti gli IP malevoli per fermare l\'attacco DDoS.'
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             }
             default:
-                return 'Continua a mitigare l\'attacco!';
+                return 'Blocca tutti gli IP malevoli per completare la missione!';
         }
     };
 
-    // Avanzamento step
+    // Avanzamento step basato sul tempo (ogni 25 secondi)
     useEffect(() => {
-        if (correctBlocks >= 2 && currentStep === 1) {
-            setCurrentStep(2);
-        }
-        if (firewallEnabled && currentStep === 2) {
-            setCurrentStep(3);
-        }
-    }, [correctBlocks, firewallEnabled, currentStep]);
+        if (completed || missionEnd) return;
+
+        const stepTimer = setInterval(() => {
+            setCurrentStep(prev => {
+                if (prev < 3) return prev + 1;
+                return prev;
+            });
+        }, 25000); // 25 secondi
+
+        return () => clearInterval(stepTimer);
+    }, [completed, missionEnd]);
 
     // === STATISTICHE FINALI ===
     const additionalStats = [
@@ -527,14 +531,14 @@ Normal users:
 
     return (
         <div>
-            <LevelTemplate 
+            <LevelTemplate
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
             >
-                <HealthSetter 
+                <HealthSetter
                     healthSetterRef={healthSetterRef}
                     onGameOver={() => {
                         setMissionEnd(true);
@@ -550,11 +554,21 @@ Normal users:
                 {missionEnd && (
                     <MissionDebriefWrapper
                         success={missionSuccess}
+                        levelId="level2"
                         stats={{ stars }}
                         maxStars={3}
                         recapText={missionSuccess
-                            ? `Hai mitigato con successo l'attacco DDoS!\n\n- IP malevoli bloccati: ${correctBlocks}/${MALICIOUS_IPS.length}\n- Falsi positivi: ${falsePositives}\n- Traffico residuo: ${trafficLevel}%\n\nOttimo lavoro, il sito è tornato online.`
-                            : `Il sistema è stato sopraffatto dall'attacco DDoS.\n\n- Salute sistema: 0%\n- IP bloccati: ${blockedIPs.length}\n- Falsi positivi: ${falsePositives}\n\nRiprova a mitigare l'attacco analizzando meglio i log e bloccando solo gli IP malevoli.`
+                            ? `ATTACCO DDOS MITIGATO!\n\n` +
+                            `Hai bloccato con successo ${correctBlocks} IP malevoli.\n\n` +
+                            `TECNICHE DI DIFESA DDOS:\n` +
+                            `• Rate Limiting: limita le richieste per IP\n` +
+                            `• Firewall avanzato: filtra pattern sospetti\n` +
+                            `• Analisi traffico: identifica anomalie\n` +
+                            `• IP Blocking: blocca sorgenti malevole\n\n` +
+                            `Queste tecniche combinate sono essenziali per proteggere i sistemi da attacchi DDoS.`
+                            : `Il sistema è stato sopraffatto dall'attacco DDoS.\n\n` +
+                            `IP bloccati: ${blockedIPs.length}/${MALICIOUS_IPS.length}\n\n` +
+                            `Riprova bloccando tutti gli IP malevoli prima che il tempo scada.`
                         }
                         onRetry={() => {
                             // Reset stato livello

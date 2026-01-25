@@ -17,7 +17,7 @@ function LevelMap() {
 
   useEffect(() => {
     // Torna sempre alla musica di background quando si apre la mappa
-    changeTrack('/background-music.mp3');
+    changeTrack('/level-music.mp3');
   }, [changeTrack]);
 
   const [selectedLevel, setSelectedLevel] = useState(null);

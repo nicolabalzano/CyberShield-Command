@@ -9,19 +9,19 @@ import Timer from '../components/Timer';
 // Componente interno per impostare il ref di setHealth e monitorare game over
 const HealthSetter = ({ healthSetterRef, onGameOver }) => {
     const { health, setHealth } = useLevel();
-    
+
     React.useEffect(() => {
         if (healthSetterRef) {
             healthSetterRef.current = setHealth;
         }
     }, [setHealth, healthSetterRef]);
-    
+
     React.useEffect(() => {
         if (health <= 0 && onGameOver) {
             onGameOver();
         }
     }, [health, onGameOver]);
-    
+
     return null;
 };
 
@@ -146,7 +146,7 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
         type: cachePoisoned ? 'SECURITY' : 'INFO',
         message: cachePoisoned
             ? 'Cache pollution detected - Same cache key serving different content'
-            : headerIdentified 
+            : headerIdentified
                 ? 'Vary header configured - Proper cache key includes all sensitive headers'
                 : 'Cache serving consistent content',
         threat: cachePoisoned
@@ -178,8 +178,7 @@ const generateCachePoisoningLogs = (cachePoisoned, headerIdentified) => [
 const Level5 = () => {
     const navigate = useNavigate();
     // Sistema di reputazione (stelle)
-    const { stars } = useReputation('level5', 0);
-    const { earnStar } = useReputation('level5', 0);
+    const { stars, earnStar } = useReputation('level5', 0);
 
     // === STATO DEL LIVELLO ===
     const [cachePoisoned, setCachePoisoned] = useState(true); // Cache contiene contenuto avvelenato
@@ -191,7 +190,7 @@ const Level5 = () => {
     const [noCacheDynamic, setNoCacheDynamic] = useState(false); // Contenuto dinamico non cacheato
     const [headerIdentified, setHeaderIdentified] = useState(false); // Header responsabile identificato
     const [proxyRestarted, setProxyRestarted] = useState(false); // Proxy riavviato
-    
+
     // UI State
     const [completed, setCompleted] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -201,11 +200,11 @@ const Level5 = () => {
     const [completionTime, setCompletionTime] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
-    
+
     // Timer State (5 minutes)
     const MAX_TIME = 300;
     const [secondsRemaining, setSecondsRemaining] = useState(MAX_TIME);
-    
+
     // Ref per accedere a setHealth da Level5Content
     const healthSetterRef = React.useRef(null);
 
@@ -235,7 +234,7 @@ const Level5 = () => {
             return () => clearTimeout(timeout);
         }
     }, [currentStep, hintIndex]);
-    
+
     // Timer logic - countdown every second
     useEffect(() => {
         if (completed || failed) return; // Don't count down after completion or failure
@@ -243,7 +242,7 @@ const Level5 = () => {
         const interval = setInterval(() => {
             setSecondsRemaining(prev => {
                 const newVal = prev - 1;
-                
+
                 if (newVal <= 0) {
                     if (healthSetterRef.current) {
                         healthSetterRef.current(0); // Game Over
@@ -261,7 +260,7 @@ const Level5 = () => {
     // Update health based on remaining time (linear decrease)
     useEffect(() => {
         if (completed || failed) return;
-        
+
         // Calculate health based on remaining time (linear decrease)
         // 300s = 100%, 0s = 0%
         const healthPercentage = Math.floor((secondsRemaining / MAX_TIME) * 100);
@@ -281,21 +280,26 @@ const Level5 = () => {
     // === CONDIZIONE DI COMPLETAMENTO ===
     useEffect(() => {
         if (!cachePoisoned && proxyRestarted && !completed) {
-            // Stella 1: completamento base (cache ripulita)
-            if (stars === 0) {
-                earnStar();
-            }
-            
+            let targetStars = 1; // Base per completamento
+
             // Stella 2: cache configurata correttamente + no cache per contenuto dinamico
-            if (headersFixed && noCacheDynamic && stars === 1) {
-                earnStar();
+            if (headersFixed && noCacheDynamic) {
+                targetStars++;
             }
-            
+
             // Stella 3: header identificato + cache key corretta + Vary header
-            if (headerIdentified && cacheKeyFixed && varyHeaderEnabled && stars === 2) {
-                earnStar();
+            if (headerIdentified && cacheKeyFixed && varyHeaderEnabled) {
+                targetStars++;
             }
-            
+
+            // Calcola quante stelle mancano e assegnale
+            const starsToEarn = targetStars - stars;
+            if (starsToEarn > 0) {
+                for (let i = 0; i < starsToEarn; i++) {
+                    earnStar();
+                }
+            }
+
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setTimeout(() => {
                 setCompleted(true);
@@ -353,7 +357,7 @@ const Level5 = () => {
                             </div>
                             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
                                 <p className="text-green-800">
-                                    ✅ Cache has been purged and reconfigured<br/>
+                                    ✅ Cache has been purged and reconfigured<br />
                                     ✅ Fresh content served from origin server
                                 </p>
                             </div>
@@ -427,7 +431,7 @@ const Level5 = () => {
                                     <h3 className="font-semibold mb-2">🎯 Cos'è Cache Poisoning?</h3>
                                     <p className="text-gray-300">
                                         Attacco che inserisce contenuto malevolo nella cache HTTP condivisa.
-                                        Il contenuto avvelenato viene servito a tutti gli utenti che accedono 
+                                        Il contenuto avvelenato viene servito a tutti gli utenti che accedono
                                         alla risorsa cacheata.
                                     </p>
                                 </div>
@@ -444,7 +448,7 @@ const Level5 = () => {
                                     <h3 className="font-semibold mb-2">🔑 Cache Key:</h3>
                                     <p className="text-gray-300">
                                         La cache key determina quale risposta viene servita.
-                                        Se non include header sensibili (Host, Cookie, ecc.), risposte 
+                                        Se non include header sensibili (Host, Cookie, ecc.), risposte
                                         diverse possono essere servite dalla stessa entry in cache.
                                     </p>
                                 </div>
@@ -478,7 +482,7 @@ const Level5 = () => {
                 if (entries.length === 0) {
                     return '[✓] Cache is empty';
                 }
-                
+
                 let output = '=== CACHE ENTRIES ===\n';
                 entries.forEach(([path, data]) => {
                     output += `\nPath: ${path}\n`;
@@ -618,15 +622,15 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
             { time: '16:19', value: cachePoisoned ? 55 : 30 },
             { time: '16:20', value: cachePoisoned ? 75 : 25 }
         ],
-        networkTraffic: { 
-            incoming: cachePoisoned ? 650 : 320, 
-            outgoing: cachePoisoned ? 420 : 280 
+        networkTraffic: {
+            incoming: cachePoisoned ? 650 : 320,
+            outgoing: cachePoisoned ? 420 : 280
         },
-        protocols: { 
+        protocols: {
             http: cachePoisoned ? 750 : 400,
-            https: 250, 
-            ssh: 0, 
-            ftp: 0 
+            https: 250,
+            ssh: 0,
+            ftp: 0
         },
         selectedLog: null,
         onLogClick: (log) => console.log('Log analizzato:', log)
@@ -635,8 +639,8 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
     // === HINT PROGRESSIVI ===
     const getHintText = () => {
         if (completed) return '';
-        
-        switch(currentStep) {
+
+        switch (currentStep) {
             case 0:
                 return 'Nel SIEM analizza i log e cerca "Cache HIT" con contenuti anomali. Nel TERMINALE usa "show-cache" per vedere cosa è stato memorizzato in cache.';
             case 1:
@@ -679,14 +683,14 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
 
     return (
         <div>
-            <LevelTemplate 
+            <LevelTemplate
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
                 terminalConfig={terminalConfig}
                 siemConfig={siemConfig}
-            >                
-                <HealthSetter 
+            >
+                <HealthSetter
                     healthSetterRef={healthSetterRef}
                     onGameOver={() => {
                         setFailed(true);
@@ -700,8 +704,9 @@ Proxy Restarted: ${proxyRestarted ? '✓' : '✗'}`;
                 {completed && (
                     <MissionDebriefWrapper
                         success={!failed}
+                        levelId="level5"
                         stats={{ stars }}
-                        recapText={!failed ? 
+                        recapText={!failed ?
                             `CACHE POISONING DEFENSE ANALYSIS\n\n` +
                             `Cache cleared: ${cacheCleared ? 'YES' : 'NO'}\n` +
                             `Headers fixed: ${headersFixed ? 'YES' : 'NO'}\n` +

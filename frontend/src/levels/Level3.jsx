@@ -25,12 +25,16 @@ const Level3Content = () => {
     const [stars, setStars] = useState(0);
     const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
     const navigate = useNavigate();
-    
+
     const addStar = () => setStars(prev => Math.min(prev + 1, 3));
 
     const [phase, setPhase] = useState(0);
     const [hintIndex, setHintIndex] = useState(0);
     const [visibleHint, setVisibleHint] = useState(null);
+
+    // Traccia azioni bonus per stelle opzionali
+    const [analyzedLog, setAnalyzedLog] = useState(false); // Stella per click su log SIEM
+    const [usedAnalyzeCode, setUsedAnalyzeCode] = useState(false); // Stella per comando analyze-code
 
     // Codice vulnerabile
     const [files, setFiles] = useState({
@@ -99,15 +103,15 @@ if ($_POST['action'] == 'login') {
     }, [phase]);
 
     const getHintText = () => {
-        switch(phase) {
-            case 0: 
+        switch (phase) {
+            case 0:
                 return "Monitora il SIEM e attendi un alert SQL Injection.";
             case 1:
                 const hints = [
                     "Apri CODE EDITOR e analizza 'login.php' - è vulnerabile a SQL Injection.",
                     "La query concatena direttamente input utente. Attaccante usa: admin' OR '1'='1",
-                    "Usa il PREPARED STATEMENT:\n\$stmt = \$db->prepare(\"SELECT * FROM users WHERE username=? AND password=?\");\n\$stmt->bind_param(\"ss\", \$username, \$password);",
-                    "I prepared statements compilano laquery PRIMA dei dati. Ciò rende SQL injection impossibile."
+                    "Usa i PREPARED STATEMENT, compilano la query PRIMA dei dati. Ciò rende SQL injection impossibile.",
+                    "Ecco un esempio di come implementare i PREPARED STATEMENT:\n\$query = \$db->prepare(\"SELECT * FROM users WHERE username=? AND password=?\");\n\$query->bind_param(\"ss\", \$username, \$password);",
                 ];
                 return hints[Math.min(hintIndex, hints.length - 1)];
             case 2:
@@ -148,7 +152,12 @@ if ($_POST['action'] == 'login') {
 
     const handleLogClick = (log) => {
         if (log.threat && phase === 0) {
-            setTerminalHistory(prev => [...prev, 
+            // Stella bonus per aver analizzato il log SIEM
+            if (!analyzedLog) {
+                setAnalyzedLog(true);
+                addStar();
+            }
+            setTerminalHistory(prev => [...prev,
                 '$ ALERT: SQL Injection vulnerability detected in login.php',
                 '$ ACTION REQUIRED: Fix the query to use prepared statements.'
             ]);
@@ -177,7 +186,7 @@ if ($_POST['action'] == 'login') {
 
         if (cmd === 'test-login' && phase === 2) {
             const currentCode = files['login.php'].content;
-            
+
             // Verifica se usa prepared statements
             const usesPreparedStatements = currentCode.includes('prepare(') && currentCode.includes('bind_param');
             const stillVulnerable = currentCode.includes('"SELECT * FROM users WHERE username=\'" . $username');
@@ -209,6 +218,11 @@ if ($_POST['action'] == 'login') {
         }
 
         if (cmd === 'analyze-code') {
+            // Stella bonus per aver usato analyze-code
+            if (!usedAnalyzeCode) {
+                setUsedAnalyzeCode(true);
+                addStar();
+            }
             return `=== CODE ANALYSIS: login.php ===
 Vulnerability: SQL INJECTION (High Severity)
 Location: authenticate_user() function
@@ -219,7 +233,7 @@ Recommendation: Use prepared statements with mysqli_prepare()`;
         }
 
         if (cmd === 'show-logs') {
-            return logs.map(log => 
+            return logs.map(log =>
                 `[${log.timestamp}] ${log.severity.toUpperCase()} - ${log.source}\n${log.message}`
             ).join('\n\n');
         }
@@ -246,6 +260,7 @@ LEZIONE APPRESA: Usa sempre prepared statements e parametri vincolati per proteg
         return (
             <MissionDebrief
                 success={gameState === 'won'}
+                levelId="level3"
                 stats={{ stars, health }}
                 recapText={gameState === 'won' ? winRecap : lossRecap}
                 onRetry={() => window.location.reload()}

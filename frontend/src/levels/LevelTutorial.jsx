@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LevelTemplate from '../components/LevelTemplate';
+import LevelTemplate, { useLevel } from '../components/LevelTemplate';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
@@ -69,10 +69,12 @@ const LevelTutorial = () => {
     const navigate = useNavigate();
     const { stars, earnStar } = useReputation('tutorial', 0);
     const [showHint, setShowHint] = useState(true);
-    const [health] = useState(100);
     const { language } = useLanguage();
     const t = translations[language].tutorial;
-    
+
+    // Track if player made a mistake (for teaching about health bar)
+    const [madeWrongBlockAttempt, setMadeWrongBlockAttempt] = useState(false);
+
     const [currentStep, setCurrentStep] = useState(0);
     const [completed, setCompleted] = useState(false);
     const [startTime] = useState(Date.now());
@@ -111,7 +113,7 @@ const LevelTutorial = () => {
             return () => clearTimeout(timeout);
         }
     }, [currentStep, hintIndex]);
-    
+
     // === CONFIGURAZIONE EMAIL ===
     const emailConfig = {
         emails: [
@@ -155,7 +157,7 @@ const LevelTutorial = () => {
                     <div className="p-6 bg-blue-50 h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
                             <h1 className="text-2xl font-bold text-gray-800 mb-4">📚 Welcome to the SOC!</h1>
-                            
+
                             <div className="bg-white rounded-lg shadow p-4 mb-4">
                                 <h2 className="text-lg font-semibold mb-2 text-blue-900">Your Mission</h2>
                                 <p className="text-sm text-gray-700">
@@ -200,9 +202,9 @@ const LevelTutorial = () => {
                             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                                 <p className="text-sm font-semibold text-yellow-800 mb-1">💡 Workflow Tip</p>
                                 <p className="text-sm text-yellow-700">
-                                    1. Check Email for alerts<br/>
-                                    2. Analyze SIEM logs (click on them!)<br/>
-                                    3. Research threats in Browser<br/>
+                                    1. Check Email for alerts<br />
+                                    2. Analyze SIEM logs (click on them!)<br />
+                                    3. Research threats in Browser<br />
                                     4. Take action with Terminal
                                 </p>
                             </div>
@@ -218,11 +220,11 @@ const LevelTutorial = () => {
                     <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">
                         <div className="max-w-3xl mx-auto">
                             <h1 className="text-2xl font-bold mb-4">🔍 SQL Injection Attacks</h1>
-                            
+
                             <div className="bg-gray-800 rounded-lg p-4 mb-4">
                                 <h2 className="text-lg font-semibold mb-2 text-red-400">What is it?</h2>
                                 <p className="text-sm text-gray-300">
-                                    SQL Injection is a code injection technique that exploits vulnerabilities in an application's database layer. 
+                                    SQL Injection is a code injection technique that exploits vulnerabilities in an application's database layer.
                                     Attackers insert malicious SQL code into input fields to manipulate database queries.
                                 </p>
                             </div>
@@ -269,12 +271,12 @@ const LevelTutorial = () => {
             'show-logs': () => {
                 const logs = generateTutorialLogs(threatBlocked);
                 const threatLog = logs.find(log => log.threat);
-                
+
                 if (!commandUsed && currentStep === 3) {
                     setCommandUsed(true);
                     setCurrentStep(4);
                 }
-                
+
                 return `=== RECENT SECURITY LOGS ===
 ${logs.map(log => `[${log.time}] ${log.severity.toUpperCase()} - ${log.source}\n${log.message}`).join('\n\n')}
 
@@ -286,28 +288,36 @@ ${threatLog ? '\n⚠️ ALERT: Suspicious activity detected from IP: 203.0.113.4
                 if (!ip) {
                     return 'Usage: block-ip <ip-address>\nExample: block-ip 203.0.113.42';
                 }
-                
+
                 if (ip === '203.0.113.42') {
                     if (threatBlocked) {
                         return '[!] IP 203.0.113.42 is already blocked';
                     }
-                    
+
                     setThreatBlocked(true);
                     setCurrentStep(5);
                     earnStar();
                     setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
-                    
+
                     setTimeout(() => {
                         setCompleted(true);
                     }, 1500);
-                    
+
                     return `[✓] IP address 203.0.113.42 blocked successfully
 [✓] Firewall rule added
 [✓] SQL Injection threat neutralized
 [+] Network secured!`;
                 }
-                
-                return `[!] IP ${ip} not found in threat list. Check 'show-logs' for suspicious IPs.`;
+
+                // Wrong IP - damage health and show feedback
+                setMadeWrongBlockAttempt(true);
+                return `[✗] ERRORE! IP ${ip} è un indirizzo interno legittimo!
+
+⚠️ ATTENZIONE: Hai bloccato un IP sbagliato!
+Guarda la barra della vita in alto a sinistra: è scesa!
+
+Nel mondo reale, bloccare IP legittimi causa disservizi.
+Controlla 'show-logs' per trovare l'IP malevolo corretto (203.0.113.42).`;
             },
 
             'status': () => {
@@ -334,15 +344,15 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
             { time: '10:10', value: threatBlocked ? 20 : 35 },
             { time: '10:15', value: threatBlocked ? 17 : 38 }
         ],
-        networkTraffic: { 
-            incoming: threatBlocked ? 180 : 280, 
-            outgoing: threatBlocked ? 150 : 220 
+        networkTraffic: {
+            incoming: threatBlocked ? 180 : 280,
+            outgoing: threatBlocked ? 150 : 220
         },
-        protocols: { 
+        protocols: {
             http: threatBlocked ? 250 : 380,
-            https: 120, 
-            ssh: 30, 
-            ftp: 0 
+            https: 120,
+            ssh: 30,
+            ftp: 0
         },
         selectedLog: null,
         onLogClick: (log) => {
@@ -357,7 +367,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
 
     // === HINT PROGRESSIVI ===
     const getHintText = () => {
-        switch(currentStep) {
+        switch (currentStep) {
             case 0:
                 return 'Inizia controllando le Email! Clicca sull\'icona Email e leggi l\'alert di sicurezza. È da lì che parte tutto!';
             case 1:
@@ -367,22 +377,68 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
             case 3:
                 return 'Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
             case 4: {
-                const hints = [
-                    'Hai trovato l\'IP malevolo (203.0.113.42)! Usa il Terminal per bloccarlo.',
-                    'Ricorda il comando: "block-ip 203.0.113.42" - questo aggiungerà l\'IP alla lista nera del firewall.',
-                    'Una volta bloccato, il sistema sarà completamente protetto e avrai completato il tutorial!'
-                ];
-                return hints[Math.min(hintIndex, hints.length - 1)];
+                if (!madeWrongBlockAttempt) {
+                    // Before they make a mistake - invite them to try blocking an IP
+                    const hints = [
+                        'Hai trovato diversi IP nei log! Prova a bloccare quello che ritieni sospetto. Digita "help" nel Terminal per vedere i comandi.',
+                        'SUGGERIMENTO: Prova a bloccare l\'IP 192.168.1.100 con il comando "block-ip 192.168.1.100". Vediamo cosa succede!',
+                    ];
+                    return hints[Math.min(hintIndex, hints.length - 1)];
+                } else {
+                    // After they made a mistake - now guide them to the correct IP
+                    const hints = [
+                        'Hai visto? Bloccare un IP sbagliato fa scendere la barra della vita! Ora blocca quello corretto: 203.0.113.42',
+                        'Il comando corretto è: "block-ip 203.0.113.42" - questo è l\'IP malevolo che ha tentato l\'SQL Injection.',
+                    ];
+                    return hints[Math.min(hintIndex, hints.length - 1)];
+                }
             }
             default:
-                return 'Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere!';
+                return 'Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere! Totalizza il maggior numero di stelle per diventare un analista SOC esperto!';
         }
+    };
+
+    // Inner component to handle damage (needs to be inside LevelTemplate to use useLevel)
+    const TutorialContent = () => {
+        const { health, damage } = useLevel();
+
+        // Apply damage when wrong block attempt is made
+        useEffect(() => {
+            if (madeWrongBlockAttempt) {
+                damage(15);
+                // Reset flag after applying damage
+                setMadeWrongBlockAttempt(false);
+            }
+        }, [madeWrongBlockAttempt, damage]);
+
+        return (
+            <>
+                {completed && (
+                    <MissionDebrief
+                        success={true}
+                        levelId="tutorial"
+                        stats={{ stars, health }}
+                        recapText={`TUTORIAL COMPLETATO!\n\n` +
+                            `Benvenuto nel SOC!\n\n` +
+                            `Hai imparato le basi:\n` +
+                            `- Analisi Email: ${emailRead ? '✓' : '✗'}\n` +
+                            `- Revisione log SIEM: ${siemLogClicked ? '✓' : '✗'}\n` +
+                            `- Esplorazione Browser: ${browserVisited ? '✓' : '✗'}\n` +
+                            `- Uso del Terminal: ${commandUsed ? '✓' : '✗'}\n` +
+                            `- Mitigazione minaccia: ${threatBlocked ? '✓' : '✗'}\n\n` +
+                            `Tempo di completamento: ${completionTime}s\n\n` +
+                            `Sei pronto per affrontare minacce reali. Buona fortuna!`}
+                        onExit={() => navigate('/map')}
+                    />
+                )}
+            </>
+        );
     };
 
     return (
         <>
-
-            <LevelTemplate 
+            <LevelTemplate
+                initialHealth={100}
                 stars={stars}
                 hint={showHint && visibleHint ? <InfoPanel text={visibleHint} /> : null}
                 browserConfig={browserConfig}
@@ -396,24 +452,8 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                         earnStar();
                     }
                 }}
-            >                
-                {completed && (
-                    <MissionDebrief
-                        success={true}
-                        stats={{ stars, health }}
-                        recapText={`TUTORIAL COMPLETION\n\n` +
-                            `Welcome to the SOC!\n\n` +
-                            `You've learned the basics:\n` +
-                            `- Email analysis: ${emailRead ? '✓' : '✗'}\n` +
-                            `- SIEM log review: ${siemLogClicked ? '✓' : '✗'}\n` +
-                            `- Browser exploration: ${browserVisited ? '✓' : '✗'}\n` +
-                            `- Terminal usage: ${commandUsed ? '✓' : '✗'}\n` +
-                            `- Threat mitigation: ${threatBlocked ? '✓' : '✗'}\n\n` +
-                            `Completion time: ${completionTime}s\n\n` +
-                            `You're ready to handle real threats. Good luck!`}
-                        onExit={() => navigate('/map')}
-                    />
-                )}
+            >
+                <TutorialContent />
             </LevelTemplate>
         </>
     );
