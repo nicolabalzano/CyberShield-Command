@@ -1126,6 +1126,11 @@ if __name__ == "__main__":
       creditsTitle: "Crediti",
       creditsContent: {
         devTeam: "Team di Sviluppo",
+        teamMembers: [
+          { name: "Alessandro Boffolo", role: "Game Designer & Developer" },
+          { name: "Nicola Balzano", role: "Backend Developer" },
+          { name: "Narcis Paviliuc", role: "Frontend Developer" }
+        ],
         gameDesign: "Game Design & Development",
         magistrale: "Magistrale - Serious Games for Cyber Security",
         specialThanks: "Ringraziamenti Speciali",
@@ -2267,6 +2272,11 @@ if __name__ == "__main__":
       creditsTitle: "Credits",
       creditsContent: {
         devTeam: "Development Team",
+        teamMembers: [
+          { name: "Alessandro Boffolo", role: "Game Designer & Developer" },
+          { name: "Nicola Balzano", role: "Backend Developer" },
+          { name: "Narcis Paviliuc", role: "Frontend Developer" }
+        ],
         gameDesign: "Game Design & Development",
         magistrale: "Magistrale - Serious Games for Cyber Security",
         specialThanks: "Special Thanks",
@@ -3406,6 +3416,11 @@ if __name__ == "__main__":
       creditsTitle: "Crédits",
       creditsContent: {
         devTeam: "Équipe de Développement",
+        teamMembers: [
+          { name: "Alessandro Boffolo", role: "Concepteur de Jeu et Développeur" },
+          { name: "Nicola Balzano", role: "Développeur Backend" },
+          { name: "Narcis Paviliuc", role: "Développeur Frontend" }
+        ],
         gameDesign: "Conception et Développement du Jeu",
         magistrale: "Magistrale - Serious Games for Cyber Security",
         specialThanks: "Remerciements Spéciaux",
@@ -4545,6 +4560,11 @@ if __name__ == "__main__":
       creditsTitle: "Credits",
       creditsContent: {
         devTeam: "Entwicklungsteam",
+        teamMembers: [
+          { name: "Alessandro Boffolo", role: "Spieldesigner & Entwickler" },
+          { name: "Nicola Balzano", role: "Backend-Entwickler" },
+          { name: "Narcis Paviliuc", role: "Frontend-Entwickler" }
+        ],
         gameDesign: "Spieldesign & Entwicklung",
         magistrale: "Magistrale - Serious Games for Cyber Security",
         specialThanks: "Besonderer Dank",
@@ -5684,6 +5704,11 @@ if __name__ == "__main__":
       creditsTitle: "Créditos",
       creditsContent: {
         devTeam: "Equipo de Desarrollo",
+        teamMembers: [
+          { name: "Alessandro Boffolo", role: "Diseñador de Juegos y Desarrollador" },
+          { name: "Nicola Balzano", role: "Desarrollador Backend" },
+          { name: "Narcis Paviliuc", role: "Desarrollador Frontend" }
+        ],
         gameDesign: "Diseño y Desarrollo del Juego",
         magistrale: "Magistrale - Serious Games for Cyber Security",
         specialThanks: "Agradecimientos Especiales",
