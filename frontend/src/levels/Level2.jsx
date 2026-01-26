@@ -76,7 +76,6 @@ const Level2 = () => {
             severity: 'critical',
             source: '203.0.113.87',
             type: 'ALERT',
-            message: 'HTTP flood detected - 480 requests/sec from single source', // Keep variant for realism or add to translations if strictly needed exact match? Let's use generic flood if variation is not critical, or static text for variety. actually let's use the translation flood string for critical ones to ensure understanding.
             message: t.logs.flood.replace('500', '480'),
             threat: true
         },
@@ -122,7 +121,6 @@ const Level2 = () => {
             severity: 'low',
             source: '192.168.1.105',
             type: 'INFO',
-            message: t.logs.normal.replace('Page load successful', 'API request completed'), // Partial match, fallback to hardcoded if not in trans? Or just use normal log. Let's use t.logs.normal for simplicity or variations if defined.
             message: t.logs.normal,
             threat: false
         },
