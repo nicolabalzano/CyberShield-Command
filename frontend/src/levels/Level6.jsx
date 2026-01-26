@@ -339,15 +339,26 @@ const Level6 = () => {
     }, [protectionsEnabled]);
 
     // ASSEGNAZIONE STELLE IN TEMPO REALE
+    const [identifyStarAwarded, setIdentifyStarAwarded] = useState(false);
+    const [protectionStarAwarded, setProtectionStarAwarded] = useState(false);
+    const [allProtectionsStarAwarded, setAllProtectionsStarAwarded] = useState(false);
 
-    // Stella 3: analisi completa + protezioni multiple
+    // Stella 2: Abilita sia CSRF Tokens che SameSite
     useEffect(() => {
-        const multipleProtections = Object.values(protectionsEnabled).filter(Boolean).length >= 2;
-        if (!analysisStarAwarded && multipleProtections && csrfType) {
+        if (!protectionStarAwarded && protectionsEnabled.csrfTokens && protectionsEnabled.sameSiteCookies) {
             earnStar();
-            setAnalysisStarAwarded(true);
+            setProtectionStarAwarded(true);
         }
-    }, [protectionsEnabled, csrfType, analysisStarAwarded, earnStar]);
+    }, [protectionsEnabled, protectionStarAwarded, earnStar]);
+
+    // Stella 3: Abilita TUTTE le protezioni disponibili
+    useEffect(() => {
+        const allEnabled = Object.values(protectionsEnabled).every(Boolean);
+        if (!allProtectionsStarAwarded && allEnabled) {
+            earnStar();
+            setAllProtectionsStarAwarded(true);
+        }
+    }, [protectionsEnabled, allProtectionsStarAwarded, earnStar]);
 
     // Blocca transazioni CSRF quando le protezioni sono attive
     useEffect(() => {
@@ -390,93 +401,12 @@ const Level6 = () => {
     // === CONDIZIONE DI COMPLETAMENTO ===
     useEffect(() => {
         if (!attackActive && !unauthorizedActions && appRestarted && !completed) {
-            // Stella 1: completamento base
-            if (stars === 0) {
-                earnStar();
-            }
-
-            // Stella 2: nessun falso positivo
-            if (!legitimateBlocked && stars <= 1) { // Check <= 1 because they might have gained potential for star 3 but not star 2 yet? No, order matters.
-                // Wait, logic in original was:
-                // if (!legitimateBlocked && stars === 1) earnStar()
-                // The issue is if they earned Star 3 (analysis) BEFORE completion?
-                // Let's rely on earnStar handles max 3.
-                // But we want to ensure they get the points they deserve.
-
-                // If they have 0 stars -> Earn completion (1).
-                // If no false positives -> Earn another (2).
-                // If they already have analysis star (so stars is already 1 or more before completion).
-
-                // Safe logic using local flags if we had them or just trusting earnStar increment.
-                // But earnStar only increments by 1.
-                // We need to call it multiple times if we need to award multiple stars at once.
-
-                // Let's refine:
-                // We know if we are here, we are completing.
-                // Completion star is ALWAYS awarded if we are here and somehow don't have enough stars?
-                // Actually star 1 is for completion.
-
-                // Scenario A: No analysis star.
-                // Stars = 0.
-                // Completion -> Stars = 1.
-                // No false pos -> Stars = 2.
-
-                // Scenario B: Analysis star awarded during game.
-                // Stars = 1.
-                // Completion -> Stars = 2.
-                // No false pos -> Stars = 3.
-
-                // So we just need to check conditions and call earnStar.
-                // However, we must ensure we don't double award if effect runs twice (it shouldn't due to !completed check).
-
-                earnStar(); // For completion
-
-                if (!legitimateBlocked) {
-                    setTimeout(() => earnStar(), 500); // Small delay to separate sounds/animations if possible, or just call it.
-                    // Actually react state updates might batch.
-                    // But wait, earnStar uses prev state.
-                    // It should be fine to call twice?
-                    // No, state updates in same cycle might conflict if not functional?
-                    // useReputation hooks uses functional update: setStars(prev => ...)
-                    // So calling twice works.
-                    earnStar();
-                }
-            } else {
-                // Logic for when we might already have stars?
-                // Current logic:
-                // if (stars === 0) earnStar();
-                // if (!legitimateBlocked && stars === 1) earnStar();
-
-                // If I have analysis star (1 star).
-                // Completion -> earnStar() -> 2 stars.
-                // No false pos -> earnStar() -> 3 stars.
-
-                // If I don't have analysis star (0 stars).
-                // Completion -> earnStar() -> 1 star.
-                // No false pos -> earnStar() -> 2 stars.
-
-                // This seems correct regardless of starting stars, assuming we want to award +1 for completion and +1 for no false positives.
-
-                // Wait, original code was:
-                // if (stars === 0) earnStar();
-                // if (!legitimateBlocked && stars === 1) earnStar();
-                // if (multipleProtections... && stars === 2) earnStar();
-
-                // It enforced an order. Now we decoupled analysis star.
-                // So we just award for completion and false positives.
-
-                earnStar(); // Award completion star
-                if (!legitimateBlocked) {
-                    earnStar(); // Award no-false-positives star
-                }
-            }
-
             setCompletionTime(Math.floor((Date.now() - startTime) / 1000));
             setTimeout(() => {
                 setCompleted(true);
             }, 2000);
         }
-    }, [attackActive, unauthorizedActions, appRestarted, completed, legitimateBlocked, protectionsEnabled, csrfType, stars, earnStar, startTime]);
+    }, [attackActive, unauthorizedActions, appRestarted, completed, startTime]);
 
     // === CONFIGURAZIONE BROWSER ===
     const browserConfig = {
@@ -788,12 +718,12 @@ const Level6 = () => {
         commands: {
             'analyze-requests': () => {
                 const csrfRequests = transactions.filter(t => t.csrf);
-                return `${t.terminal.analyze.title}
+                return `${t.terminal.analyze.header}
 ${t.terminal.analyze.total} ${transactions.length}
 ${t.terminal.analyze.legitimate} ${transactions.filter(t => !t.csrf).length}
 ${t.terminal.analyze.csrf} ${csrfRequests.length}
 
-${t.terminal.analyze.suspicious}
+${t.terminal.analyze.patterns}
 ${csrfRequests.map((tr, i) => `${i + 1}. ${tr.action} ${t.browser.portal.activity.origin} ${tr.origin || 'unknown origin'} - ${t.browser.portal.activity.status}: ${tr.status}`).join('\n')}
 
 ${t.terminal.analyze.action}`;
@@ -804,134 +734,113 @@ ${t.terminal.analyze.action}`;
                 const transaction = transactions.find(t => t.id === id);
 
                 if (!transaction) {
-                    return t.terminal.transaction.usage;
+                    // t.terminal.transaction.usage is missing in translations, handle gracefully or add it, but for now hardcode or reuse help
+                    return "Usage: show-transaction <id>";
                 }
 
-                return `${t.terminal.transaction.title}
-${t.terminal.transaction.id}: ${transaction.id}
-${t.terminal.transaction.time}: ${transaction.time}
-${t.terminal.transaction.user}: ${transaction.user}
-${t.terminal.transaction.action}: ${transaction.action}
-${transaction.amount ? `${t.terminal.transaction.amount}: $${transaction.amount}` : ''}
-${transaction.destination ? `${t.terminal.transaction.destination}: ${transaction.destination}` : ''}
-${transaction.origin ? `${t.terminal.transaction.origin}: ${transaction.origin}` : `${t.terminal.transaction.origin}: ${t.terminal.transaction.fields.originDefault}`}
-${t.terminal.transaction.status}: ${transaction.status}
-${t.terminal.transaction.csrfField}: ${transaction.csrf ? t.terminal.transaction.yes : t.terminal.transaction.no}
+                return `${t.terminal.transaction.header}
+${t.terminal.transaction.id} ${transaction.id}
+${t.terminal.transaction.time} ${transaction.time}
+${t.terminal.transaction.user} ${transaction.user}
+${t.terminal.transaction.action} ${transaction.action}
+${transaction.amount ? `${t.terminal.transaction.amount} $${transaction.amount}` : ''}
+${transaction.destination ? `${t.terminal.transaction.destination} ${transaction.destination}` : ''}
+${transaction.origin ? `${t.terminal.transaction.origin} ${transaction.origin}` : `${t.terminal.transaction.origin} internal`}
+${t.terminal.transaction.status} ${transaction.status}
+${t.terminal.transaction.csrf} ${transaction.csrf ? t.terminal.transaction.yes : t.terminal.transaction.no}
 
 ${transaction.csrf && attackActive ? t.terminal.transaction.risk : t.terminal.transaction.safe}`;
             },
 
             'identify-csrf': () => {
+                if (!identifyStarAwarded) {
+                    setIdentifyStarAwarded(true);
+                    earnStar();
+                }
                 setCsrfType('CLASSIC_CSRF');
                 setCurrentStep(1);
-                return `${t.terminal.identify.title}
-${t.terminal.identify.type}: CLASSIC CSRF (Cross-Site Request Forgery)
+                return `${t.terminal.identify.header}
+${t.terminal.identify.type}
 ${t.terminal.identify.desc}
 ${t.terminal.identify.vector}
 ${t.terminal.identify.impact}
 
-${t.terminal.identify.chars.title}
-${t.terminal.identify.chars.list[0]}
-${t.terminal.identify.chars.list[1]}
-${t.terminal.identify.chars.list[2]}
-${t.terminal.identify.chars.list[3]}
-
+${t.terminal.identify.chars}
 ${t.terminal.identify.success}`;
             },
 
             'enable-csrf-tokens': () => {
                 if (protectionsEnabled.csrfTokens) {
-                    return t.terminal.enableTokens.already;
+                    return t.terminal.tokens.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, csrfTokens: true }));
                 setCurrentStep(2);
-                return `${t.terminal.enableTokens.success}
-${t.terminal.enableTokens.details[0]}
-${t.terminal.enableTokens.details[1]}
-${t.terminal.enableTokens.details[2]}
-${t.terminal.enableTokens.details[3]}`;
+                return t.terminal.tokens.success;
             },
 
             'enable-samesite': () => {
                 if (protectionsEnabled.sameSiteCookies) {
-                    return t.terminal.enableSameSite.already;
+                    return t.terminal.sameSite.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, sameSiteCookies: true }));
-                return `${t.terminal.enableSameSite.success}
-${t.terminal.enableSameSite.details[0]}
-${t.terminal.enableSameSite.details[1]}
-${t.terminal.enableSameSite.details[2]}
-${t.terminal.enableSameSite.details[3]}`;
+                return t.terminal.sameSite.success;
             },
 
             'enable-origin-check': () => {
                 if (protectionsEnabled.originValidation) {
-                    return t.terminal.enableOrigin.already;
+                    return t.terminal.origin.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, originValidation: true }));
-                return `${t.terminal.enableOrigin.success}
-${t.terminal.enableOrigin.details[0]}
-${t.terminal.enableOrigin.details[1]}
-${t.terminal.enableOrigin.details[2]}
-${t.terminal.enableOrigin.details[3]}`;
+                return t.terminal.origin.success;
             },
 
             'enable-double-submit': () => {
                 if (protectionsEnabled.doubleSubmitCookie) {
-                    return t.terminal.enableDouble.already;
+                    return t.terminal.double.already;
                 }
                 setProtectionsEnabled(prev => ({ ...prev, doubleSubmitCookie: true }));
-                return `${t.terminal.enableDouble.success}
-${t.terminal.enableDouble.details[0]}
-${t.terminal.enableDouble.details[1]}
-${t.terminal.enableDouble.details[2]}
-${t.terminal.enableDouble.details[3]}`;
+                return t.terminal.double.success;
             },
 
             'restart-app': () => {
                 if (!protectionsEnabled.csrfTokens && !protectionsEnabled.sameSiteCookies) {
-                    return t.terminal.restart.noChanges;
+                    return t.terminal.restart.req;
                 }
                 setAppRestarted(true);
-                return `${t.terminal.restart.success[0]}
-${t.terminal.restart.success[1]}
-${t.terminal.restart.protectionStatus}: ${!attackActive ? 'ACTIVE' : 'PARTIAL'}
-${!attackActive ? t.terminal.restart.mitigated : t.terminal.restart.recommended}`;
+                return `${t.terminal.restart.success}
+${t.terminal.restart.status} ${!attackActive ? 'ACTIVE' : 'PARTIAL'}
+${!attackActive ? t.terminal.restart.mitigated : t.terminal.restart.recommend}`;
             },
 
             'check-balance': () => {
-                return `${t.terminal.checkBalance.title}
-${t.terminal.checkBalance.current}: $${accountBalance.toLocaleString()}
-${t.terminal.checkBalance.original}: $${USER_ACCOUNT.balance.toLocaleString()}
-${accountBalance < USER_ACCOUNT.balance ? `${t.terminal.checkBalance.loss}: $${(USER_ACCOUNT.balance - accountBalance).toLocaleString()} ⚠️` : `${t.terminal.checkBalance.secure} ✓`}
+                return `${t.terminal.balance.header}
+${t.terminal.balance.current} $${accountBalance.toLocaleString()}
+${t.terminal.balance.original} $${USER_ACCOUNT.balance.toLocaleString()}
+${accountBalance < USER_ACCOUNT.balance ? `${t.terminal.balance.loss} $${(USER_ACCOUNT.balance - accountBalance).toLocaleString()} ⚠️` : `${t.terminal.balance.secure}`}
 
-${accountBalance < USER_ACCOUNT.balance ? t.terminal.checkBalance.warning : t.terminal.checkBalance.noUnauthorized}`;
+${accountBalance < USER_ACCOUNT.balance ? t.terminal.balance.warning : t.terminal.balance.safe}`;
             },
 
             'scan-vulnerabilities': () => {
                 const vulns = [];
                 if (!protectionsEnabled.csrfTokens) vulns.push(t.terminal.scan.missingTokens);
-                if (!protectionsEnabled.sameSiteCookies) vulns.push(t.terminal.scan.sameSite);
-                if (!protectionsEnabled.originValidation) vulns.push(t.terminal.scan.origin);
-                if (!protectionsEnabled.doubleSubmitCookie) vulns.push(t.terminal.scan.double);
+                if (!protectionsEnabled.sameSiteCookies) vulns.push(t.terminal.scan.missingSameSite);
+                if (!protectionsEnabled.originValidation) vulns.push(t.terminal.scan.missingOrigin);
+                if (!protectionsEnabled.doubleSubmitCookie) vulns.push(t.terminal.scan.missingDouble);
 
-                return `${t.terminal.scan.title}
-${vulns.length > 0 ? `${t.terminal.scan.found}\n` + vulns.join('\n') : t.terminal.scan.noVulns}
+                return `${t.terminal.scan.header}
+${vulns.length > 0 ? `${t.terminal.scan.found}\n` + vulns.join('\n') : t.terminal.scan.none}
 
-${t.terminal.scan.recommendationsTitle}
-${t.terminal.scan.recsList[0]}
-${t.terminal.scan.recsList[1]}
-${t.terminal.scan.recsList[2]}
-${t.terminal.scan.recsList[3]}`;
+${t.terminal.scan.recs}`;
             },
 
             'status': () => {
-                return `${t.terminal.status.title}
-${t.terminal.status.attackActive}: ${attackActive ? '🔴 YES' : '🟢 NO'}
-${t.terminal.status.unauthorized}: ${unauthorizedActions ? '🔴 YES' : '🟢 NO'}
-${t.terminal.status.appStatus}: ${appRestarted ? 'RESTARTED' : 'RUNNING'}
-${t.terminal.status.typeIdentified}: ${csrfType || 'NOT YET'}
-${t.browser.portal.account.balance}: $${accountBalance.toLocaleString()}
+                return `${t.terminal.status.header}
+${t.terminal.status.active} ${attackActive ? t.terminal.status.yes : t.terminal.status.no}
+${t.terminal.status.unauth} ${unauthorizedActions ? t.terminal.status.yes : t.terminal.status.no}
+${t.terminal.status.app} ${appRestarted ? t.terminal.status.restarted : t.terminal.status.running}
+${t.terminal.status.type} ${csrfType || t.terminal.status.notYet}
+${t.terminal.status.balance} $${accountBalance.toLocaleString()}
 
 ${t.browser.dashboard.protections.title}
 - ${t.browser.dashboard.protections.tokens}: ${protectionsEnabled.csrfTokens ? '✓' : '✗'}

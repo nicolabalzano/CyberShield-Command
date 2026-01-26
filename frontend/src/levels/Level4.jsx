@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
-import LevelTemplate, { useLevel } from '../components/LevelTemplate';
+import LevelTemplate from '../components/LevelTemplate';
+import { useLevel } from '../contexts/LevelContext';
 import { useReputation } from '../components/ReputationStars';
 import InfoPanel from '../components/InfoPanel';
 import MissionDebrief from '../components/MissionDebrief';
@@ -902,20 +903,7 @@ ${t.terminal.status.protections}
         setMissionSuccess(false);
     };
 
-    if (completed || failed) {
-        return (
-            <MissionDebriefWrapper
-                success={missionSuccess}
-                levelId="level4"
-                stats={{ stars: stars, health: 100 }} // Health is handled by wrapper
-                recapText={missionSuccess
-                    ? `${t.debrief.winTitle}\n\n${t.debrief.winBody}\n\n${t.debrief.techniquesTitle}\n${t.debrief.techniques.join('\n')}`
-                    : t.debrief.loss}
-                onRetry={() => window.location.reload()}
-                onExit={() => navigate('/map')}
-            />
-        );
-    }
+
 
     return (
         <LevelTemplate
@@ -926,6 +914,7 @@ ${t.terminal.status.protections}
             siemConfig={siemConfig}
             onValidation={() => { }} // No external validation needed
             hint={visibleHint ? <InfoPanel text={visibleHint} /> : null}
+            stars={stars}
         >
             <HealthMonitor
                 completed={completed}
@@ -936,6 +925,19 @@ ${t.terminal.status.protections}
             <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
                 <Timer secondsRemaining={secondsRemaining} />
             </div>
+
+            {(completed || failed) && (
+                <MissionDebriefWrapper
+                    success={missionSuccess}
+                    levelId="level4"
+                    stats={{ stars: stars }}
+                    recapText={missionSuccess
+                        ? `${t.debrief.winTitle}\n\n${t.debrief.winBody}\n\n${t.debrief.techniquesTitle}\n${t.debrief.techniques.join('\n')}`
+                        : t.debrief.loss}
+                    onRetry={() => window.location.reload()}
+                    onExit={() => navigate('/map')}
+                />
+            )}
         </LevelTemplate>
     );
 };

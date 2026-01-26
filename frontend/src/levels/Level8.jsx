@@ -122,7 +122,7 @@ const Level8Content = ({
                 />
             )}
             {/* TIMER & HUD */}
-            <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+            <div className="absolute top-[22%] left-[16.5%] z-[5] pointer-events-none transform scale-90">
                 <Timer secondsRemaining={secondsRemaining} />
             </div>
         </>
