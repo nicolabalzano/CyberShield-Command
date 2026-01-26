@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Link from './Link';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 
 const defaultFeedbackMessages = {
-    success_phishing: '✓ Ottimo lavoro! Hai evitato una minaccia cyber!',
-    success_safe: '✓ Corretto! Questa email è sicura.',
-    error_phishing: '✗ Attenzione! Hai appena cliccato su un link malevolo. Sistema compromesso!',
-    error_safe: '✗ Errore! Hai segnalato un\'email legittima come phishing.'
+    success_phishing: '',
+    success_safe: '',
+    error_phishing: '',
+    error_safe: ''
 };
 
 const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, emails: initialEmails, feedbackMessages, showFeedbackPopup = true }) => {
+    const { language } = useLanguage();
+    const t = translations[language]?.emailClient || translations['italiano'].emailClient;
     const [emails, setEmails] = useState(initialEmails || []);
 
     // Se vengono passate nuove props email, aggiorna lo stato
@@ -33,7 +37,7 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                 correct: false,
                 isPhishing: true,
                 explanation: selectedEmail.explanation,
-                consequence: '⚠️ ATTENZIONE! Hai cliccato su un link malevolo. Il sistema potrebbe essere compromesso!'
+                consequence: t.dangerText
             });
             setShowFeedback(true);
 
@@ -58,7 +62,7 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                     correct: false,
                     isPhishing: true,
                     explanation: selectedEmail.explanation,
-                    consequence: '⚠️ PERICOLO! Hai aperto un allegato malevolo. Il sistema è stato infettato!'
+                    consequence: t.dangerAttachment
                 });
                 setShowFeedback(true);
 
@@ -71,8 +75,8 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                 setFeedback({
                     correct: true,
                     isPhishing: false,
-                    explanation: 'Questo allegato è sicuro.',
-                    consequence: '✓ Allegato sicuro aperto correttamente.'
+                    explanation: t.safeAttachmentExpl,
+                    consequence: t.safeAttachment
                 });
                 setShowFeedback(true);
             }
@@ -161,11 +165,11 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
             explanation: selectedEmail.explanation,
             consequence: correct
                 ? (isPhishing
-                    ? '✓ Corretto! Email di phishing identificata.'
-                    : '✓ Corretto! Email sicura identificata.')
+                    ? t.correctPhishing
+                    : t.correctSafe)
                 : (isPhishing
-                    ? '✗ Errore! Hai segnalato un\'email legittima come phishing.'
-                    : '✗ Errore! Questa era un\'email di phishing!')
+                    ? t.errorPhishingWrong
+                    : t.errorSafeWrong)
         });
 
         if (showFeedbackPopup) {
@@ -189,13 +193,13 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                 {/* Email List */}
                 <div className="w-1/3 border-r border-slate-300 overflow-y-auto">
                     <div className="bg-slate-100 border-b border-slate-300 p-2 font-bold text-slate-700 sticky top-0">
-                        Inbox ({emails.filter(e => !e.read).length} non lette)
+                        Inbox ({emails.filter(e => !e.read).length} {t.inboxLabel})
                     </div>
                     {emails.length === 0 ? (
                         <div className="p-8 text-center text-slate-400">
                             <div className="text-4xl mb-2">📭</div>
-                            <div className="font-semibold">Nessuna email</div>
-                            <div className="text-xs mt-1">La tua inbox è vuota</div>
+                            <div className="font-semibold">{t.noEmailsText}</div>
+                            <div className="text-xs mt-1">{t.emptyInboxText}</div>
                         </div>
                     ) : (
                         emails.map(email => (
@@ -240,15 +244,15 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                                     </div>
                                     <div className="text-[11px] text-slate-600 space-y-1 mb-2">
                                         <div>
-                                            <span className="font-semibold">From:</span>
+                                            <span className="font-semibold">{t.fromLabel}</span>
                                             <span className="ml-1 hover:underline cursor-help" title={`Full address: ${selectedEmail.from}`}>
                                                 {selectedEmail.from}
                                             </span>
                                         </div>
-                                        <div><span className="font-semibold">Date:</span> {selectedEmail.timestamp}</div>
+                                        <div><span className="font-semibold">{t.dateLabel}</span> {selectedEmail.timestamp}</div>
                                         {selectedEmail.hasAttachment && (
                                             <div className="flex items-center gap-1">
-                                                <span className="font-semibold">Attachment:</span>
+                                                <span className="font-semibold">{t.attachmentLabel}</span>
                                                 <span
                                                     onClick={handleAttachmentClick}
                                                     className={`cursor-pointer hover:underline ${selectedEmail.attachmentName?.endsWith('.exe') ? 'text-red-600 font-bold' : 'text-blue-600'
@@ -272,7 +276,7 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                                 }`}
                                         >
-                                            ✓ Email Safe
+                                            {t.emailSafeButton}
                                         </span>
                                         <span
                                             onClick={() => handleFlag(true)}
@@ -284,7 +288,7 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                                                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                                 }`}
                                         >
-                                            ⚠️ Report Phishing
+                                            {t.reportPhishingButton}
                                         </span>
 
                                         <span
@@ -296,7 +300,7 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                                             }}
                                             className="px-3 py-1.5 text-blue-700 font-semibold transition-all"
                                         >
-                                            {showInspector ? 'Hide Header' : 'Show Header'}
+                                            {showInspector ? t.hideHeaderButton : t.showHeaderButton}
                                         </span>
                                     </div>
 
@@ -330,19 +334,19 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                                             {feedback.consequence}
                                         </div>
                                         <div className="text-xs text-slate-700 mb-3 bg-slate-100 p-2 rounded">
-                                            <div className="font-bold mb-1">📚 Spiegazione:</div>
+                                            <div className="font-bold mb-1">{t.explanationLabel}</div>
                                             {feedback.explanation}
                                         </div>
                                         {!feedback.correct && (
                                             <div className="text-[10px] text-orange-600 bg-orange-50 p-2 rounded mb-3">
-                                                💡 Suggerimento: Controlla sempre il dominio del mittente, il tono del messaggio e la presenza di richieste urgenti!
+                                                {t.suggestionText}
                                             </div>
                                         )}
                                         <button
                                             onClick={() => setShowFeedback(false)}
                                             className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded transition-all"
                                         >
-                                            CONTINUA
+                                            {t.continueButton}
                                         </button>
                                     </div>
                                 </div>
@@ -352,9 +356,9 @@ const EmailClient = ({ onEmailAction, onEmailRead = () => { }, onHeaderInspect, 
                         <div className="flex-1 flex items-center justify-center text-slate-400">
                             <div className="text-center">
                                 <div className="text-4xl mb-2">📧</div>
-                                <div>Seleziona un'email per leggerla</div>
+                                <div>{t.selectEmailText}</div>
                                 <div className="text-[10px] mt-2 text-slate-500">
-                                    Identifica le email di phishing per proteggere l'azienda!
+                                    {t.protectText}
                                 </div>
                             </div>
                         </div>

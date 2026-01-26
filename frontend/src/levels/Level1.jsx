@@ -256,7 +256,7 @@ const Level1 = () => {
             },
             {
                 url: 'https://support.google.com/mail/answer/8253',
-                title: 'Gmail Anti-Phishing Guide',
+                title: t.browser.google.pageTitle,
                 icon: '📧',
                 content: (
                     <div className="p-6 bg-gray-900 text-white h-full overflow-y-auto">

@@ -89,6 +89,7 @@ export const translations = {
           ssl: 'Certificato SSL valido ✅'
         },
         google: {
+          pageTitle: 'Guida Gmail Anti-Phishing',
           title: 'Come riconoscere email di phishing',
           dangerTitle: '⚠️ Segnali di pericolo:',
           dangerList: [
@@ -1176,6 +1177,36 @@ if __name__ == "__main__":
       retryLevel: "RIPROVA LIVELLO",
       continue: "CONTINUA",
       returnToMap: "RITORNA ALLA MAPPA"
+    },
+    // Email Client
+    emailClient: {
+      feedbackSuccess_phishing: '✓ Ottimo lavoro! Hai evitato una minaccia cyber!',
+      feedbackSuccess_safe: '✓ Corretto! Questa email è sicura.',
+      feedbackError_phishing: '✗ Attenzione! Hai appena cliccato su un link malevolo. Sistema compromesso!',
+      feedbackError_safe: '✗ Errore! Hai segnalato un\'email legittima come phishing.',
+      inboxLabel: 'non lette',
+      noEmailsText: 'Nessuna email',
+      emptyInboxText: 'La tua inbox è vuota',
+      explanationLabel: '📚 Spiegazione:',
+      suggestionText: '💡 Suggerimento: Controlla sempre il dominio del mittente, il tono del messaggio e la presenza di richieste urgenti!',
+      continueButton: 'CONTINUA',
+      selectEmailText: 'Seleziona un\'email per leggerla',
+      protectText: 'Identifica le email di phishing per proteggere l\'azienda!',
+      fromLabel: 'From:',
+      dateLabel: 'Date:',
+      attachmentLabel: 'Attachment:',
+      emailSafeButton: '✓ Email Safe',
+      reportPhishingButton: '⚠️ Report Phishing',
+      showHeaderButton: 'Show Header',
+      hideHeaderButton: 'Hide Header',
+      correctPhishing: '✓ Corretto! Email di phishing identificata.',
+      correctSafe: '✓ Corretto! Email sicura identificata.',
+      errorPhishingWrong: '✗ Errore! Hai segnalato un\'email legittima come phishing.',
+      errorSafeWrong: '✗ Errore! Questa era un\'email di phishing!',
+      dangerText: '⚠️ ATTENZIONE! Hai cliccato su un link malevolo. Il sistema potrebbe essere compromesso!',
+      dangerAttachment: '⚠️ PERICOLO! Hai aperto un allegato malevolo. Il sistema è stato infettato!',
+      safeAttachment: '✓ Allegato sicuro aperto correttamente.',
+      safeAttachmentExpl: 'Questo allegato è sicuro.'
     }
   },
   english: {
@@ -1268,6 +1299,7 @@ if __name__ == "__main__":
           ssl: 'Valid SSL Certificate ✅'
         },
         google: {
+          pageTitle: 'Gmail Anti-Phishing Guide',
           title: 'How to recognize phishing emails',
           dangerTitle: '⚠️ Warning Signs:',
           dangerList: [
@@ -2355,6 +2387,36 @@ if __name__ == "__main__":
       retryLevel: "RETRY LEVEL",
       continue: "CONTINUE",
       returnToMap: "RETURN TO MAP"
+    },
+    // Email Client
+    emailClient: {
+      feedbackSuccess_phishing: '✓ Great job! You avoided a cyber threat!',
+      feedbackSuccess_safe: '✓ Correct! This email is safe.',
+      feedbackError_phishing: '✗ Warning! You just clicked on a malicious link. System compromised!',
+      feedbackError_safe: '✗ Error! You reported a legitimate email as phishing.',
+      inboxLabel: 'unread',
+      noEmailsText: 'No emails',
+      emptyInboxText: 'Your inbox is empty',
+      explanationLabel: '📚 Explanation:',
+      suggestionText: '💡 Tip: Always check the sender domain, message tone, and urgent requests!',
+      continueButton: 'CONTINUE',
+      selectEmailText: 'Select an email to read it',
+      protectText: 'Identify phishing emails to protect the company!',
+      fromLabel: 'From:',
+      dateLabel: 'Date:',
+      attachmentLabel: 'Attachment:',
+      emailSafeButton: '✓ Email Safe',
+      reportPhishingButton: '⚠️ Report Phishing',
+      showHeaderButton: 'Show Header',
+      hideHeaderButton: 'Hide Header',
+      correctPhishing: '✓ Correct! Phishing email identified.',
+      correctSafe: '✓ Correct! Safe email identified.',
+      errorPhishingWrong: '✗ Error! You reported a legitimate email as phishing.',
+      errorSafeWrong: '✗ Error! This was a phishing email!',
+      dangerText: '⚠️ WARNING! You clicked on a malicious link. The system may be compromised!',
+      dangerAttachment: '⚠️ DANGER! You opened a malicious attachment. The system has been infected!',
+      safeAttachment: '✓ Safe attachment opened correctly.',
+      safeAttachmentExpl: 'This attachment is safe.'
     }
   },
   francais: {
@@ -2447,6 +2509,7 @@ if __name__ == "__main__":
           ssl: 'Certificat SSL Valide ✅'
         },
         google: {
+          pageTitle: 'Guide Gmail Anti-Phishing',
           title: 'Comment reconnaître le phishing',
           dangerTitle: '⚠️ Signes d\'alerte:',
           dangerList: [
@@ -3534,6 +3597,36 @@ if __name__ == "__main__":
       retryLevel: "RÉESSAYER LE NIVEAU",
       continue: "CONTINUER",
       returnToMap: "RETOUR À LA CARTE"
+    },
+    // Email Client
+    emailClient: {
+      feedbackSuccess_phishing: '✓ Excellent travail! Vous avez évité une menace cyber!',
+      feedbackSuccess_safe: '✓ Correct! Cet email est sûr.',
+      feedbackError_phishing: '✗ Attention! Vous venez de cliquer sur un lien malveillant. Système compromis!',
+      feedbackError_safe: '✗ Erreur! Vous avez signalé un email légitime comme phishing.',
+      inboxLabel: 'non lus',
+      noEmailsText: 'Aucun email',
+      emptyInboxText: 'Votre boîte de réception est vide',
+      explanationLabel: '📚 Explication:',
+      suggestionText: '💡 Conseil: Vérifiez toujours le domaine de l\'expéditeur, le ton et les demandes urgentes!',
+      continueButton: 'CONTINUER',
+      selectEmailText: 'Sélectionnez un email pour le lire',
+      protectText: 'Identifiez les emails de phishing pour protéger l\'entreprise!',
+      fromLabel: 'De:',
+      dateLabel: 'Date:',
+      attachmentLabel: 'Pièce jointe:',
+      emailSafeButton: '✓ Email Sûr',
+      reportPhishingButton: '⚠️ Signaler Phishing',
+      showHeaderButton: 'Afficher En-tête',
+      hideHeaderButton: 'Masquer En-tête',
+      correctPhishing: '✓ Correct! Email de phishing identifié.',
+      correctSafe: '✓ Correct! Email sûr identifié.',
+      errorPhishingWrong: '✗ Erreur! Vous avez signalé un email légitime comme phishing.',
+      errorSafeWrong: '✗ Erreur! C\'était un email de phishing!',
+      dangerText: '⚠️ ATTENTION! Vous avez cliqué sur un lien malveillant. Le système peut être compromis!',
+      dangerAttachment: '⚠️ DANGER! Vous avez ouvert une pièce jointe malveillante. Le système a été infecté!',
+      safeAttachment: '✓ Pièce jointe sûre ouverte correctement.',
+      safeAttachmentExpl: 'Cette pièce jointe est sûre.'
     }
   },
   deutsch: {
@@ -3626,6 +3719,7 @@ if __name__ == "__main__":
           ssl: 'Gültiges SSL-Zertifikat ✅'
         },
         google: {
+          pageTitle: 'Gmail Anti-Phishing-Anleitung',
           title: 'Phishing-E-Mails erkennen',
           dangerTitle: '⚠️ Warnzeichen:',
           dangerList: [
@@ -4713,6 +4807,36 @@ if __name__ == "__main__":
       retryLevel: "LEVEL WIEDERHOLEN",
       continue: "FORTFAHREN",
       returnToMap: "ZUR KARTE ZURÜCK"
+    },
+    // Email Client
+    emailClient: {
+      feedbackSuccess_phishing: '✓ Großartig! Sie haben eine Cyberbedrohung vermieden!',
+      feedbackSuccess_safe: '✓ Richtig! Diese E-Mail ist sicher.',
+      feedbackError_phishing: '✗ Warnung! Sie haben gerade auf einen bösen Link geklickt. System kompromittiert!',
+      feedbackError_safe: '✗ Fehler! Sie haben eine legitime E-Mail als Phishing gemeldet.',
+      inboxLabel: 'ungelesen',
+      noEmailsText: 'Keine E-Mails',
+      emptyInboxText: 'Ihr Posteingang ist leer',
+      explanationLabel: '📚 Erklärung:',
+      suggestionText: '💡 Tipp: Überprüfen Sie immer die Absenderdomäne, den Ton und dringende Anfragen!',
+      continueButton: 'FORTFAHREN',
+      selectEmailText: 'Wählen Sie eine E-Mail zum Lesen aus',
+      protectText: 'Identifizieren Sie Phishing-E-Mails, um das Unternehmen zu schützen!',
+      fromLabel: 'Von:',
+      dateLabel: 'Datum:',
+      attachmentLabel: 'Anhang:',
+      emailSafeButton: '✓ E-Mail Sicher',
+      reportPhishingButton: '⚠️ Phishing Melden',
+      showHeaderButton: 'Kopfzeile Anzeigen',
+      hideHeaderButton: 'Kopfzeile Ausblenden',
+      correctPhishing: '✓ Richtig! Phishing-E-Mail identifiziert.',
+      correctSafe: '✓ Richtig! Sichere E-Mail identifiziert.',
+      errorPhishingWrong: '✗ Fehler! Sie haben eine legitime E-Mail als Phishing gemeldet.',
+      errorSafeWrong: '✗ Fehler! Das war eine Phishing-E-Mail!',
+      dangerText: '⚠️ WARNUNG! Sie haben auf einen bösen Link geklickt. Das System kann kompromittiert sein!',
+      dangerAttachment: '⚠️ GEFAHR! Sie haben einen bösen Anhang geöffnet. Das System wurde infiziert!',
+      safeAttachment: '✓ Sicherer Anhang korrekt geöffnet.',
+      safeAttachmentExpl: 'Dieser Anhang ist sicher.'
     }
   },
   espanol: {
@@ -4805,6 +4929,7 @@ if __name__ == "__main__":
           ssl: 'Certificado SSL Válido ✅'
         },
         google: {
+          pageTitle: 'Guía Gmail Anti-Phishing',
           title: 'Cómo reconocer correos de phishing',
           dangerTitle: '⚠️ Señales de advertencia:',
           dangerList: [
@@ -5891,6 +6016,37 @@ if __name__ == "__main__":
       evaluation: "EVALUACIÓN",
       retryLevel: "REINTENTAR NIVEL",
       continue: "CONTINUAR",
-      returnToMap: "VOLVER AL MAPA"    }
+      returnToMap: "VOLVER AL MAPA"
+    },
+    // Email Client
+    emailClient: {
+      feedbackSuccess_phishing: '✓ ¡Excelente! ¡Evitaste una amenaza cibernética!',
+      feedbackSuccess_safe: '✓ ¡Correcto! Este correo es seguro.',
+      feedbackError_phishing: '✗ ¡Advertencia! Acabas de hacer clic en un enlace malicioso. ¡Sistema comprometido!',
+      feedbackError_safe: '✗ ¡Error! Reportaste un correo legítimo como phishing.',
+      inboxLabel: 'sin leer',
+      noEmailsText: 'Sin correos',
+      emptyInboxText: 'Tu bandeja de entrada está vacía',
+      explanationLabel: '📚 Explicación:',
+      suggestionText: '💡 Consejo: ¡Siempre verifica el dominio del remitente, el tono y solicitudes urgentes!',
+      continueButton: 'CONTINUAR',
+      selectEmailText: 'Selecciona un correo para leerlo',
+      protectText: '¡Identifica correos de phishing para proteger la empresa!',
+      fromLabel: 'De:',
+      dateLabel: 'Fecha:',
+      attachmentLabel: 'Adjunto:',
+      emailSafeButton: '✓ Correo Seguro',
+      reportPhishingButton: '⚠️ Reportar Phishing',
+      showHeaderButton: 'Mostrar Encabezado',
+      hideHeaderButton: 'Ocultar Encabezado',
+      correctPhishing: '✓ ¡Correcto! Phishing identificado.',
+      correctSafe: '✓ ¡Correcto! Correo seguro identificado.',
+      errorPhishingWrong: '✗ ¡Error! Reportaste un correo legítimo como phishing.',
+      errorSafeWrong: '✗ ¡Error! ¡Ese era un correo de phishing!',
+      dangerText: '⚠️ ¡ADVERTENCIA! Hiciste clic en un enlace malicioso. ¡El sistema puede estar comprometido!',
+      dangerAttachment: '⚠️ ¡PELIGRO! Abriste un adjunto malicioso. ¡El sistema fue infectado!',
+      safeAttachment: '✓ Adjunto seguro abierto correctamente.',
+      safeAttachmentExpl: 'Este adjunto es seguro.'
+    }
   }
 };
