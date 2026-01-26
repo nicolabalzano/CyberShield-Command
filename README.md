@@ -26,8 +26,8 @@ The game combines **Tactical Puzzle** elements with **Real-time Defense** mechan
 5.  **Cache Poisoning**: Diagnose and fix cache vulnerabilities in reverse proxies.
 6.  **CSRF Protection**: Implement tokens and SameSite cookies to prevent request forgery.
 7.  **Reverse Engineering**: Decompile suspect binaries to find logic flaws and hardcoded credentials.
-8.  **Advanced Threats**: (Coming Soon)
-9.  **Strategic Defense**: (Coming Soon)
+8.  **Ransomware Analysis**: Reverse engineer a ransomware payload to discover the kill-switch and restore infected systems.
+9.  **Cryptography Defense**: Upgrade legacy DES encryption to AES-256 to secure internal communications against MITM attacks.
 
 ## 🛠️ Tech Stack
 
