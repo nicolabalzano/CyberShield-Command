@@ -15,7 +15,7 @@ export default defineConfig({
     ],
     proxy: {
       '/api': {
-        target: 'cybershield.mntcrl.it',
+        target: 'cybershield-api.mntcrl.it',
         changeOrigin: true,
         secure: false,
       }
