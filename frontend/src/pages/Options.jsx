@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useSave } from '../contexts/SaveContext';
 import { translations } from '../translations';
+import './Options.css';
 
 function Options() {
   const navigate = useNavigate();
@@ -36,9 +37,9 @@ function Options() {
         sfxVolume: sfxVolume,
       },
     };
-    
+
     const success = await save(updatedData);
-    
+
     if (success) {
       setShowSaveConfirm(true);
       setTimeout(() => setShowSaveConfirm(false), 2000);
@@ -46,73 +47,57 @@ function Options() {
   };
 
   return (
-    <div className="w-screen h-screen m-0 p-8 bg-gradient-to-br from-[#0a0e1a] to-[#0d1b2a] relative box-border overflow-y-auto">
-      <button 
+    <div className="options-container">
+      <button
         className="fixed top-6 left-6 px-6 py-3 text-lg font-bold text-cyan-400 border-2 border-cyan-400 bg-transparent rounded-lg hover:bg-cyan-400/20 hover:shadow-[0_0_20px_rgba(0,243,255,0.5)] transition-all duration-300 cursor-pointer"
         onClick={() => navigate('/')}
       >
         ← {t.back}
       </button>
 
-      <div className="flex flex-col items-center min-h-[calc(100vh-60px)] pt-10 animate-[fadeIn_0.8s_ease-in]">
+      <div className="flex flex-col items-center min-h-[calc(100vh-60px)] animate-[fadeIn_0.8s_ease-in]">
         <h1 className="text-6xl font-black tracking-[3px] text-cyan-400 mb-12 [text-shadow:0_0_20px_rgb(0,243,255),0_0_40px_rgba(0,243,255,0.5)]">
           {t.title}
         </h1>
 
-        <div className="flex gap-5 mb-10">
-          <button 
-            className={`px-8 py-3 text-lg font-bold tracking-wider border-2 rounded-lg transition-all duration-300 uppercase ${
-              activeSection === 'settings'
-                ? 'border-cyan-400 bg-cyan-400/20 text-cyan-400 shadow-[0_0_20px_rgba(0,243,255,0.5)]'
-                : 'border-gray-400 bg-transparent text-gray-400 hover:border-cyan-400 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,243,255,0.3)]'
-            }`}
+        <div className="options-tabs">
+          <button
+            className={`tab-btn ${activeSection === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveSection('settings')}
           >
             {t.settings}
           </button>
-          <button 
-            className={`px-8 py-3 text-lg font-bold tracking-wider border-2 rounded-lg transition-all duration-300 uppercase ${
-              activeSection === 'about'
-                ? 'border-cyan-400 bg-cyan-400/20 text-cyan-400 shadow-[0_0_20px_rgba(0,243,255,0.5)]'
-                : 'border-gray-400 bg-transparent text-gray-400 hover:border-cyan-400 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,243,255,0.3)]'
-            }`}
+          <button
+            className={`tab-btn ${activeSection === 'about' ? 'active' : ''}`}
             onClick={() => setActiveSection('about')}
           >
             {t.about}
           </button>
-          <button 
-            className={`px-8 py-3 text-lg font-bold tracking-wider border-2 rounded-lg transition-all duration-300 uppercase ${
-              activeSection === 'credits'
-                ? 'border-cyan-400 bg-cyan-400/20 text-cyan-400 shadow-[0_0_20px_rgba(0,243,255,0.5)]'
-                : 'border-gray-400 bg-transparent text-gray-400 hover:border-cyan-400 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,243,255,0.3)]'
-            }`}
+          <button
+            className={`tab-btn ${activeSection === 'credits' ? 'active' : ''}`}
             onClick={() => setActiveSection('credits')}
           >
             {t.credits}
           </button>
         </div>
 
-        <div className="w-full max-w-[800px] bg-[rgba(17,24,39,0.6)] border-2 border-cyan-400 rounded-xl p-10 shadow-[0_0_30px_rgba(0,243,255,0.3)]">
+        <div className="options-panel">
           {activeSection === 'settings' && (
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col">
               {/* Language Selection */}
               <div className="flex flex-col gap-5">
                 <h3 className="text-2xl font-bold text-[#00ff41] [text-shadow:0_0_10px_rgba(0,255,65,0.5)] m-0 tracking-wider">
                   {t.language}
                 </h3>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
+                <div className="language-grid">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-300 flex flex-col items-center gap-2 ${
-                        language === lang.code
-                          ? 'bg-[rgba(0,255,65,0.2)] border-[#00ff41] shadow-[0_0_20px_rgba(0,255,65,0.5)]'
-                          : 'bg-cyan-400/10 border-cyan-400 hover:bg-cyan-400/20 hover:shadow-[0_0_15px_rgba(0,243,255,0.4)] hover:-translate-y-1'
-                      }`}
+                      className={`language-btn ${language === lang.code ? 'active' : ''}`}
                       onClick={() => handleLanguageChange(lang.code)}
                     >
-                      <span className="text-3xl">{lang.flag}</span>
-                      <span className="text-base font-semibold tracking-wide text-gray-200">{lang.name}</span>
+                      <span className="flag">{lang.flag}</span>
+                      <span className="lang-name">{lang.name}</span>
                     </button>
                   ))}
                 </div>
@@ -123,7 +108,7 @@ function Options() {
                 <h3 className="text-2xl font-bold text-[#00ff41] [text-shadow:0_0_10px_rgba(0,255,65,0.5)] m-0 tracking-wider">
                   {t.audio}
                 </h3>
-                
+
                 {/* Music Volume */}
                 <div className="flex flex-col gap-3 w-full mb-6">
                   <label className="flex items-center justify-between text-lg text-gray-200 font-semibold gap-3">
@@ -139,9 +124,7 @@ function Options() {
                     max="100"
                     value={musicVolume}
                     onChange={(e) => setMusicVolume(parseInt(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-gray-700 outline-none cursor-pointer appearance-none
-                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cyan-400 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_15px_rgb(0,243,255)] [&::-webkit-slider-thumb]:hover:bg-[#00ff41] [&::-webkit-slider-thumb]:hover:shadow-[0_0_20px_rgb(0,255,65)] [&::-webkit-slider-thumb]:active:bg-[#00ff41]
-                      [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-cyan-400 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-[0_0_15px_rgb(0,243,255)] [&::-moz-range-thumb]:hover:bg-[#00ff41] [&::-moz-range-thumb]:hover:shadow-[0_0_20px_rgb(0,255,65)] [&::-moz-range-thumb]:active:bg-[#00ff41]"
+                    className="volume-slider"
                   />
                 </div>
 
@@ -160,17 +143,15 @@ function Options() {
                     max="100"
                     value={sfxVolume}
                     onChange={(e) => setSfxVolume(parseInt(e.target.value))}
-                    className="w-full h-2 rounded-lg bg-gray-700 outline-none cursor-pointer appearance-none
-                      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cyan-400 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_15px_rgb(0,243,255)] [&::-webkit-slider-thumb]:hover:bg-[#00ff41] [&::-webkit-slider-thumb]:hover:shadow-[0_0_20px_rgb(0,255,65)] [&::-webkit-slider-thumb]:active:bg-[#00ff41]
-                      [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-cyan-400 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-[0_0_15px_rgb(0,243,255)] [&::-moz-range-thumb]:hover:bg-[#00ff41] [&::-moz-range-thumb]:hover:shadow-[0_0_20px_rgb(0,255,65)] [&::-moz-range-thumb]:active:bg-[#00ff41]"
+                    className="volume-slider"
                   />
                 </div>
               </div>
 
               {/* Save Button */}
               <div className="flex flex-col gap-4 mt-8 text-center">
-                <button 
-                  className="px-10 py-4 text-xl font-bold tracking-wider border-2 border-cyan-400 bg-gradient-to-br from-cyan-400/10 to-cyan-400/20 text-cyan-400 rounded-lg transition-all duration-300 uppercase shadow-[0_0_10px_rgba(0,243,255,0.3)] hover:from-cyan-400/20 hover:to-cyan-400/30 hover:shadow-[0_0_20px_rgba(0,243,255,0.6)] hover:-translate-y-0.5 active:translate-y-0"
+                <button
+                  className="save-settings-btn"
                   onClick={handleSaveSettings}
                 >
                   💾 {t.saveSettings || 'Salva Impostazioni'}
@@ -227,37 +208,37 @@ function Options() {
                   <p className="my-1 text-[#00ff41] font-semibold">{t.creditsContent.magistrale}</p>
                 </div>
 
-                <div className="pb-5">
+                <div className="">
                   <h3 className="text-xl text-cyan-400 [text-shadow:0_0_10px_rgba(0,243,255,0.5)] mb-4 tracking-wider">{t.creditsContent.tech}</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mt-4">
                     {/* React */}
-                    <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/react.svg" alt="React" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                    <div className="flex flex-col items-center justify-center p-0 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/react.svg" alt="React" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">React</p>
                     </div>
                     {/* Vite */}
                     <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/vite.svg" alt="Vite" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/vite.svg" alt="Vite" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">Vite</p>
                     </div>
                     {/* Python */}
                     <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/python.svg" alt="Python" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/python.svg" alt="Python" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">Python</p>
                     </div>
                     {/* Flask */}
                     <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/flask.svg" alt="Flask" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/flask.svg" alt="Flask" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">Flask</p>
                     </div>
                     {/* Docker */}
                     <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/docker.svg" alt="Docker" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/docker.svg" alt="Docker" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">Docker</p>
                     </div>
                     {/* Tailwind */}
                     <div className="flex flex-col items-center justify-center p-4 bg-cyan-400/5 border border-cyan-400/30 rounded-lg hover:border-cyan-400 transition-all duration-300 group">
-                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tailwindcss.svg" alt="Tailwind" className="w-16 h-16 object-contain mb-2" style={{filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)'}} />
+                      <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tailwindcss.svg" alt="Tailwind" className="w-16 h-16 object-contain mb-2" style={{ filter: 'brightness(0) invert(1) sepia(1) hue-rotate(90deg) saturate(2) brightness(0.9)' }} />
                       <p className="text-sm font-semibold text-gray-300 group-hover:text-[#00ff41]">Tailwind</p>
                     </div>
                   </div>

@@ -14,7 +14,7 @@
   flex-direction: column;
   align-items: center;
   min-height: calc(100vh - 60px);
-  padding-top: 40px;
+  padding-top: 0;
   animation: fadeIn 0.8s ease-in;
 }
 
@@ -23,6 +23,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -34,8 +35,8 @@
   font-weight: 900;
   letter-spacing: 3px;
   color: var(--color-cyber-neon-blue);
-  text-shadow: 0 0 20px var(--color-cyber-neon-blue), 
-               0 0 40px rgba(0, 243, 255, 0.5);
+  text-shadow: 0 0 20px var(--color-cyber-neon-blue),
+    0 0 40px rgba(0, 243, 255, 0.5);
   margin: 0 0 50px 0;
 }
 
@@ -46,47 +47,59 @@
 }
 
 .tab-btn {
-  padding: 12px 30px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  border: 2px solid var(--color-cyber-text-secondary);
-  background: transparent;
+  padding: 12px 35px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-cyber-text-secondary);
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
   text-transform: uppercase;
+  backdrop-filter: blur(4px);
 }
 
 .tab-btn:hover {
+  background: rgba(0, 243, 255, 0.1);
   border-color: var(--color-cyber-neon-blue);
   color: var(--color-cyber-neon-blue);
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .tab-btn.active {
   border-color: var(--color-cyber-neon-blue);
-  background: rgba(0, 243, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.2) 0%, rgba(0, 243, 255, 0.05) 100%);
   color: var(--color-cyber-neon-blue);
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
 }
 
 .options-panel {
   width: 100%;
   max-width: 800px;
-  background: rgba(17, 24, 39, 0.6);
-  border: 2px solid var(--color-cyber-neon-blue);
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.options-panel:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* Settings Section */
 .settings-section {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 0px;
 }
 
 .setting-group {
@@ -107,45 +120,92 @@
 /* Language Selection */
 .language-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
 }
 
 .language-btn {
-  padding: 15px 20px;
-  background: rgba(0, 243, 255, 0.1);
-  border: 2px solid var(--color-cyber-neon-blue);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 243, 255, 0.1);
+  border-radius: 16px;
+  font-size: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
   color: var(--color-cyber-text-primary);
+  backdrop-filter: blur(4px);
 }
 
 .language-btn:hover {
-  background: rgba(0, 243, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
-  transform: translateY(-3px);
+  background: rgba(0, 243, 255, 0.1);
+  border-color: var(--color-cyber-neon-blue);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+  transform: translateY(-4px);
 }
 
 .language-btn.active {
-  background: rgba(0, 255, 65, 0.2);
+  background: rgba(0, 255, 65, 0.1);
   border-color: var(--color-cyber-green);
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
 }
 
 .flag {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
 }
 
 .lang-name {
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
+
+/* Volume Controls */
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.volume-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  color: var(--color-cyber-text-primary);
+  font-weight: 600;
+  gap: 10px;
+}
+
+.volume-icon {
+  font-size: 1.3rem;
+  color: var(--color-cyber-neon-blue);
+}
+
+.volume-value {
+  color: var(--color-cyber-neon-blue);
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+/* (Slider styles are next in file, handled in prev step) */
+
+/* ... skipping to Save Button ... */
+
+/* We need to define save-settings-btn since replace_file_content targets a range,
+   but the Save Button is further down (lines 360).
+   Actually, the provided EndLine 383 covers it if I start from 108.
+   Let's check file to ensure I don't overwrite too much or miss context.
+   Lines 108-148 cover language.
+   Lines 360-383 cover save button.
+   They are far apart. I should use multi_replace or two calls.
+   I'll use multi_replace to be safe and efficient.
+*/
 
 /* Volume Controls */
 .volume-control {
@@ -176,96 +236,81 @@
   text-align: right;
 }
 
+/* Modern Slider Styling */
 .volume-slider {
   -webkit-appearance: slider-horizontal;
-  -moz-appearance: slider-horizontal;
   appearance: slider-horizontal;
   width: 100%;
-  height: 8px;
-  border-radius: 5px;
-  background: var(--color-cyber-dark-gray);
+  height: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   outline: none;
   cursor: pointer;
   padding: 0;
   border: none;
-  display: block;
-  pointer-events: auto;
 }
 
-/* WebKit (Chrome, Safari, Edge) */
+/* WebKit */
 .volume-slider::-webkit-slider-runnable-track {
-  -webkit-appearance: none;
-  appearance: none;
   width: 100%;
-  height: 8px;
-  border-radius: 5px;
-  background: var(--color-cyber-dark-gray);
+  height: 6px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--color-cyber-neon-blue) 0%, rgba(255, 255, 255, 0.1) 0%);
+  /* Dynamic JS needed for gradient fill, but defaults ok */
   border: none;
 }
 
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: var(--color-cyber-neon-blue);
+  background: var(--color-cyber-black);
+  border: 2px solid var(--color-cyber-neon-blue);
   cursor: pointer;
-  box-shadow: 0 0 15px var(--color-cyber-neon-blue);
-  border: none;
-  position: relative;
-  z-index: 6;
-  pointer-events: auto;
-  -webkit-user-drag: element;
+  box-shadow: 0 0 10px var(--color-cyber-neon-blue);
+  margin-top: -6px;
+  /* Center thumb on 6px track */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .volume-slider::-webkit-slider-thumb:hover {
-  background: var(--color-cyber-green);
-  box-shadow: 0 0 20px var(--color-cyber-green);
-  transform: scale(1.2);
-}
-
-.volume-slider::-webkit-slider-thumb:active {
-  background: var(--color-cyber-green);
-  box-shadow: 0 0 25px var(--color-cyber-green);
+  transform: scale(1.1);
+  background: var(--color-cyber-neon-blue);
+  box-shadow: 0 0 20px var(--color-cyber-neon-blue);
 }
 
 /* Firefox */
 .volume-slider::-moz-range-track {
-  background: var(--color-cyber-dark-gray);
+  width: 100%;
+  height: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  border-radius: 5px;
-  height: 8px;
 }
 
 .volume-slider::-moz-range-progress {
   background: var(--color-cyber-neon-blue);
-  border-radius: 5px;
-  height: 8px;
+  border-radius: 10px;
+  height: 6px;
 }
 
 .volume-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--color-cyber-neon-blue);
+  background: var(--color-cyber-black);
+  border: 2px solid var(--color-cyber-neon-blue);
   cursor: pointer;
-  border: none;
-  box-shadow: 0 0 15px var(--color-cyber-neon-blue);
-  position: relative;
-  z-index: 6;
-  pointer-events: auto;
+  box-shadow: 0 0 10px var(--color-cyber-neon-blue);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .volume-slider::-moz-range-thumb:hover {
-  background: var(--color-cyber-green);
-  box-shadow: 0 0 20px var(--color-cyber-green);
-  transform: scale(1.2);
-}
-
-.volume-slider::-moz-range-thumb:active {
-  background: var(--color-cyber-green);
-  box-shadow: 0 0 25px var(--color-cyber-green);
+  transform: scale(1.1);
+  background: var(--color-cyber-neon-blue);
+  box-shadow: 0 0 20px var(--color-cyber-neon-blue);
 }
 
 /* Cross-browser focus state */
@@ -284,6 +329,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -358,28 +404,32 @@
 }
 
 .save-settings-btn {
-  padding: 15px 40px;
+  padding: 16px 50px;
   font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  border: 2px solid var(--color-cyber-neon-blue);
-  background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(0, 243, 255, 0.2));
+  font-weight: 800;
+  letter-spacing: 2px;
+  border: 1px solid var(--color-cyber-neon-blue);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.15) 0%, rgba(0, 243, 255, 0.05) 100%);
   color: var(--color-cyber-neon-blue);
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
   text-transform: uppercase;
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.05);
+  backdrop-filter: blur(4px);
+  position: relative;
+  overflow: hidden;
 }
 
 .save-settings-btn:hover {
-  background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(0, 243, 255, 0.3));
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(0, 243, 255, 0.25) 0%, rgba(0, 243, 255, 0.1) 100%);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.4), inset 0 0 20px rgba(0, 243, 255, 0.1);
+  transform: translateY(-3px);
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.8);
 }
 
 .save-settings-btn:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
 }
 
 .save-confirm {
@@ -396,6 +446,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

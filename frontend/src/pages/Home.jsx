@@ -38,7 +38,8 @@ function Home() {
       <div className="home-content">
         <h1 className="home-title">{t.title}</h1>
         <p className="home-subtitle">{t.subtitle}</p>
-        
+        <img src="/logo.png" alt="CyberShield Logo" className="home-logo" />
+
         <div className="home-buttons">
           {totalStars >= 1 && (
             <button className="home-btn continua-btn" onClick={handleContinueClick}>
@@ -52,6 +53,7 @@ function Home() {
             <span className="options-icon">⚙</span> {t.options}
           </button>
         </div>
+
       </div>
     </div>
   );
