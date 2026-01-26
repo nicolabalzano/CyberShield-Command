@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     host: true, // Needed for Docker
     allowedHosts: [
-      'bright-geese-happen.loca.lt'
+      'cybershield.mntcrl.it'
     ],
     proxy: {
       '/api': {
