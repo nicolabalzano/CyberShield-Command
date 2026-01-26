@@ -1039,7 +1039,7 @@ ${t.browser.dashboard.protections.title}
                         levelId="level6"
                         stats={{ stars }}
                         recapText={missionSuccess ?
-                            `CSRF DEFENSE ANALYSIS\n\n` +
+                            `${t.debrief.title}\n\n` +
                             `${t.browser.dashboard.protections.title}: ${Object.values(protectionsEnabled).filter(Boolean).length}/4\n` +
                             `${t.browser.dashboard.risk.unauthorized}: ${unauthorizedActions ? 'ACTIVE' : 'BLOCKED'}\n` +
                             `${t.browser.portal.account.balance}: $${accountBalance.toLocaleString()}\n` +

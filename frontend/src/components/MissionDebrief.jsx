@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReputationStars from './ReputationStars';
 import { useSave } from '../contexts/SaveContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 
 const MissionDebrief = ({
     success,
@@ -13,6 +15,8 @@ const MissionDebrief = ({
 }) => {
     const navigate = useNavigate();
     const { updateStars, getStars } = useSave();
+    const { language } = useLanguage();
+    const t = translations[language]?.debrief || translations['italiano'].debrief;
 
     // Salva il progresso quando il debrief viene mostrato (solo se vittoria)
     // Logica High Score: salva solo se il punteggio attuale migliora quello salvato
@@ -54,23 +58,23 @@ const MissionDebrief = ({
                         ${success ? 'text-green-500' : 'text-red-500'}
                         font-mono uppercase
                     `}>
-                        {success ? 'MISSION ACCOMPLISHED' : 'MISSION FAILED'}
+                        {success ? t.missionAccomplished : t.missionFailed}
                     </h1>
 
                     {/* Subtitle / Status */}
                     <h2 className="text-white/70 font-mono text-sm mb-4">
-                        {success ? 'SYSTEM SECURED & PATCHED' : 'CONNECTION TERMINATED'}
+                        {success ? t.systemSecured : t.connectionTerminated}
                     </h2>
 
                     {/* Stats (Win Only) */}
                     {success && (
                         <div className="flex gap-6 mb-4 bg-white/5 p-3 rounded-lg border border-white/10 text-sm">
                             <div className="flex flex-col items-center">
-                                <span className="text-xs text-gray-400 font-mono mb-1">REPUTATION</span>
+                                <span className="text-xs text-gray-400 font-mono mb-1">{t.reputation}</span>
                                 <ReputationStars stars={stats.stars} />
                             </div>
                             <div className="flex flex-col items-center">
-                                <span className="text-xs text-gray-400 font-mono mb-1">SYSTEM HEALTH</span>
+                                <span className="text-xs text-gray-400 font-mono mb-1">{t.systemHealth}</span>
                                 <div className="text-lg font-bold text-cyan-400">{stats.health}%</div>
                             </div>
                         </div>
@@ -81,8 +85,8 @@ const MissionDebrief = ({
                         <div className="w-full mb-4 px-4 py-3 bg-yellow-900/40 border border-yellow-700/50 rounded text-yellow-100 text-xs font-mono text-left flex items-start gap-3">
                             <span className="text-xl">💡</span>
                             <div>
-                                <span className="font-bold text-yellow-400 block mb-1">SECURITY TIP:</span>
-                                Per ottenere la massima sicurezza è "ottimale" completare tutte le azioni richieste e le mitigazioni avanzate.
+                                <span className="font-bold text-yellow-400 block mb-1">{t.securityTip}</span>
+                                {t.securityTipText}
                             </div>
                         </div>
                     )}
@@ -91,7 +95,7 @@ const MissionDebrief = ({
                     {recapText && (
                         <div className="w-full bg-black/40 border border-gray-700 p-4 rounded mb-4 text-left max-h-[120px] overflow-y-auto">
                             <h3 className="text-gray-400 text-xs font-mono uppercase tracking-wider mb-1">
-                                {success ? 'VULNERABILITY REPORT' : 'EVALUATION'}
+                                {success ? t.vulnerabilityReport : t.evaluation}
                             </h3>
                             <p className="text-gray-300 font-mono text-xs leading-relaxed whitespace-pre-line">
                                 {recapText}
@@ -106,7 +110,7 @@ const MissionDebrief = ({
                                 onClick={handleRetry}
                                 className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded font-mono transition-all border border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.6)]"
                             >
-                                RETRY LEVEL
+                                {t.retryLevel}
                             </button>
                         )}
 
@@ -121,7 +125,7 @@ const MissionDebrief = ({
                                 }
                             `}
                         >
-                            {success ? 'CONTINUE' : 'RETURN TO MAP'}
+                            {success ? t.continue : t.returnToMap}
                         </button>
                     </div>
                 </div>

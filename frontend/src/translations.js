@@ -1081,6 +1081,19 @@ if __name__ == "__main__":
         step4_attempt1: "SUGGERIMENTO: Prova a bloccare l'IP 192.168.1.100 con il comando \"block-ip 192.168.1.100\". Vediamo cosa succede!",
         step4_mistake: "Hai visto? Bloccare un IP sbagliato fa scendere la barra della vita! Ora blocca quello corretto: 203.0.113.42",
         step4_correct: "Il comando corretto è: \"block-ip 203.0.113.42\" - questo è l'IP malevolo che ha tentato l'SQL Injection."
+      },
+      debrief: {
+        title: "TUTORIAL COMPLETATO!",
+        welcome: "Benvenuto nel SOC!",
+        learned: "Hai imparato le basi:",
+        emailAnalysis: "Analisi Email",
+        siemReview: "Revisione log SIEM",
+        browserExplore: "Esplorazione Browser",
+        terminalUsage: "Uso del Terminale",
+        threatMitigation: "Mitigazione minaccia",
+        completionTime: "Tempo di completamento",
+        readyMsg: "Sei pronto per affrontare minacce reali. Buona fortuna!",
+        defaultHint: "Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere! Totalizza il maggior numero di stelle per diventare un analista SOC esperto!"
       }
     },
     // Level Map
@@ -1147,6 +1160,22 @@ if __name__ == "__main__":
         palette: "Palette Colori: Tema Cyber Personalizzato",
         copyright: "© 2026 CyberShield Command. Tutti i diritti riservati."
       }
+    },
+    // Mission Debrief - Common UI
+    debrief: {
+      missionAccomplished: "MISSIONE COMPIUTA",
+      missionFailed: "MISSIONE FALLITA",
+      systemSecured: "SISTEMA PROTETTO E CORRETTO",
+      connectionTerminated: "CONNESSIONE INTERROTTA",
+      reputation: "REPUTAZIONE",
+      systemHealth: "SALUTE SISTEMA",
+      securityTip: "CONSIGLIO DI SICUREZZA:",
+      securityTipText: "Per ottenere la massima sicurezza è \"ottimale\" completare tutte le azioni richieste e le mitigazioni avanzate.",
+      vulnerabilityReport: "REPORT DI VULNERABILITÀ",
+      evaluation: "VALUTAZIONE",
+      retryLevel: "RIPROVA LIVELLO",
+      continue: "CONTINUA",
+      returnToMap: "RITORNA ALLA MAPPA"
     }
   },
   english: {
@@ -2231,6 +2260,19 @@ if __name__ == "__main__":
         step4_attempt1: "TIP: Try blocking IP 192.168.1.100 with the command \"block-ip 192.168.1.100\". Let's see what happens!",
         step4_mistake: "Did you see? Blocking the wrong IP makes your health bar go down! Now block the correct one: 203.0.113.42",
         step4_correct: "The correct command is: \"block-ip 203.0.113.42\" - this is the malicious IP that attempted SQL Injection."
+      },
+      debrief: {
+        title: "TUTORIAL COMPLETED!",
+        welcome: "Welcome to the SOC!",
+        learned: "You learned the basics:",
+        emailAnalysis: "Email Analysis",
+        siemReview: "SIEM log Review",
+        browserExplore: "Browser Exploration",
+        terminalUsage: "Terminal Usage",
+        threatMitigation: "Threat Mitigation",
+        completionTime: "Completion time",
+        readyMsg: "You are ready to face real threats. Good luck!",
+        defaultHint: "Great job! You learned the complete SOC workflow. You're ready for real missions! Get the highest number of stars to become an expert SOC analyst!"
       }
     },
     // Level Map
@@ -2297,6 +2339,22 @@ if __name__ == "__main__":
         palette: "Color Palette: Custom Cyber Theme",
         copyright: "© 2026 CyberShield Command. All rights reserved."
       }
+    },
+    // Mission Debrief - Common UI
+    debrief: {
+      missionAccomplished: "MISSION ACCOMPLISHED",
+      missionFailed: "MISSION FAILED",
+      systemSecured: "SYSTEM SECURED & PATCHED",
+      connectionTerminated: "CONNECTION TERMINATED",
+      reputation: "REPUTATION",
+      systemHealth: "SYSTEM HEALTH",
+      securityTip: "SECURITY TIP:",
+      securityTipText: "To achieve maximum security, it's \"optimal\" to complete all required actions and advanced mitigations.",
+      vulnerabilityReport: "VULNERABILITY REPORT",
+      evaluation: "EVALUATION",
+      retryLevel: "RETRY LEVEL",
+      continue: "CONTINUE",
+      returnToMap: "RETURN TO MAP"
     }
   },
   francais: {
@@ -3381,6 +3439,19 @@ if __name__ == "__main__":
         step4_attempt1: "CONSEIL: Essayez de bloquer l'IP 192.168.1.100 avec la commande \"block-ip 192.168.1.100\". Voyons ce qui se passe!",
         step4_mistake: "Avez-vous vu? Bloquer une mauvaise IP fait baisser votre barre de vie! Maintenant bloquez la bonne: 203.0.113.42",
         step4_correct: "La commande correcte est: \"block-ip 203.0.113.42\" - c'est l'IP malveillante qui a tenté l'injection SQL."
+      },
+      debrief: {
+        title: "TUTORIEL TERMINÉ!",
+        welcome: "Bienvenue au SOC!",
+        learned: "Vous avez appris les bases:",
+        emailAnalysis: "Analyse Email",
+        siemReview: "Examen des logs SIEM",
+        browserExplore: "Exploration du Navigateur",
+        terminalUsage: "Utilisation du Terminal",
+        threatMitigation: "Atténuation des menaces",
+        completionTime: "Temps d'achèvement",
+        readyMsg: "Vous êtes prêt à affronter des menaces réelles. Bonne chance!",
+        defaultHint: "Excellent travail! Vous avez appris le flux de travail complet du SOC. Vous êtes prêt pour les vraies missions! Gagnez le plus d'étoiles pour devenir un analyste SOC expert!"
       }
     },
     // Level Map
@@ -3447,6 +3518,22 @@ if __name__ == "__main__":
         palette: "Palette de Couleurs: Thème Cyber Personnalisé",
         copyright: "© 2026 CyberShield Command. Tous droits réservés."
       }
+    },
+    // Mission Debrief - Common UI
+    debrief: {
+      missionAccomplished: "MISSION ACCOMPLIE",
+      missionFailed: "MISSION ÉCHOUÉE",
+      systemSecured: "SYSTÈME SÉCURISÉ ET CORRIGÉ",
+      connectionTerminated: "CONNEXION TERMINÉE",
+      reputation: "RÉPUTATION",
+      systemHealth: "SANTÉ SYSTÈME",
+      securityTip: "CONSEIL DE SÉCURITÉ:",
+      securityTipText: "Pour atteindre la sécurité maximale, il est \"optimal\" de terminer toutes les actions requises et les mitigations avancées.",
+      vulnerabilityReport: "RAPPORT DE VULNÉRABILITÉ",
+      evaluation: "ÉVALUATION",
+      retryLevel: "RÉESSAYER LE NIVEAU",
+      continue: "CONTINUER",
+      returnToMap: "RETOUR À LA CARTE"
     }
   },
   deutsch: {
@@ -4531,6 +4618,19 @@ if __name__ == "__main__":
         step4_attempt1: "TIPP: Versuchen Sie, die IP 192.168.1.100 mit dem Befehl \"block-ip 192.168.1.100\" zu blockieren. Schauen wir, was passiert!",
         step4_mistake: "Haben Sie gesehen? Das Blockieren der falschen IP lässt Ihre Gesundheitsleiste sinken! Blockieren Sie jetzt die richtige: 203.0.113.42",
         step4_correct: "Der richtige Befehl ist: \"block-ip 203.0.113.42\" - das ist die böse IP, die SQL-Injection versucht hat."
+      },
+      debrief: {
+        title: "TUTORIAL ABGESCHLOSSEN!",
+        welcome: "Willkommen beim SOC!",
+        learned: "Sie haben die Grundlagen gelernt:",
+        emailAnalysis: "E-Mail-Analyse",
+        siemReview: "SIEM-Log-Überprüfung",
+        browserExplore: "Browser-Erkundung",
+        terminalUsage: "Terminalnutzung",
+        threatMitigation: "Bedrohungsentschärfung",
+        completionTime: "Abschlusszeit",
+        readyMsg: "Sie sind bereit, echten Bedrohungen zu begegnen. Viel Erfolg!",
+        defaultHint: "Großartig! Sie haben den vollständigen SOC-Workflow gelernt. Sie sind bereit für echte Missionen! Verdienen Sie die meisten Sterne, um ein Experte-SOC-Analyst zu werden!"
       }
     },
     // Level Map
@@ -4597,6 +4697,22 @@ if __name__ == "__main__":
         palette: "Farbpalette: Benutzerdefiniertes Cyber-Thema",
         copyright: "© 2026 CyberShield Command. Alle Rechte vorbehalten."
       }
+    },
+    // Mission Debrief - Common UI
+    debrief: {
+      missionAccomplished: "MISSION ERFOLGREICH",
+      missionFailed: "MISSION FEHLGESCHLAGEN",
+      systemSecured: "SYSTEM GESICHERT UND GEPATCHT",
+      connectionTerminated: "VERBINDUNG BEENDET",
+      reputation: "RUHM",
+      systemHealth: "SYSTEMGESUNDHEIT",
+      securityTip: "SICHERHEITSTIPP:",
+      securityTipText: "Um maximale Sicherheit zu erreichen, ist es \"optimal\", alle erforderlichen Maßnahmen und erweiterten Minderungen durchzuführen.",
+      vulnerabilityReport: "SCHWACHSTELLENBERICHT",
+      evaluation: "BEWERTUNG",
+      retryLevel: "LEVEL WIEDERHOLEN",
+      continue: "FORTFAHREN",
+      returnToMap: "ZUR KARTE ZURÜCK"
     }
   },
   espanol: {
@@ -5681,6 +5797,19 @@ if __name__ == "__main__":
         step4_attempt1: "CONSEJO: Intenta bloquear la IP 192.168.1.100 con el comando \"block-ip 192.168.1.100\". ¡Veamos qué pasa!",
         step4_mistake: "¿Viste? ¡Bloquear la IP equivocada hace que tu barra de vida baje! Ahora bloquea la correcta: 203.0.113.42",
         step4_correct: "El comando correcto es: \"block-ip 203.0.113.42\" - esta es la IP maliciosa que intentó Inyección SQL."
+      },
+      debrief: {
+        title: "¡TUTORIAL COMPLETADO!",
+        welcome: "¡Bienvenido al SOC!",
+        learned: "Aprendiste lo básico:",
+        emailAnalysis: "Análisis de Correo",
+        siemReview: "Revisión de logs SIEM",
+        browserExplore: "Exploración del Navegador",
+        terminalUsage: "Uso de Terminal",
+        threatMitigation: "Mitigación de amenazas",
+        completionTime: "Tiempo de finalización",
+        readyMsg: "¡Estás listo para enfrentar amenazas reales. ¡Buena suerte!",
+        defaultHint: "¡Excelente trabajo! Aprendiste el flujo de trabajo completo del SOC. ¡Estás listo para las misiones reales! ¡Gana la mayoría de estrellas para convertirte en un analista SOC experto!"
       }
     },
     // Level Map
@@ -5747,6 +5876,21 @@ if __name__ == "__main__":
         palette: "Paleta de Colores: Tema Cibernético Personalizado",
         copyright: "© 2026 CyberShield Command. Todos los derechos reservados."
       }
-    }
+    },
+    // Mission Debrief - Common UI
+    debrief: {
+      missionAccomplished: "MISIÓN CUMPLIDA",
+      missionFailed: "MISIÓN FALLIDA",
+      systemSecured: "SISTEMA ASEGURADO Y PARCHEADO",
+      connectionTerminated: "CONEXIÓN TERMINADA",
+      reputation: "REPUTACIÓN",
+      systemHealth: "SALUD DEL SISTEMA",
+      securityTip: "CONSEJO DE SEGURIDAD:",
+      securityTipText: "Para lograr la máxima seguridad, es \"óptimo\" completar todas las acciones requeridas y las mitigaciones avanzadas.",
+      vulnerabilityReport: "INFORME DE VULNERABILIDAD",
+      evaluation: "EVALUACIÓN",
+      retryLevel: "REINTENTAR NIVEL",
+      continue: "CONTINUAR",
+      returnToMap: "VOLVER AL MAPA"    }
   }
 };
