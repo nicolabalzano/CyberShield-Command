@@ -1073,10 +1073,14 @@ if __name__ == "__main__":
       success: "COMPLETATO!",
       successMsg: "Hai completato il tutorial SIEM! Ritorno alla mappa...",
       hints: {
-        step1: "Un SIEM raccoglie e analizza log da tutti i sistemi. Cerca il log CRITICO in rosso lampeggiante!",
-        step2: "Hai identificato la minaccia! Ora clicca su 'ANALIZZA MINACCIA' per esaminarla in dettaglio.",
-        step3: "SQL Injection rilevato! Clicca su 'BLOCCA IP' per bloccare l'indirizzo IP dell'attaccante.",
-        step4: "Eccellente lavoro! Hai neutralizzato la minaccia e completato il tutorial SIEM! Clicca su PROSEGUI per continuare."
+        step0: "Inizia controllando le Email! Clicca sull'icona Email e leggi l'alert di sicurezza. È da lì che parte tutto!",
+        step1: "Ottimo! Ora guarda il SIEM Dashboard (pannello in basso). CLICCA sul log rosso CRITICAL per analizzarlo in dettaglio!",
+        step2: "Perfetto! Ora usa il Browser per cercare info. Visita \"SQL Injection Info\" per capire come funziona questo attacco.",
+        step3: "Bene! Apri il Terminal e digita \"show-logs\" per vedere tutti i log. Troverai l'IP sospetto!",
+        step4_attempt0: "Hai trovato diversi IP nei log! Prova a bloccare quello che ritieni sospetto. Digita \"help\" nel Terminal per vedere i comandi.",
+        step4_attempt1: "SUGGERIMENTO: Prova a bloccare l'IP 192.168.1.100 con il comando \"block-ip 192.168.1.100\". Vediamo cosa succede!",
+        step4_mistake: "Hai visto? Bloccare un IP sbagliato fa scendere la barra della vita! Ora blocca quello corretto: 203.0.113.42",
+        step4_correct: "Il comando corretto è: \"block-ip 203.0.113.42\" - questo è l'IP malevolo che ha tentato l'SQL Injection."
       }
     },
     // Level Map
@@ -2219,10 +2223,14 @@ if __name__ == "__main__":
       success: "COMPLETED!",
       successMsg: "You completed the SIEM tutorial! Returning to map...",
       hints: {
-        step1: "A SIEM collects and analyzes logs from all systems. Look for the CRITICAL log flashing in red!",
-        step2: "You identified the threat! Now click 'ANALYZE THREAT' to examine it in detail.",
-        step3: "SQL Injection detected! Click 'BLOCK IP' to block the attacker's IP address.",
-        step4: "Excellent work! You neutralized the threat and completed the SIEM tutorial! Click CONTINUE to proceed."
+        step0: "Start by checking your Email! Click the Email icon and read the security alert. That's where it all starts!",
+        step1: "Great! Now look at the SIEM Dashboard (panel below). CLICK on the red CRITICAL log to analyze it in detail!",
+        step2: "Perfect! Now use the Browser to search for info. Visit \"SQL Injection Info\" to understand how this attack works.",
+        step3: "Good! Open the Terminal and type \"show-logs\" to see all the logs. You'll find the suspicious IP!",
+        step4_attempt0: "You found multiple IPs in the logs! Try blocking the one you think is suspicious. Type \"help\" in the Terminal to see the commands.",
+        step4_attempt1: "TIP: Try blocking IP 192.168.1.100 with the command \"block-ip 192.168.1.100\". Let's see what happens!",
+        step4_mistake: "Did you see? Blocking the wrong IP makes your health bar go down! Now block the correct one: 203.0.113.42",
+        step4_correct: "The correct command is: \"block-ip 203.0.113.42\" - this is the malicious IP that attempted SQL Injection."
       }
     },
     // Level Map
@@ -2297,6 +2305,8 @@ if __name__ == "__main__":
       title: "CYBERSHIELD\nCOMMAND",
       subtitle: "Interface Avancée de Défense Cyber",
       play: "JOUER",
+      continua: "CONTINUER",
+      newGame: "NOUVEAU JEU",
       options: "OPTIONS"
     },
     // Level 1: Phishing
@@ -3363,10 +3373,14 @@ if __name__ == "__main__":
       success: "TERMINÉ!",
       successMsg: "Vous avez terminé le tutoriel SIEM! Retour à la carte...",
       hints: {
-        step1: "Un SIEM collecte et analyse les logs de tous les systèmes. Cherchez le log CRITIQUE en rouge clignotant!",
-        step2: "Vous avez identifié la menace! Cliquez maintenant sur 'ANALYSER LA MENACE' pour l'examiner en détail.",
-        step3: "Injection SQL détectée! Cliquez sur 'BLOQUER L'IP' pour bloquer l'adresse IP de l'attaquant.",
-        step4: "Excellent travail! Vous avez neutralisé la menace et terminé le tutoriel SIEM! Cliquez sur CONTINUER pour poursuivre."
+        step0: "Commencez par vérifier vos Emails! Cliquez sur l'icône Email et lisez l'alerte de sécurité. C'est là que tout commence!",
+        step1: "Bien! Regardez maintenant le Tableau de bord SIEM (panneau ci-dessous). CLIQUEZ sur le log CRITIQUE en rouge pour l'analyser en détail!",
+        step2: "Parfait! Utilisez maintenant le Navigateur pour rechercher des informations. Visitez \"SQL Injection Info\" pour comprendre comment cette attaque fonctionne.",
+        step3: "Bien! Ouvrez le Terminal et tapez \"show-logs\" pour voir tous les logs. Vous trouverez l'IP suspecte!",
+        step4_attempt0: "Vous avez trouvé plusieurs adresses IP dans les logs! Essayez de bloquer celle qui vous semble suspecte. Tapez \"help\" dans le Terminal pour voir les commandes.",
+        step4_attempt1: "CONSEIL: Essayez de bloquer l'IP 192.168.1.100 avec la commande \"block-ip 192.168.1.100\". Voyons ce qui se passe!",
+        step4_mistake: "Avez-vous vu? Bloquer une mauvaise IP fait baisser votre barre de vie! Maintenant bloquez la bonne: 203.0.113.42",
+        step4_correct: "La commande correcte est: \"block-ip 203.0.113.42\" - c'est l'IP malveillante qui a tenté l'injection SQL."
       }
     },
     // Level Map
@@ -3441,6 +3455,8 @@ if __name__ == "__main__":
       title: "CYBERSHIELD\nCOMMAND",
       subtitle: "Fortgeschrittene Cyber-Verteidigungsschnittstelle",
       play: "SPIELEN",
+      continua: "FORTFAHREN",
+      newGame: "NEUES SPIEL",
       options: "OPTIONEN"
     },
     // Level 1: Phishing
@@ -4507,10 +4523,14 @@ if __name__ == "__main__":
       success: "ABGESCHLOSSEN!",
       successMsg: "Sie haben das SIEM-Tutorial abgeschlossen! Zurück zur Karte...",
       hints: {
-        step1: "Ein SIEM sammelt und analysiert Logs von allen Systemen. Suchen Sie nach dem KRITISCHEN Log in blinkendem Rot!",
-        step2: "Sie haben die Bedrohung identifiziert! Klicken Sie jetzt auf 'BEDROHUNG ANALYSIEREN', um sie im Detail zu untersuchen.",
-        step3: "SQL-Injection erkannt! Klicken Sie auf 'IP BLOCKIEREN', um die IP-Adresse des Angreifers zu blockieren.",
-        step4: "Hervorragende Arbeit! Sie haben die Bedrohung neutralisiert und das SIEM-Tutorial abgeschlossen! Klicken Sie auf WEITER, um fortzufahren."
+        step0: "Beginnen Sie mit der Überprüfung Ihrer E-Mails! Klicken Sie auf das E-Mail-Symbol und lesen Sie die Sicherheitsmeldung. Das ist der Anfang!",
+        step1: "Gut! Schauen Sie sich jetzt das SIEM-Dashboard (Panel unten) an. KLICKEN Sie auf das rote KRITISCH-Log, um es im Detail zu analysieren!",
+        step2: "Perfekt! Verwenden Sie jetzt den Browser, um Informationen zu suchen. Besuchen Sie \"SQL Injection Info\", um zu verstehen, wie dieser Angriff funktioniert.",
+        step3: "Gut! Öffnen Sie das Terminal und geben Sie \"show-logs\" ein, um alle Logs zu sehen. Sie finden die verdächtige IP!",
+        step4_attempt0: "Sie haben mehrere IPs in den Logs gefunden! Versuchen Sie, diejenige zu blockieren, die Ihnen verdächtig erscheint. Geben Sie \"help\" im Terminal ein, um die Befehle zu sehen.",
+        step4_attempt1: "TIPP: Versuchen Sie, die IP 192.168.1.100 mit dem Befehl \"block-ip 192.168.1.100\" zu blockieren. Schauen wir, was passiert!",
+        step4_mistake: "Haben Sie gesehen? Das Blockieren der falschen IP lässt Ihre Gesundheitsleiste sinken! Blockieren Sie jetzt die richtige: 203.0.113.42",
+        step4_correct: "Der richtige Befehl ist: \"block-ip 203.0.113.42\" - das ist die böse IP, die SQL-Injection versucht hat."
       }
     },
     // Level Map
@@ -4585,6 +4605,8 @@ if __name__ == "__main__":
       title: "CYBERSHIELD\nCOMMAND",
       subtitle: "Interfaz Avanzada de Defensa Cibernética",
       play: "JUGAR",
+      continua: "CONTINUAR",
+      newGame: "NUEVO JUEGO",
       options: "OPCIONES"
     },
     // Level 1: Phishing
@@ -5651,10 +5673,14 @@ if __name__ == "__main__":
       success: "¡COMPLETADO!",
       successMsg: "¡Has completado el tutorial SIEM! Volviendo al mapa...",
       hints: {
-        step1: "Un SIEM recopila y analiza logs de todos los sistemas. ¡Busca el log CRÍTICO en rojo parpadeante!",
-        step2: "¡Has identificado la amenaza! Ahora haz clic en 'ANALIZAR AMENAZA' para examinarla en detalle.",
-        step3: "¡Inyección SQL detectada! Haz clic en 'BLOQUEAR IP' para bloquear la dirección IP del atacante.",
-        step4: "¡Excelente trabajo! Has neutralizado la amenaza y completado el tutorial SIEM! Haz clic en CONTINUAR para proceder."
+        step0: "¡Empieza revisando tu Correo! Haz clic en el icono de Correo y lee la alerta de seguridad. ¡Ahí es donde todo comienza!",
+        step1: "¡Bien! Ahora mira el Panel SIEM (panel inferior). ¡HAZ CLIC en el log rojo CRÍTICO para analizarlo en detalle!",
+        step2: "¡Perfecto! Ahora usa el Navegador para buscar información. Visita \"SQL Injection Info\" para entender cómo funciona este ataque.",
+        step3: "¡Bien! Abre la Terminal y escribe \"show-logs\" para ver todos los logs. ¡Encontrarás la IP sospechosa!",
+        step4_attempt0: "¡Encontraste múltiples IPs en los logs! Intenta bloquear la que creas que es sospechosa. Escribe \"help\" en la Terminal para ver los comandos.",
+        step4_attempt1: "CONSEJO: Intenta bloquear la IP 192.168.1.100 con el comando \"block-ip 192.168.1.100\". ¡Veamos qué pasa!",
+        step4_mistake: "¿Viste? ¡Bloquear la IP equivocada hace que tu barra de vida baje! Ahora bloquea la correcta: 203.0.113.42",
+        step4_correct: "El comando correcto es: \"block-ip 203.0.113.42\" - esta es la IP maliciosa que intentó Inyección SQL."
       }
     },
     // Level Map

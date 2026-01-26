@@ -369,26 +369,26 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
     const getHintText = () => {
         switch (currentStep) {
             case 0:
-                return 'Inizia controllando le Email! Clicca sull\'icona Email e leggi l\'alert di sicurezza. È da lì che parte tutto!';
+                return t.hints.step0;
             case 1:
-                return 'Ottimo! Ora guarda il SIEM Dashboard (pannello in basso). CLICCA sul log rosso CRITICAL per analizzarlo in dettaglio!';
+                return t.hints.step1;
             case 2:
-                return 'Perfetto! Ora usa il Browser per cercare info. Visita "SQL Injection Info" per capire come funziona questo attacco.';
+                return t.hints.step2;
             case 3:
-                return 'Bene! Apri il Terminal e digita "show-logs" per vedere tutti i log. Troverai l\'IP sospetto!';
+                return t.hints.step3;
             case 4: {
                 if (!madeWrongBlockAttempt) {
                     // Before they make a mistake - invite them to try blocking an IP
                     const hints = [
-                        'Hai trovato diversi IP nei log! Prova a bloccare quello che ritieni sospetto. Digita "help" nel Terminal per vedere i comandi.',
-                        'SUGGERIMENTO: Prova a bloccare l\'IP 192.168.1.100 con il comando "block-ip 192.168.1.100". Vediamo cosa succede!',
+                        t.hints.step4_attempt0,
+                        t.hints.step4_attempt1,
                     ];
                     return hints[Math.min(hintIndex, hints.length - 1)];
                 } else {
                     // After they made a mistake - now guide them to the correct IP
                     const hints = [
-                        'Hai visto? Bloccare un IP sbagliato fa scendere la barra della vita! Ora blocca quello corretto: 203.0.113.42',
-                        'Il comando corretto è: "block-ip 203.0.113.42" - questo è l\'IP malevolo che ha tentato l\'SQL Injection.',
+                        t.hints.step4_mistake,
+                        t.hints.step4_correct,
                     ];
                     return hints[Math.min(hintIndex, hints.length - 1)];
                 }

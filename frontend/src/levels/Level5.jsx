@@ -334,7 +334,7 @@ const Level5 = () => {
                             <div className="bg-red-600 text-white px-4 py-2 mb-4 animate-pulse">
                                 {t.browser.site.alert}
                             </div>
-                            <h1 className="text-3xl font-bold mb-4">{t.browser.site.title}</h1>
+                            <h1 className="text-3xl font-bold mb-4 text-gray-800">{t.browser.site.title}</h1>
                             <div className="bg-red-100 border-l-4 border-red-500 p-4 mb-4">
                                 <p className="font-mono text-sm text-red-800">
                                     &lt;script&gt;alert('Cache Poisoned!')&lt;/script&gt;
@@ -344,7 +344,7 @@ const Level5 = () => {
                                 </p>
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow mt-4">
-                                <h3 className="font-semibold mb-2">{t.browser.site.headers}</h3>
+                                <h3 className="font-semibold mb-2 text-gray-800">{t.browser.site.headers}</h3>
                                 <div className="font-mono text-xs space-y-1 text-gray-700">
                                     {Object.entries(cacheEntries['/']?.headers || POISONED_HEADERS).map(([key, value]) => (
                                         <div key={key}>
@@ -374,7 +374,7 @@ const Level5 = () => {
                                 </p>
                             </div>
                             <div className="bg-white rounded-lg p-4 shadow border">
-                                <h3 className="font-semibold mb-2">{t.browser.site.headers}</h3>
+                                <h3 className="font-semibold mb-2 text-gray-800">{t.browser.site.headers}</h3>
                                 <div className="font-mono text-xs space-y-1 text-gray-700">
                                     {Object.entries(SAFE_HEADERS).map(([key, value]) => (
                                         <div key={key}>
