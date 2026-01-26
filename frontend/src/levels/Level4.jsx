@@ -926,13 +926,16 @@ ${t.terminal.status.protections}
             siemConfig={siemConfig}
             onValidation={() => { }} // No external validation needed
             hint={visibleHint ? <InfoPanel text={visibleHint} /> : null}
-            timer={<Timer seconds={secondsRemaining} total={MAX_TIME} />}
         >
             <HealthMonitor
                 completed={completed}
                 onGameOver={handleGameOver}
                 healthSetterRef={healthSetterRef}
             />
+            {/* TIMER */}
+            <div className="absolute top-[22%] left-[16.5%] z-[100] pointer-events-none transform scale-90">
+                <Timer secondsRemaining={secondsRemaining} />
+            </div>
         </LevelTemplate>
     );
 };
