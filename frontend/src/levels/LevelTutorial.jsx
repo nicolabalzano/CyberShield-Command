@@ -394,7 +394,7 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                 }
             }
             default:
-                return 'Ottimo lavoro! Hai imparato il workflow completo del SOC. Sei pronto per le missioni vere! Totalizza il maggior numero di stelle per diventare un analista SOC esperto!';
+                return t.debrief.defaultHint;
         }
     };
 
@@ -418,16 +418,16 @@ ${threatBlocked ? '✓ All systems operational' : '⚠️ Action required: Block
                         success={true}
                         levelId="tutorial"
                         stats={{ stars, health }}
-                        recapText={`TUTORIAL COMPLETATO!\n\n` +
-                            `Benvenuto nel SOC!\n\n` +
-                            `Hai imparato le basi:\n` +
-                            `- Analisi Email: ${emailRead ? '✓' : '✗'}\n` +
-                            `- Revisione log SIEM: ${siemLogClicked ? '✓' : '✗'}\n` +
-                            `- Esplorazione Browser: ${browserVisited ? '✓' : '✗'}\n` +
-                            `- Uso del Terminal: ${commandUsed ? '✓' : '✗'}\n` +
-                            `- Mitigazione minaccia: ${threatBlocked ? '✓' : '✗'}\n\n` +
-                            `Tempo di completamento: ${completionTime}s\n\n` +
-                            `Sei pronto per affrontare minacce reali. Buona fortuna!`}
+                        recapText={`${t.debrief.title}\n\n` +
+                            `${t.debrief.welcome}\n\n` +
+                            `${t.debrief.learned}\n` +
+                            `- ${t.debrief.emailAnalysis}: ${emailRead ? '✓' : '✗'}\n` +
+                            `- ${t.debrief.siemReview}: ${siemLogClicked ? '✓' : '✗'}\n` +
+                            `- ${t.debrief.browserExplore}: ${browserVisited ? '✓' : '✗'}\n` +
+                            `- ${t.debrief.terminalUsage}: ${commandUsed ? '✓' : '✗'}\n` +
+                            `- ${t.debrief.threatMitigation}: ${threatBlocked ? '✓' : '✗'}\n\n` +
+                            `${t.debrief.completionTime}: ${completionTime}s\n\n` +
+                            `${t.debrief.readyMsg}`}
                         onExit={() => navigate('/map')}
                     />
                 )}
